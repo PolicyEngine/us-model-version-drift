@@ -23,10 +23,28 @@ def load(directory: Path, name: str) -> dict:
     return json.loads((directory / name).read_text())
 
 
-def panel_rows(baseline: dict, tested: dict) -> list[dict]:
-    index = {(r["period"], r["id"]): r for r in tested["rows"]}
+def load_panel(directory: Path) -> list[dict]:
+    rows: list[dict] = []
+    for path in sorted(directory.glob("panel-*.json")):
+        rows.extend(json.loads(path.read_text())["rows"])
+    if not rows:
+        raise SystemExit(f"no panel-<period>.json in {directory}")
+    return rows
+
+
+def load_wic(directory: Path) -> dict:
+    out: dict = {}
+    for name in ("wic-loaded.json", "wic-stored.json"):
+        path = directory / name
+        if path.exists():
+            out.update(json.loads(path.read_text()))
+    return out
+
+
+def panel_rows(baseline: list[dict], tested: list[dict]) -> list[dict]:
+    index = {(r["period"], r["id"]): r for r in tested}
     rows = []
-    for row in baseline["rows"]:
+    for row in baseline:
         other = index.get((row["period"], row["id"]), {})
         out = {
             "period": row["period"],
@@ -175,9 +193,9 @@ def main() -> int:
     base_env, test_env = load(args.baseline, "environment.json"), load(args.tested, "environment.json")
     if base_env["dataset"]["sha256"] != test_env["dataset"]["sha256"]:
         raise SystemExit("the two runs measured different dataset bytes")
-    rows = panel_rows(load(args.baseline, "panel.json"), load(args.tested, "panel.json"))
+    rows = panel_rows(load_panel(args.baseline), load_panel(args.tested))
     contract = contract_diff(load(args.baseline, "contract.json"), load(args.tested, "contract.json"))
-    wic = {"baseline": load(args.baseline, "wic.json"), "tested": load(args.tested, "wic.json")}
+    wic = {"baseline": load_wic(args.baseline), "tested": load_wic(args.tested)}
 
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "comparison.json").write_text(

@@ -108,10 +108,11 @@ def write_run(directory, label, value, unknown):
     directory.mkdir()
     (directory / "environment.json").write_text(json.dumps(environment(label)))
     (directory / "contract.json").write_text(json.dumps(contract(unknown)))
-    (directory / "panel.json").write_text(
+    (directory / "panel-2024.json").write_text(
         json.dumps({"rows": [{"period": 2024, "id": "x_total", "variable": "x", "kind": "sum", "value": value, "error": None}]})
     )
-    (directory / "wic.json").write_text(json.dumps({"wic_as_loaded": value, "would_claim_wic_is_a_variable": False}))
+    (directory / "wic-loaded.json").write_text(json.dumps({"wic_as_loaded": value, "would_claim_wic_is_a_variable": False}))
+    (directory / "wic-stored.json").write_text(json.dumps({"wic_with_stored_draw": value / 2}))
 
 
 def test_compare_end_to_end(tmp_path):
@@ -130,4 +131,5 @@ def test_compare_end_to_end(tmp_path):
     assert row["relative_difference"] == pytest.approx(0.10)
     assert result["contract"]["not_a_variable_only_in_tested"] == ["removed_column"]
     assert result["contract"]["not_a_variable_in_both"] == ["old_name"]
+    assert result["wic"]["tested"]["wic_with_stored_draw"] == pytest.approx(55.0)
     assert "removed_column" in (out / "comparison.md").read_text()

@@ -1,15 +1,18 @@
 """Measure one installed policyengine-us release on the default US dataset.
 
 Run it inside an environment that holds exactly one policyengine-us release.
-It writes four JSON files into ``--out``:
+Each call measures one part, so memory stays bounded (a first run that held
+two periods in one process exhausted a 16 GB runner). The parts write into
+``--out``:
 
-- ``environment.json``: package versions, interpreter, and the dataset's
-  identity (the file's SHA-256 as downloaded here).
-- ``contract.json``: every column the dataset stores, classified against the
-  variables this release defines.
-- ``panel.json``: weighted totals for a fixed panel of programmes.
-- ``wic.json``: WIC as the release loads the dataset, and again with the
-  dataset's stored take-up draw applied to the release's take-up input.
+- ``contract``: ``environment.json`` (package versions, interpreter, the
+  dataset's identity) and ``contract.json`` (every column the dataset stores,
+  classified against the variables this release defines).
+- ``panel``: ``panel-<period>.json``, weighted totals for a fixed panel of
+  programmes in one year.
+- ``wic_loaded``: ``wic-loaded.json``, WIC as the release loads the dataset.
+- ``wic_stored``: ``wic-stored.json``, WIC with the dataset's stored take-up
+  draw applied to the release's take-up input.
 
 Every figure comes from ``policyengine_us.Microsimulation()`` on the release's
 own default dataset. Nothing is imputed or approximated here.
@@ -18,7 +21,6 @@ own default dataset. Nothing is imputed or approximated here.
 from __future__ import annotations
 
 import argparse
-import gc
 import hashlib
 import importlib.metadata as metadata
 import json
@@ -229,24 +231,23 @@ def weighted(sim, variable: str, period, kind: str) -> float:
     raise ValueError(kind)
 
 
-def measure_panel(sim) -> dict:
+def measure_panel(sim, period: int) -> dict:
     defined = set(sim.tax_benefit_system.variables)
     rows = []
-    for period in PERIODS:
-        for metric_id, variable, kind in PANEL:
-            row = {"period": period, "id": metric_id, "variable": variable, "kind": kind}
-            started = time.time()
-            if variable not in defined:
-                row.update(value=None, error="variable not defined in this release")
-            else:
-                try:
-                    row.update(value=weighted(sim, variable, period, kind), error=None)
-                except Exception as exc:  # record, keep measuring
-                    row.update(value=None, error=f"{type(exc).__name__}: {str(exc)[:400]}")
-            row["seconds"] = round(time.time() - started, 1)
-            print(json.dumps(row), flush=True)
-            rows.append(row)
-    return {"periods": list(PERIODS), "rows": rows}
+    for metric_id, variable, kind in PANEL:
+        row = {"period": period, "id": metric_id, "variable": variable, "kind": kind}
+        started = time.time()
+        if variable not in defined:
+            row.update(value=None, error="variable not defined in this release")
+        else:
+            try:
+                row.update(value=weighted(sim, variable, period, kind), error=None)
+            except Exception as exc:  # record, keep measuring
+                row.update(value=None, error=f"{type(exc).__name__}: {str(exc)[:400]}")
+        row["seconds"] = round(time.time() - started, 1)
+        print(json.dumps(row), flush=True)
+        rows.append(row)
+    return {"period": period, "rows": rows}
 
 
 def measure_wic_as_loaded(sim, dataset: Path) -> dict:
@@ -312,61 +313,70 @@ def write(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
 
 
+PARTS = ("contract", "panel", "wic_loaded", "wic_stored")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--label", required=True, help="name of this environment, for example pinned or head")
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument(
+        "--part",
+        required=True,
+        choices=PARTS,
+        help="what to measure in this process; one part per process keeps memory bounded",
+    )
+    parser.add_argument("--period", type=int, choices=PERIODS, help="the year, for --part panel")
     args = parser.parse_args()
+    if args.part == "panel" and args.period is None:
+        parser.error("--part panel needs --period")
     args.out.mkdir(parents=True, exist_ok=True)
 
     started = time.time()
     dataset = fetch_dataset()
-    columns = stored_columns(dataset)
 
-    import policyengine_us.system as system
+    if args.part == "contract":
+        import policyengine_us.system as system
 
-    environment = {
-        "label": args.label,
-        "packages": package_versions(),
-        "python": sys.version.split()[0],
-        "platform": platform.platform(),
-        "dataset": {
-            "repo": DATASET_REPO,
-            "file": DATASET_FILE,
-            "revision": DATASET_REVISION,
-            "sha256": DATASET_SHA256,
-            "bytes": dataset.stat().st_size,
-        },
-        "release_default_dataset": getattr(system, "DEFAULT_DATASET", None),
-        "release_default_dataset_sha256": getattr(system, "DEFAULT_DATASET_SHA256", None),
-    }
-    write(args.out / "environment.json", environment)
-    print(json.dumps(environment, indent=2), flush=True)
-
-    captured = Captured()
-    sim = build_simulation(captured)
-    write(args.out / "contract.json", measure_contract(sim, columns, captured.messages))
-    print("contract written", flush=True)
-
-    write(args.out / "panel.json", measure_panel(sim))
-    print("panel written", flush=True)
-
-    try:
-        wic = measure_wic_as_loaded(sim, dataset)
-    except Exception as exc:
-        wic = {"error": f"{type(exc).__name__}: {str(exc)[:600]}", "traceback": traceback.format_exc()[-2000:]}
-    del sim
-    gc.collect()
-    try:
-        wic.update(measure_wic_with_stored_draw(dataset))
-    except Exception as exc:
-        wic["stored_draw_error"] = f"{type(exc).__name__}: {str(exc)[:600]}"
-        wic["stored_draw_traceback"] = traceback.format_exc()[-2000:]
-    write(args.out / "wic.json", wic)
-    print(json.dumps(wic, indent=2), flush=True)
-
-    environment["seconds"] = round(time.time() - started, 1)
-    write(args.out / "environment.json", environment)
+        environment = {
+            "label": args.label,
+            "packages": package_versions(),
+            "python": sys.version.split()[0],
+            "platform": platform.platform(),
+            "dataset": {
+                "repo": DATASET_REPO,
+                "file": DATASET_FILE,
+                "revision": DATASET_REVISION,
+                "sha256": DATASET_SHA256,
+                "bytes": dataset.stat().st_size,
+            },
+            "release_default_dataset": getattr(system, "DEFAULT_DATASET", None),
+            "release_default_dataset_sha256": getattr(system, "DEFAULT_DATASET_SHA256", None),
+        }
+        write(args.out / "environment.json", environment)
+        print(json.dumps(environment, indent=2), flush=True)
+        captured = Captured()
+        sim = build_simulation(captured)
+        write(args.out / "contract.json", measure_contract(sim, stored_columns(dataset), captured.messages))
+    elif args.part == "panel":
+        payload = measure_panel(build_simulation(), args.period)
+        payload["seconds"] = round(time.time() - started, 1)
+        write(args.out / f"panel-{args.period}.json", payload)
+    elif args.part == "wic_loaded":
+        payload = measure_wic_as_loaded(build_simulation(), dataset)
+        write(args.out / "wic-loaded.json", payload)
+        print(json.dumps(payload, indent=2), flush=True)
+    else:
+        try:
+            payload = measure_wic_with_stored_draw(dataset)
+        except Exception as exc:
+            payload = {
+                "stored_draw_error": f"{type(exc).__name__}: {str(exc)[:600]}",
+                "stored_draw_traceback": traceback.format_exc()[-2000:],
+            }
+        write(args.out / "wic-stored.json", payload)
+        print(json.dumps(payload, indent=2), flush=True)
+    print(f"{args.part} done in {round(time.time() - started, 1)} s", flush=True)
     return 0
 
 
