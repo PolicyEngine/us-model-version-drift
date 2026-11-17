@@ -1,0 +1,5 @@
+# The newest policyengine-us on PyPI on 2026-11-17 (uploaded 10:57 UTC), with
+# the newest policyengine-core that day.
+policyengine-us==2.144.4
+policyengine-core==3.36.1
+tables

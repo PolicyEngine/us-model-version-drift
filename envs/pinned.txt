@@ -1,0 +1,5 @@
+# The model line the policyengine 6.20.2 bundle pins for the United States.
+policyengine-us==2.2.2
+policyengine-core==3.34.10
+spm-calculator==1.1.0
+tables
