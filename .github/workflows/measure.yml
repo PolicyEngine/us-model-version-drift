@@ -1,13 +1,10 @@
 name: Measure
 
+# Run by hand. A run takes about 50 minutes, and every push to a pull request
+# would start one. tests/test_results.py fails when the measurement code no
+# longer matches the committed results, which is the signal to run this.
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - scripts/**
-      - envs/**
-      - tests/**
-      - .github/workflows/measure.yml
 
 permissions:
   contents: read
@@ -17,20 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Rules tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v6
-      - uses: astral-sh/setup-uv@v8.1.0
-        with:
-          version: "0.13.4"
-      - run: uv run --no-project --python 3.13 --with pytest --with hypothesis pytest tests -q
-
   measure:
     name: Measure (${{ matrix.env }})
-    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 150
     strategy:

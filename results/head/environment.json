@@ -1,0 +1,25 @@
+{
+  "dataset": {
+    "bytes": 826917837,
+    "file": "populace_us_2024.h5",
+    "repo": "policyengine/populace-us",
+    "revision": "populace-us-2024-spm-20260915",
+    "sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84"
+  },
+  "label": "head",
+  "packages": {
+    "h5py": "3.16.0",
+    "huggingface-hub": "2.4.0",
+    "microdf-python": "1.5.12",
+    "numpy": "2.5.5",
+    "pandas": "3.1.1",
+    "policyengine-core": "3.36.1",
+    "policyengine-us": "2.144.4",
+    "spm-calculator": "1.1.0",
+    "tables": "3.11.1"
+  },
+  "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+  "python": "3.13.16",
+  "release_default_dataset": "hf://datasets/policyengine/populace-us/populace_us_2024.h5@populace-us-2024-spm-20260909",
+  "release_default_dataset_sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84"
+}

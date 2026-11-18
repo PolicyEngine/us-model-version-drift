@@ -69,6 +69,8 @@ def contract_diff(baseline: dict, tested: dict) -> dict:
         "not_a_variable_in_both": sorted(base_unknown & test_unknown),
         "not_a_variable_only_in_baseline": sorted(base_unknown - test_unknown),
         "not_a_variable_only_in_tested": sorted(test_unknown - base_unknown),
+        "baseline_columns_not_variables": baseline["counts"]["not_a_variable"] + baseline["counts"]["raw_field"],
+        "tested_columns_not_variables": tested["counts"]["not_a_variable"] + tested["counts"]["raw_field"],
         "computed_and_stored_baseline": baseline["computed_variable"],
         "computed_and_stored_tested": tested["computed_variable"],
         "tested_required_source_inputs_missing": tested.get("required_source_inputs_missing"),
@@ -90,7 +92,19 @@ def percent(value: float | None) -> str:
     return "n/a" if value is None else f"{value * 100:+.2f}%"
 
 
-def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, wic: dict) -> str:
+def wic_gaps(wic: dict) -> dict:
+    """WIC as loaded against WIC with the stored draw applied, per side."""
+    return {
+        side: compare_values(values.get("wic_with_stored_draw"), values.get("wic_as_loaded"))
+        for side, values in wic.items()
+    }
+
+
+def names(columns: list[str]) -> str:
+    return ", ".join(f"`{c}`" for c in columns) or "none"
+
+
+def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, wic: dict, gaps: dict) -> str:
     def versions(env: dict) -> str:
         p = env["packages"]
         return (
@@ -125,6 +139,14 @@ def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, w
         "",
         f"Model-named columns neither defines ({len(contract['not_a_variable_in_both'])}): "
         + (", ".join(f"`{c}`" for c in contract["not_a_variable_in_both"]) or "none"),
+        "",
+        "Stored columns that are not variables of the release, raw fields included: "
+        f"{contract['baseline_columns_not_variables']} (baseline), {contract['tested_columns_not_variables']} (tested).",
+        "",
+        "Stored columns the release computes (it has a formula for the variable, or adds or subtracts others):",
+        "",
+        f"- Baseline ({len(contract['computed_and_stored_baseline'])}): {names(contract['computed_and_stored_baseline'])}",
+        f"- Tested ({len(contract['computed_and_stored_tested'])}): {names(contract['computed_and_stored_tested'])}",
         "",
     ]
     for label, key in (("Tested", "tested"), ("Baseline", "baseline")):
@@ -161,6 +183,16 @@ def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, w
             else:
                 cells.append(money(value, "sum"))
         lines.append(f"| {label} | {cells[0]} | {cells[1]} |")
+    lines.append(
+        "| As loaded minus stored draw | "
+        + " | ".join(money(gaps[side]["difference"], "sum") for side in ("baseline", "tested"))
+        + " |"
+    )
+    lines.append(
+        "| As loaded, relative to stored draw | "
+        + " | ".join(percent(gaps[side]["relative_difference"]) for side in ("baseline", "tested"))
+        + " |"
+    )
     lines.append("")
     for period in sorted({r["period"] for r in rows}):
         lines += [
@@ -196,11 +228,19 @@ def main() -> int:
     rows = panel_rows(load_panel(args.baseline), load_panel(args.tested))
     contract = contract_diff(load(args.baseline, "contract.json"), load(args.tested, "contract.json"))
     wic = {"baseline": load_wic(args.baseline), "tested": load_wic(args.tested)}
+    gaps = wic_gaps(wic)
 
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "comparison.json").write_text(
         json.dumps(
-            {"baseline": base_env, "tested": test_env, "panel": rows, "contract": contract, "wic": wic},
+            {
+                "baseline": base_env,
+                "tested": test_env,
+                "panel": rows,
+                "contract": contract,
+                "wic": wic,
+                "wic_as_loaded_against_stored_draw": gaps,
+            },
             indent=2,
             sort_keys=True,
         )
@@ -210,7 +250,7 @@ def main() -> int:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
-    text = markdown(base_env, test_env, rows, contract, wic)
+    text = markdown(base_env, test_env, rows, contract, wic, gaps)
     (args.out / "comparison.md").write_text(text + "\n")
     print(text)
     return 0

@@ -1,0 +1,186 @@
+{
+  "period": 2024,
+  "rows": [
+    {
+      "error": null,
+      "id": "income_tax_net",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 132.4,
+      "value": 2262598213311.9766,
+      "variable": "income_tax"
+    },
+    {
+      "error": null,
+      "id": "ctc_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 147539080851.74878,
+      "variable": "ctc"
+    },
+    {
+      "error": null,
+      "id": "eitc_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 66612637956.19162,
+      "variable": "eitc"
+    },
+    {
+      "error": null,
+      "id": "social_security_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 1464840941025.9067,
+      "variable": "social_security"
+    },
+    {
+      "error": null,
+      "id": "snap_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 6.7,
+      "value": 101948658856.76624,
+      "variable": "snap"
+    },
+    {
+      "error": null,
+      "id": "snap_units",
+      "kind": "count_positive",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 23408655.251528144,
+      "variable": "snap"
+    },
+    {
+      "error": null,
+      "id": "ssi_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 56097079462.83588,
+      "variable": "ssi"
+    },
+    {
+      "error": null,
+      "id": "medicaid_enrollment",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 1.5,
+      "value": 72205082.32033254,
+      "variable": "medicaid_enrolled"
+    },
+    {
+      "error": null,
+      "id": "medicaid_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.4,
+      "value": 880018889424.9663,
+      "variable": "medicaid"
+    },
+    {
+      "error": null,
+      "id": "state_income_tax_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 19.7,
+      "value": 536193091301.84143,
+      "variable": "state_income_tax"
+    },
+    {
+      "error": null,
+      "id": "medicare_part_d_irmaa_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 0.0,
+      "variable": "income_adjusted_part_d_premium_surcharge"
+    },
+    {
+      "error": null,
+      "id": "medicare_cost_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 516731354249.5509,
+      "variable": "medicare_cost"
+    },
+    {
+      "error": null,
+      "id": "adjusted_gross_income_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 16683143509971.34,
+      "variable": "adjusted_gross_income"
+    },
+    {
+      "error": null,
+      "id": "wic_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 11517240776.317844,
+      "variable": "wic"
+    },
+    {
+      "error": null,
+      "id": "tanf_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 5067662649.422696,
+      "variable": "tanf"
+    },
+    {
+      "error": null,
+      "id": "refundable_ctc_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 37495465911.91746,
+      "variable": "refundable_ctc"
+    },
+    {
+      "error": null,
+      "id": "employee_payroll_tax_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 0.0,
+      "value": 757468167357.2365,
+      "variable": "employee_payroll_tax"
+    },
+    {
+      "error": null,
+      "id": "premium_tax_credit_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 1.4,
+      "value": 60058977058.32765,
+      "variable": "premium_tax_credit"
+    },
+    {
+      "error": null,
+      "id": "household_net_income_total",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 10.2,
+      "value": 15184280201525.043,
+      "variable": "household_net_income"
+    },
+    {
+      "error": null,
+      "id": "people_in_spm_poverty",
+      "kind": "sum",
+      "period": 2024,
+      "seconds": 78.8,
+      "value": 44271756.15920584,
+      "variable": "person_in_poverty"
+    }
+  ],
+  "seconds": 268.3
+}
