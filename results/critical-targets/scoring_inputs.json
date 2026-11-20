@@ -1,0 +1,23 @@
+{
+  "dataset": {
+    "file": "populace_us_2024.h5",
+    "households": 57240,
+    "sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84",
+    "url": "https://huggingface.co/datasets/policyengine/populace-us/resolve/0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3/releases/microcosm-us-2024-national/populace-us-2024-spm-20260915/populace_us_2024.h5"
+  },
+  "derived_diagnostics": {
+    "added": {
+      "build.post_export_scoring": {
+        "spm": {
+          "geography_kind": "county"
+        }
+      }
+    },
+    "sha256": "8127b50833e8fb05b143bf65675c6bdda28cbdb2b49b358ca36a3fd28171a043",
+    "targets": 5659
+  },
+  "published_diagnostics": {
+    "sha256": "870449b44e86b13b25bcea1a57f0e7af37f4d4db18be815eea3acdf9fe6eb40e",
+    "url": "https://huggingface.co/datasets/policyengine/populace-us/resolve/0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3/releases/microcosm-us-2024-national/populace-us-2024-spm-20260915/calibration_diagnostics.json"
+  }
+}

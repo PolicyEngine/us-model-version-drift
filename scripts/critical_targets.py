@@ -17,6 +17,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -36,6 +37,16 @@ def newly_read_columns(tested: dict) -> list[str]:
     return sorted(item["column"] for item in tested["engine"]["column_changes"]["read"])
 
 
+def source(name: str) -> str:
+    """The publication a target row comes from: its first three name parts.
+
+    ``target:irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024`` comes
+    from ``irs_soi ty2022 historic_table_2``.
+    """
+    bare = name.removeprefix("target:").split("@", 1)[0]
+    return " ".join(bare.split(".")[:3])
+
+
 def requirement_rows(drift: dict) -> list[dict]:
     """One row for each scored target that belongs to a critical requirement."""
     rows = []
@@ -47,6 +58,7 @@ def requirement_rows(drift: dict) -> list[dict]:
         rows.append(
             {
                 "requirement_id": row["requirement_id"],
+                "source": source(row["metric_id"]),
                 "metric_id": row["metric_id"],
                 "label": row["label"],
                 "unit": row["unit"],
@@ -70,7 +82,19 @@ def requirement_rows(drift: dict) -> list[dict]:
 def headline_rows(drift: dict) -> list[dict]:
     """The scorer's programme totals, which belong to no requirement."""
     return [
-        {key: row.get(key) for key in ("metric_id", "label", "unit", "baseline", "tested", "difference", "relative_difference")}
+        {
+            key: row.get(key)
+            for key in (
+                "metric_id",
+                "label",
+                "unit",
+                "baseline",
+                "tested",
+                "difference",
+                "relative_difference",
+                "newly_read_inputs_effect",
+            )
+        }
         for row in drift["rows"]
         if not row.get("requirement_id")
     ]
@@ -90,15 +114,29 @@ def tally(rows: list[dict]) -> dict:
     out["entering_tolerance"] = sorted(
         row["metric_id"] for row in judged if row["baseline_within"] is False and row["tested_within"] is True
     )
+    out["same_under_both"] = sum(
+        1
+        for row in rows
+        if row["baseline"] is not None
+        and row["tested"] is not None
+        and math.isclose(row["baseline"], row["tested"], rel_tol=1e-9, abs_tol=0.0)
+    )
+    margins = [
+        (row["tolerance"] - abs(row["tested_error"]), row["metric_id"])
+        for row in judged
+        if row["tested_error"] is not None
+    ]
+    out["smallest_tested_margin"] = None if not margins else {"metric_id": min(margins)[1], "margin": min(margins)[0]}
     return out
 
 
 def amount(value, unit: str) -> str:
     if value is None:
         return "n/a"
+    sign = "-" if value < 0 else ""
     if unit == "usd":
-        return f"${value / 1e9:,.1f}bn"
-    return f"{value / 1e6:,.2f}m"
+        return f"{sign}${abs(value) / 1e9:,.1f}bn"
+    return f"{sign}{abs(value) / 1e6:,.2f}m"
 
 
 def percent(value) -> str:
@@ -109,72 +147,125 @@ def verdict(value) -> str:
     return {True: "in", False: "OUT", None: "n/a"}[value]
 
 
+def names(columns) -> str:
+    return ", ".join(f"`{c}`" for c in columns) or "none"
+
+
+def side_text(result: dict, side: str) -> str:
+    versions = result[side]["versions"]
+    return (
+        f"policyengine-us {versions['policyengine-us']}, policyengine-core {versions['policyengine-core']}, "
+        f"spm-calculator {versions['spm-calculator']}"
+    )
+
+
 def markdown(result: dict) -> str:
-    base, test = result["baseline"]["versions"], result["tested"]["versions"]
     exact, table = result["exact"], result["table_1_4"]
+    requirements = len(result["exact_requirement_ids"])
     lines = [
         "# Critical targets",
         "",
-        f"- Baseline: policyengine-us {base['policyengine-us']}, policyengine-core {base['policyengine-core']}, "
-        f"spm-calculator {base['spm-calculator']}",
-        f"- Tested: policyengine-us {test['policyengine-us']}, policyengine-core {test['policyengine-core']}, "
-        f"spm-calculator {test['spm-calculator']}",
+        f"- Baseline: {side_text(result, 'baseline')}",
+        f"- Tested: {side_text(result, 'tested')}",
         f"- Dataset sha256 `{result['dataset_sha256'][:12]}…`, {result['households']:,} households, period {result['period']}",
         f"- Targets and tolerances: the dataset's published calibration diagnostics and Microcosm's "
         f"critical-target requirements at commit `{result['microcosm_commit'][:12]}`",
-        f"- Stored columns the tested engine newly reads: {', '.join(f'`{c}`' for c in result['newly_read_columns']) or 'none'}",
+        f"- Stored columns the tested engine newly reads: {names(result['newly_read_columns'])}",
         "",
-        "## The 18 exact requirements",
+        f"## The {requirements} exact requirements",
         "",
-        f"{exact['tally']['rows_with_a_tolerance']} scored rows. Within tolerance: "
+        f"{exact['tally']['rows_with_a_tolerance']} scored target rows serve the {requirements} requirements: "
+        "a requirement can name more than one publication. Within tolerance: "
         f"{exact['tally']['baseline_within']} under the baseline, {exact['tally']['tested_within']} under the tested release.",
         "",
-        "| Requirement | Target | Build's own estimate | Baseline | Tested | Tolerance | Baseline | Tested |",
-        "|---|---|---|---|---|---|---|---|",
+        "| Requirement | Source | Target | Build's own estimate | Baseline | Tested | Tolerance | Baseline | Tested |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for row in exact["rows"]:
+        if row["tolerance"] is None:
+            lines.append(
+                f"| {row['requirement_id']} | `{row['source']}` | {amount(row['target'], row['unit'])} | n/a | "
+                f"{amount(row['baseline'], row['unit'])} | {amount(row['tested'], row['unit'])} | n/a | n/a | n/a |"
+            )
+            continue
         lines.append(
-            f"| {row['requirement_id']} | {amount(row['target'], row['unit'])} | "
+            f"| {row['requirement_id']} | `{row['source']}` | {amount(row['target'], row['unit'])} | "
             f"{amount(row['build_estimate'], row['unit'])} ({percent(row['build_error'])}) | "
             f"{amount(row['baseline'], row['unit'])} ({percent(row['baseline_error'])}) | "
             f"{amount(row['tested'], row['unit'])} ({percent(row['tested_error'])}) | "
             f"±{row['tolerance'] * 100:.0f}% | {verdict(row['baseline_within'])} | {verdict(row['tested_within'])} |"
-            if row["tolerance"] is not None
-            else f"| {row['requirement_id']} | {amount(row['target'], row['unit'])} | n/a | "
-            f"{amount(row['baseline'], row['unit'])} | {amount(row['tested'], row['unit'])} | n/a | n/a | n/a |"
         )
+    margin = exact["tally"]["smallest_tested_margin"]
     lines += [
         "",
         "Each estimate's error against the target follows it in brackets.",
         "",
+    ]
+    if margin is not None:
+        closest = next(row for row in exact["rows"] if row["metric_id"] == margin["metric_id"])
+        lines += [
+            f"Smallest margin under the tested release: {closest['requirement_id']} (`{closest['source']}`), "
+            f"{margin['margin'] * 100:.1f} percentage points inside its tolerance.",
+            "",
+        ]
+    unscored = result["unscored_critical_rows"]
+    lines += [
         f"Requirements with no scored row: {', '.join(result['unscored_requirements']) or 'none'}.",
+        "",
+        f"Critical target rows the scorer did not score ({len(unscored)}): "
+        + (", ".join(f"{row['requirement_id']} (`{row['target_name']}`)" for row in unscored) or "none")
+        + ".",
         "",
         "## SOI Table 1.4 national dollar rows",
         "",
         f"{table['tally']['rows_with_a_tolerance']} scored rows, tolerance ±25%. Within tolerance: "
-        f"{table['tally']['baseline_within']} under the baseline, {table['tally']['tested_within']} under the tested release.",
+        f"{table['tally']['baseline_within']} under the baseline, {table['tally']['tested_within']} under the tested release. "
+        f"{table['tally']['same_under_both']} of the {table['tally']['rows']} rows have the same estimate under both releases, "
+        "to nine significant figures.",
         "",
+        "| Row | Target | Baseline | Tested | Baseline | Tested |",
+        "|---|---|---|---|---|---|",
     ]
-    outside = [row for row in table["rows"] if row["baseline_within"] is False or row["tested_within"] is False]
-    if outside:
-        lines += ["| Row outside tolerance under either release | Target | Baseline | Tested |", "|---|---|---|---|"]
-        for row in outside:
-            lines.append(
-                f"| {row['label']} | {amount(row['target'], row['unit'])} | "
-                f"{amount(row['baseline'], row['unit'])} ({percent(row['baseline_error'])}) | "
-                f"{amount(row['tested'], row['unit'])} ({percent(row['tested_error'])}) |"
-            )
-        lines.append("")
+    for row in table["rows"]:
+        lines.append(
+            f"| {row['label'].split('.all.', 1)[-1].split('@', 1)[0]} | {amount(row['target'], row['unit'])} | "
+            f"{amount(row['baseline'], row['unit'])} ({percent(row['baseline_error'])}) | "
+            f"{amount(row['tested'], row['unit'])} ({percent(row['tested_error'])}) | "
+            f"{verdict(row['baseline_within'])} | {verdict(row['tested_within'])} |"
+        )
+    lines += ["", "## What each engine does with the stored columns", ""]
+    for side in ("baseline", "tested"):
+        verdict_ = result["stored_input_verdict"][side]
+        changes = result["column_changes"][side]
+        lines.append(
+            f"- {side.capitalize()}: Microcosm's stored-input check "
+            f"{'passed' if verdict_['passed'] else 'failed'}; columns it refused: {names(verdict_['refused'])}. "
+            f"Stored columns this engine ignores: {names(item['column'] for item in changes['ignored'])}."
+        )
+    roles = result["tax_unit_roles"]
+    if roles:
+        lines += ["", "People whose tax-unit role in the engine differs from the stored role:", ""]
+        for side in ("baseline", "tested"):
+            if side in roles:
+                item = roles[side]
+                lines.append(
+                    f"- {side.capitalize()}: {item['persons_differing']:,} of {item['persons']:,} people "
+                    f"({item['weighted_persons_differing'] / 1e6:,.1f}m weighted), in {item['tax_units_differing']:,} tax units "
+                    f"({item['weighted_tax_units_differing'] / 1e6:,.1f}m weighted)"
+                )
     lines += [
+        "",
         "## Programme totals the scorer also reports",
         "",
-        "| Row | Baseline | Tested | Relative |",
-        "|---|---|---|---|",
+        "The last column is the part of the change that comes from the stored columns the tested engine newly reads.",
+        "",
+        "| Row | Baseline | Tested | Relative | From newly read columns |",
+        "|---|---|---|---|---|",
     ]
     for row in result["headline"]:
         lines.append(
             f"| {row['label']} | {amount(row['baseline'], row['unit'])} | {amount(row['tested'], row['unit'])} | "
-            f"{percent(row['relative_difference'])} |"
+            f"{percent(row['relative_difference'])} | {amount(row['newly_read_inputs_effect'], row['unit'])} |"
         )
     lines.append("")
     return "\n".join(lines)
@@ -198,7 +289,9 @@ def build_result(drift: dict, summary: dict, inputs: dict, exact_ids: list[str])
         "newly_read_columns": drift["newly_read_columns"],
         "stored_input_verdict": {side: scores[side]["engine"]["stored_input_verdict"] for side in ("baseline", "tested")},
         "column_changes": {side: scores[side]["engine"]["column_changes"] for side in ("baseline", "tested")},
+        "tax_unit_roles": drift.get("tax_unit_roles"),
         "unscored_critical_rows": drift["unscored_critical_rows"],
+        "exact_requirement_ids": list(exact_ids),
         "unscored_requirements": sorted(set(exact_ids) - {row["requirement_id"] for row in exact_rows}),
         "exact": {"rows": exact_rows, "tally": tally(exact_rows)},
         "table_1_4": {"rows": table_rows, "tally": tally(table_rows)},
@@ -208,15 +301,51 @@ def build_result(drift: dict, summary: dict, inputs: dict, exact_ids: list[str])
     }
 
 
+def write_outputs(out: Path, drift: dict, result: dict) -> str:
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "drift.json").write_text(json.dumps(drift, indent=2, sort_keys=True) + "\n")
+    (out / "critical_targets.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+    rows = result["exact"]["rows"] + result["table_1_4"]["rows"]
+    with (out / "critical_targets.csv").open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+    text = markdown(result)
+    (out / "critical_targets.md").write_text(text + "\n")
+    return text
+
+
+def render(directory: Path, out: Path) -> str:
+    """Rebuild the tables from a committed ``drift.json`` without Microcosm.
+
+    ``drift.json`` holds Microcosm's output; the rest is a pure function of it
+    and of three values ``critical_targets.json`` records.
+    """
+    drift = json.loads((directory / "drift.json").read_text())
+    previous = json.loads((directory / "critical_targets.json").read_text())
+    exact_ids = previous.get("exact_requirement_ids") or list(
+        dict.fromkeys(row["requirement_id"] for row in previous["exact"]["rows"])
+    ) + previous["unscored_requirements"]
+    result = build_result(drift, previous["microcosm_summary"], previous["inputs"], exact_ids)
+    return write_outputs(out, drift, result)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--baseline", required=True, type=Path)
-    parser.add_argument("--tested", required=True, type=Path)
+    parser.add_argument("--render", type=Path, help="rebuild the tables from the drift.json in this folder")
+    parser.add_argument("--baseline", type=Path)
+    parser.add_argument("--tested", type=Path)
     parser.add_argument("--counterfactual", type=Path, help="the tested engine without its newly read columns")
-    parser.add_argument("--diagnostics", required=True, type=Path, help="the derived calibration_diagnostics.json")
-    parser.add_argument("--inputs", required=True, type=Path, help="scoring_inputs.json from a scoring job")
+    parser.add_argument("--diagnostics", type=Path, help="the derived calibration_diagnostics.json")
+    parser.add_argument("--inputs", type=Path, help="scoring_inputs.json from a scoring job")
     parser.add_argument("--out", required=True, type=Path)
     args = parser.parse_args()
+    if args.render is not None:
+        print(render(args.render, args.out))
+        return 0
+    missing = [name for name in ("baseline", "tested", "diagnostics", "inputs") if getattr(args, name) is None]
+    if missing:
+        parser.error(f"scoring needs --{', --'.join(missing)}")
 
     from microcosm.data import compatibility_recertification as recert
     from microcosm.data.us_critical_targets import US_EXACT_CRITICAL_TARGET_FIT_REQUIREMENTS
@@ -252,18 +381,7 @@ def main() -> int:
     )
     exact_ids = [item.requirement_id for item in US_EXACT_CRITICAL_TARGET_FIT_REQUIREMENTS]
     result = build_result(drift, recert.drift_summary(drift), inputs, exact_ids)
-
-    args.out.mkdir(parents=True, exist_ok=True)
-    (args.out / "drift.json").write_text(json.dumps(drift, indent=2, sort_keys=True) + "\n")
-    (args.out / "critical_targets.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
-    rows = result["exact"]["rows"] + result["table_1_4"]["rows"]
-    with (args.out / "critical_targets.csv").open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(rows)
-    text = markdown(result)
-    (args.out / "critical_targets.md").write_text(text + "\n")
-    print(text)
+    print(write_outputs(args.out, drift, result))
     return 0
 
 

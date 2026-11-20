@@ -5,6 +5,11 @@
 - A row counts as within tolerance exactly when its error's size does not
   exceed the tolerance, and the tally's counts follow from the rows.
 - The wheels fetched for scoring carry the versions the measured run recorded.
+- The committed tables rebuild byte for byte from the committed ``drift.json``,
+  the scores came from the scoring code in this tree, and they used the
+  measured releases and dataset.
+- Microcosm's batched scorer and this repository's whole-file panel give the
+  same 2024 totals.
 """
 
 import copy
@@ -184,3 +189,54 @@ def test_result_and_markdown_render_from_a_drift_document():
     assert "| eitc_amount |" in text and "OUT" in text and "missing_one" in text
     assert "policyengine-us 2.0.0" in text and "SNAP benefits" in text
     json.dumps(result)
+
+
+def test_source_is_the_first_three_name_parts():
+    assert critical_targets.source("target:irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024") == (
+        "irs_soi ty2022 historic_table_2"
+    )
+    assert critical_targets.source("plain") == "plain"
+
+
+SCORED = ROOT / "results" / "critical-targets"
+
+
+def test_committed_tables_regenerate_from_drift(tmp_path):
+    critical_targets.render(SCORED, tmp_path)
+    for name in ("drift.json", "critical_targets.json", "critical_targets.csv", "critical_targets.md"):
+        assert (tmp_path / name).read_bytes() == (SCORED / name).read_bytes(), name
+
+
+def test_scores_used_the_measured_releases_and_dataset():
+    result = json.loads((SCORED / "critical_targets.json").read_text())
+    inputs = json.loads((SCORED / "scoring_inputs.json").read_text())
+    for side, run in (("baseline", "pinned"), ("tested", "head")):
+        environment = json.loads((ROOT / "results" / run / "environment.json").read_text())
+        assert result[side]["versions"] == fetch_wheels.pins(environment)
+        assert environment["dataset"]["sha256"] == result["dataset_sha256"] == inputs["dataset"]["sha256"]
+    assert result["households"] == inputs["dataset"]["households"]
+    assert inputs["published_diagnostics"]["sha256"] == prepare_scoring.PUBLISHED_DIAGNOSTICS_SHA256
+
+
+def test_scorer_totals_equal_the_measured_panel():
+    """Two harnesses, one dataset: Microcosm's batched scorer and this
+    repository's whole-file panel give the same 2024 totals."""
+    result = json.loads((SCORED / "critical_targets.json").read_text())
+    panels = {
+        side: {row["id"]: row["value"] for row in json.loads((ROOT / "results" / run / "panel-2024.json").read_text())["rows"]}
+        for side, run in (("baseline", "pinned"), ("tested", "head"))
+    }
+    shared = [row for row in result["headline"] if row["metric_id"] in panels["baseline"]]
+    assert len(shared) >= 12
+    for row in shared:
+        for side in ("baseline", "tested"):
+            measured = panels[side][row["metric_id"]]
+            assert abs(row[side] - measured) <= 1e-8 * max(abs(measured), 1.0), (row["metric_id"], side)
+
+
+def test_scores_come_from_this_scoring_code():
+    import hashlib
+
+    recorded = json.loads((SCORED / "provenance.json").read_text())["scoring_code_sha256"]
+    assert recorded == {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in recorded}
+    assert set(recorded) == {"scripts/fetch_wheels.py", "scripts/prepare_scoring.py", ".github/workflows/score.yml"}

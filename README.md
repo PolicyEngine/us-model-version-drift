@@ -68,13 +68,29 @@ In 2024, 16 of the 19 rows with a ratio moved less than 2.5%. In 2026, 15 of 20 
 
 In dollars and people for 2024: federal income tax rose $41bn, state income tax fell $21bn, Medicare benefit cost rose $293bn, and the count of people in poverty fell from 44.3 million to 41.5 million.
 
+### Fit to Microcosm's critical calibration targets
+
+A second run, on 2026-11-18 ([workflow run 44345993218](https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44345993218)), scored both releases with Microcosm's own scorer (`tools/build_us_compatibility_recertification.py score` at microcosm commit `85d513b`). It scored them against the targets in the default dataset's published calibration diagnostics. [`results/critical-targets/critical_targets.md`](results/critical-targets/critical_targets.md) lists every row.
+
+- Both releases keep all 21 scored target rows of Microcosm's 18 exact critical requirements within tolerance. Both also keep all 9 national dollar rows of SOI Table 1.4 within ±25%.
+- The tightest row is federal income tax liability against SOI historic table 2. Its error is +0.3% under 2.2.2 and +2.1% under 2.144.4, against a ±5% tolerance.
+- The scorer did not score one critical row: the itemized-deduction total from SOI table 4.3.
+- 8 of the 9 Table 1.4 rows have the same estimate under both releases. Only taxable Social Security moves, from −10.9% to −10.5%.
+- The scorer's programme totals equal this repository's 2024 panel to within one part in 10⁸, and a test checks this. The scorer runs in batches of households; the panel runs on the whole file.
+- 2.144.4 reads one stored column that 2.2.2 does not define, `tax_unit_role_input`. Under 2.2.2, the tax-unit roles the engine assigns differ from the stored ones for 27,382 people (63.1 million weighted); under 2.144.4, for none. That column accounts for −$35.8bn of the $112.2bn rise in adjusted gross income.
+- Microcosm's stored-input check fails under both releases. Both ignore `would_claim_wic` and `medicare_part_b_premiums`, and 2.144.4 also ignores the two mortgage-interest columns.
+
+Every requirement is an IRS Statistics of Income (SOI) or Social Security Administration row for 2024. None covers Medicare, SNAP, SSI, state income tax, poverty or WIC, the rows that moved most between the releases. Passing these rows does not show that the head release is safe to promote.
+
+The scorer needs a Supplemental Poverty Measure (SPM) geography, and the published diagnostics record none. `scripts/prepare_scoring.py` adds `{"geography_kind": "county"}`, the selection in Microcosm's published scoring of an October build and in the `policyengine` bundle. It checks that nothing else in the file changes. No critical target is a poverty measure.
+
 ### Run time
 
 On a GitHub-hosted `ubuntu-latest` runner, one process that downloads the dataset, builds the simulation and computes one year of the panel took 268 and 275 seconds on 2.2.2, and 777 and 812 seconds on 2.144.4.
 
 ## What this does not show
 
-- The panel reports movement between two releases. It scores neither release against external targets.
+- The panel reports movement between two releases. Only the critical-target scoring compares either release with external figures, and only for the rows Microcosm names, in 2024.
 - The two environments differ in policyengine-us and in policyengine-core, so a row's movement can come from either package.
 - Nothing here attributes a row's movement to a particular change.
 - Two releases, one dataset, one run. The 2024 panel of an earlier run matched this one in every digit.
@@ -103,6 +119,20 @@ python scripts/provenance.py --run <run id> --event workflow_dispatch --head-sha
 
 ```bash
 python scripts/compare.py results/pinned results/head --out results
+```
+
+## Score again
+
+The `Score` workflow runs on pull requests that change the scoring code, and by hand:
+
+```bash
+gh workflow run score.yml --ref <branch>
+```
+
+Download `drift.json` and `critical_targets.json` from its `results-critical-targets` artifact, and `scoring_inputs.json` from any `scores-*` artifact, into `results/critical-targets`. Then record the run's ids and code hashes in `results/critical-targets/provenance.json` and rebuild the tables:
+
+```bash
+python scripts/critical_targets.py --render results/critical-targets --out results/critical-targets
 ```
 
 ## Run one environment yourself

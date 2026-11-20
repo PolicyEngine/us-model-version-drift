@@ -1,0 +1,1034 @@
+{
+  "baseline": {
+    "versions": {
+      "policyengine-core": "3.34.10",
+      "policyengine-us": "2.2.2",
+      "spm-calculator": "1.1.0"
+    }
+  },
+  "column_changes": {
+    "baseline": {
+      "ignored": [
+        {
+          "column": "medicare_part_b_premiums",
+          "tables": [
+            "person"
+          ]
+        },
+        {
+          "column": "would_claim_wic",
+          "tables": [
+            "person"
+          ]
+        }
+      ],
+      "read": []
+    },
+    "tested": {
+      "ignored": [
+        {
+          "column": "first_home_mortgage_interest",
+          "tables": [
+            "tax_unit"
+          ]
+        },
+        {
+          "column": "medicare_part_b_premiums",
+          "tables": [
+            "person"
+          ]
+        },
+        {
+          "column": "second_home_mortgage_interest",
+          "tables": [
+            "tax_unit"
+          ]
+        },
+        {
+          "column": "would_claim_wic",
+          "tables": [
+            "person"
+          ]
+        }
+      ],
+      "read": [
+        {
+          "column": "tax_unit_role_input",
+          "tables": [
+            "person"
+          ]
+        }
+      ]
+    }
+  },
+  "dataset_sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84",
+  "exact": {
+    "rows": [
+      {
+        "baseline": 2366408193716.642,
+        "baseline_error": 0.0032613825641931555,
+        "baseline_within": true,
+        "build_error": 0.001191484491695977,
+        "build_estimate": 2361525893008.1304,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_amount@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_amount@2024",
+        "newly_read_inputs_effect": -1891576385.274414,
+        "other_engine_changes_effect": 43328237242.14209,
+        "requirement_id": "federal_income_tax_amount",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 2358715520045.6733,
+        "tested": 2407844854573.51,
+        "tested_error": 0.0208288511735765,
+        "tested_within": true,
+        "tolerance": 0.05,
+        "unit": "usd"
+      },
+      {
+        "baseline": 113271458.03619444,
+        "baseline_error": -0.0025636256077424466,
+        "baseline_within": true,
+        "build_error": -0.0032066513958069255,
+        "build_estimate": 113198434.36226505,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_returns@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_returns@2024",
+        "newly_read_inputs_effect": -357235.1189647317,
+        "other_engine_changes_effect": 270904.58840605617,
+        "requirement_id": "income_tax_liability_returns",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 113562590.0,
+        "tested": 113185127.50563577,
+        "tested_error": -0.0033238278060075226,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "count"
+      },
+      {
+        "baseline": 1464840944351.0034,
+        "baseline_error": -0.0043189758318894385,
+        "baseline_within": true,
+        "build_error": -0.004318975831883132,
+        "build_estimate": 1464840944351.0127,
+        "label": "ssa_supplement.cy2024.oasdi_ssi_payments.social_security_benefits.payment_amount@2024",
+        "metric_id": "target:ssa_supplement.cy2024.oasdi_ssi_payments.social_security_benefits.payment_amount@2024",
+        "newly_read_inputs_effect": 0.0,
+        "other_engine_changes_effect": 0.0,
+        "requirement_id": "social_security_benefits",
+        "source": "ssa_supplement cy2024 oasdi_ssi_payments",
+        "target": 1471195000000.0,
+        "tested": 1464840944351.0034,
+        "tested_error": -0.0043189758318894385,
+        "tested_within": true,
+        "tolerance": 0.05,
+        "unit": "usd"
+      },
+      {
+        "baseline": 89316545570.82774,
+        "baseline_error": -0.037899388338010105,
+        "baseline_within": true,
+        "build_error": -0.03927989401152965,
+        "build_estimate": 89188386419.48213,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024",
+        "newly_read_inputs_effect": 370714020.84028625,
+        "other_engine_changes_effect": -24932904.145629883,
+        "requirement_id": "ctc_amount",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 92834932737.99818,
+        "tested": 89662326687.5224,
+        "tested_error": -0.03417470080394864,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "usd"
+      },
+      {
+        "baseline": 37988072.73776328,
+        "baseline_error": -0.0021260669042016543,
+        "baseline_within": true,
+        "build_error": -0.0025648231116190195,
+        "build_estimate": 37971369.723315544,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.ctc_claims@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.ctc_claims@2024",
+        "newly_read_inputs_effect": 432301.5088775456,
+        "other_engine_changes_effect": 115181.28007626534,
+        "requirement_id": "ctc_claims",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 38069010.0,
+        "tested": 38535555.52671709,
+        "tested_error": 0.012255257668037312,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "count"
+      },
+      {
+        "baseline": 37495465996.77001,
+        "baseline_error": -0.011525515469723307,
+        "baseline_within": true,
+        "build_error": -0.00795127592816654,
+        "build_estimate": 37631046408.09286,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.actc_amount@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.actc_amount@2024",
+        "newly_read_inputs_effect": -48028054.06894684,
+        "other_engine_changes_effect": -215488243.42860413,
+        "requirement_id": "actc_amount",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 37932659450.069534,
+        "tested": 37231949699.27246,
+        "tested_error": -0.01847246570516397,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "usd"
+      },
+      {
+        "baseline": 17641859.26380883,
+        "baseline_error": -0.002803090543238029,
+        "baseline_within": true,
+        "build_error": -1.0328650042626962e-05,
+        "build_estimate": 17691267.271204203,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.actc_claims@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.actc_claims@2024",
+        "newly_read_inputs_effect": -42781.45112519711,
+        "other_engine_changes_effect": -28756.219795752317,
+        "requirement_id": "actc_claims",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 17691450.0,
+        "tested": 17570321.592887882,
+        "tested_error": -0.006846720145161525,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "count"
+      },
+      {
+        "baseline": 66612638093.138626,
+        "baseline_error": -0.0351818205683554,
+        "baseline_within": true,
+        "build_error": -0.032914528992884766,
+        "build_estimate": 66769175642.27293,
+        "label": "irs_soi.ty2024.filing_season_week47.eitc_all_returns.earned_income_credit.total_earned_income_credit_amount@2024",
+        "metric_id": "target:irs_soi.ty2024.filing_season_week47.eitc_all_returns.earned_income_credit.total_earned_income_credit_amount@2024",
+        "newly_read_inputs_effect": -391122690.1106491,
+        "other_engine_changes_effect": 905330040.8997269,
+        "requirement_id": "eitc_amount",
+        "source": "irs_soi ty2024 filing_season_week47",
+        "target": 69041649000.0,
+        "tested": 67126845443.927704,
+        "tested_error": -0.027734035669864956,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "usd"
+      },
+      {
+        "baseline": 23608311.552332,
+        "baseline_error": -0.009600034285476046,
+        "baseline_within": true,
+        "build_error": -0.006357627365857466,
+        "build_estimate": 23685601.289193578,
+        "label": "irs_soi.ty2024.filing_season_week47.eitc_all_returns.earned_income_credit.total_earned_income_credit_returns@2024",
+        "metric_id": "target:irs_soi.ty2024.filing_season_week47.eitc_all_returns.earned_income_credit.total_earned_income_credit_returns@2024",
+        "newly_read_inputs_effect": -301258.2763052322,
+        "other_engine_changes_effect": -109102.86835252866,
+        "requirement_id": "eitc_claims",
+        "source": "irs_soi ty2024 filing_season_week47",
+        "target": 23837149.0,
+        "tested": 23197950.407674238,
+        "tested_error": -0.026815228294531444,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "count"
+      },
+      {
+        "baseline": 60058977176.854324,
+        "baseline_error": -0.005613929564142588,
+        "baseline_within": true,
+        "build_error": -4.5887008840452414e-05,
+        "build_estimate": 60395276075.934906,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.premium_tax_credit_amount@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.premium_tax_credit_amount@2024",
+        "newly_read_inputs_effect": -3533262.7130889893,
+        "other_engine_changes_effect": 68954019.36006165,
+        "requirement_id": "premium_tax_credit_amount",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 60398047561.677315,
+        "tested": 60124397933.5013,
+        "tested_error": -0.0045307694407931325,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "usd"
+      },
+      {
+        "baseline": 7968831.400281696,
+        "baseline_error": 0.01625499119180649,
+        "baseline_within": true,
+        "build_error": 0.02101049785505363,
+        "build_estimate": 8006121.087565682,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.premium_tax_credit_returns@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.premium_tax_credit_returns@2024",
+        "newly_read_inputs_effect": -28951.63036254421,
+        "other_engine_changes_effect": -10283.033996928483,
+        "requirement_id": "premium_tax_credit_returns",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 7841370.0,
+        "tested": 7929596.735922223,
+        "tested_error": 0.011251444061716633,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "count"
+      },
+      {
+        "baseline": 510816071658.8801,
+        "baseline_error": 8.82116578854228e-05,
+        "baseline_within": true,
+        "build_error": -0.001985956346048248,
+        "build_estimate": 509756646760.77686,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.taxable_social_security_amount@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.taxable_social_security_amount@2024",
+        "newly_read_inputs_effect": -834663337.3566895,
+        "other_engine_changes_effect": 3101815472.4748535,
+        "requirement_id": "taxable_social_security_amount",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 510771015700.78534,
+        "tested": 513083223793.9983,
+        "tested_error": 0.004526897615833914,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "usd"
+      },
+      {
+        "baseline": 24490667.75887756,
+        "baseline_error": 0.0006364740181776859,
+        "baseline_within": true,
+        "build_error": -0.0001025500522294706,
+        "build_estimate": 24472580.07824218,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.taxable_social_security_returns@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.taxable_social_security_returns@2024",
+        "newly_read_inputs_effect": -50958.452328421175,
+        "other_engine_changes_effect": 148238.17337932438,
+        "requirement_id": "taxable_social_security_returns",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 24475090.0,
+        "tested": 24587947.479928464,
+        "tested_error": 0.0046111160338312834,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "count"
+      },
+      {
+        "baseline": 720544737876.803,
+        "baseline_error": -0.01133030149463528,
+        "baseline_within": true,
+        "build_error": -0.005789456714871463,
+        "build_estimate": 724582918227.1127,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.itemized_deductions_amount@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.itemized_deductions_amount@2024",
+        "newly_read_inputs_effect": 2341524932.1151123,
+        "other_engine_changes_effect": -833362092.4967041,
+        "requirement_id": "itemized_deduction_amount",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 728802287524.4347,
+        "tested": 722052900716.4214,
+        "tested_error": -0.009260929779651683,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "usd"
+      },
+      {
+        "baseline": 720544737876.803,
+        "baseline_error": -0.040676240903587374,
+        "baseline_within": true,
+        "build_error": -0.03529986085398286,
+        "build_estimate": 724582918227.1127,
+        "label": "irs_soi.ty2023.table_1_2.all_returns.all.total_itemized_deductions_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_2.all_returns.all.total_itemized_deductions_amount@2024",
+        "newly_read_inputs_effect": 2341524932.1151123,
+        "other_engine_changes_effect": -833362092.4967041,
+        "requirement_id": "itemized_deduction_amount",
+        "source": "irs_soi ty2023 table_1_2",
+        "target": 751096520902.8955,
+        "tested": 722052900716.4214,
+        "tested_error": -0.03866829279352898,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "usd"
+      },
+      {
+        "baseline": 720544737876.803,
+        "baseline_error": -0.040676240903587374,
+        "baseline_within": true,
+        "build_error": -0.03529986085398286,
+        "build_estimate": 724582918227.1127,
+        "label": "irs_soi.ty2023.table_2_1.itemized_all_returns.all.total_itemized_deductions_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.total_itemized_deductions_amount@2024",
+        "newly_read_inputs_effect": 2341524932.1151123,
+        "other_engine_changes_effect": -833362092.4967041,
+        "requirement_id": "itemized_deduction_amount",
+        "source": "irs_soi ty2023 table_2_1",
+        "target": 751096520902.8955,
+        "tested": 722052900716.4214,
+        "tested_error": -0.03866829279352898,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "usd"
+      },
+      {
+        "baseline": 131714443097.61911,
+        "baseline_error": -0.041234479607700394,
+        "baseline_within": true,
+        "build_error": -0.03659600941392921,
+        "build_estimate": 132351672436.18303,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.limited_state_local_taxes_amount@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.limited_state_local_taxes_amount@2024",
+        "newly_read_inputs_effect": 209449388.56289673,
+        "other_engine_changes_effect": -121053489.13452148,
+        "requirement_id": "salt_deduction_amount",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 137379203044.0616,
+        "tested": 131802838997.04749,
+        "tested_error": -0.04059103505809106,
+        "tested_within": true,
+        "tolerance": 0.1,
+        "unit": "usd"
+      },
+      {
+        "baseline": 131714443097.61911,
+        "baseline_error": 0.0008084383517808966,
+        "baseline_within": true,
+        "build_error": 0.005650310542877167,
+        "build_estimate": 132351672436.18303,
+        "label": "irs_soi.ty2023.table_2_1.itemized_all_returns.all.limited_state_local_taxes_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.limited_state_local_taxes_amount@2024",
+        "newly_read_inputs_effect": 209449388.56289673,
+        "other_engine_changes_effect": -121053489.13452148,
+        "requirement_id": "salt_deduction_amount",
+        "source": "irs_soi ty2023 table_2_1",
+        "target": 131608046105.74428,
+        "tested": 131802838997.04749,
+        "tested_error": 0.00148009864949059,
+        "tested_within": true,
+        "tolerance": 0.1,
+        "unit": "usd"
+      },
+      {
+        "baseline": 98753202081.19997,
+        "baseline_error": 0.09857683048425575,
+        "baseline_within": true,
+        "build_error": 0.10283619523878766,
+        "build_estimate": 99136084640.40742,
+        "label": "irs_soi.ty2022.historic_table_2.us.all.medical_dental_expense_amount@2024",
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.medical_dental_expense_amount@2024",
+        "newly_read_inputs_effect": 1835888112.6534576,
+        "other_engine_changes_effect": -1478171018.8248749,
+        "requirement_id": "medical_expense_deduction_amount",
+        "source": "irs_soi ty2022 historic_table_2",
+        "target": 89891939590.30547,
+        "tested": 99110919175.02855,
+        "tested_error": 0.10255624282599547,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      },
+      {
+        "baseline": 183664882061.43542,
+        "baseline_error": -0.014197955330633043,
+        "baseline_within": true,
+        "build_error": -4.243375510888927e-05,
+        "build_estimate": 186302198766.89908,
+        "label": "irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_amount@2024",
+        "newly_read_inputs_effect": 77248148.81018066,
+        "other_engine_changes_effect": 596368528.3941345,
+        "requirement_id": "home_mortgage_interest_amount",
+        "source": "irs_soi ty2023 table_2_1",
+        "target": 186310104604.25217,
+        "tested": 184338498738.63974,
+        "tested_error": -0.010582388270353795,
+        "tested_within": true,
+        "tolerance": 0.2,
+        "unit": "usd"
+      },
+      {
+        "baseline": 11570126.846896643,
+        "baseline_error": -0.00637400678022996,
+        "baseline_within": true,
+        "build_error": 3.807773453087069e-05,
+        "build_estimate": 11644791.39039193,
+        "label": "irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_returns@2024",
+        "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_returns@2024",
+        "newly_read_inputs_effect": 10736.688106328249,
+        "other_engine_changes_effect": 38960.60951506905,
+        "requirement_id": "home_mortgage_interest_returns",
+        "source": "irs_soi ty2023 table_2_1",
+        "target": 11644348.0,
+        "tested": 11619824.14451804,
+        "tested_error": -0.0021060737348248164,
+        "tested_within": true,
+        "tolerance": 0.15,
+        "unit": "count"
+      }
+    ],
+    "tally": {
+      "baseline_outside": [],
+      "baseline_within": 21,
+      "entering_tolerance": [],
+      "leaving_tolerance": [],
+      "rows": 21,
+      "rows_with_a_tolerance": 21,
+      "same_under_both": 1,
+      "smallest_tested_margin": {
+        "margin": 0.029171148826423503,
+        "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_amount@2024"
+      },
+      "tested_outside": [],
+      "tested_within": 21
+    }
+  },
+  "exact_requirement_ids": [
+    "federal_income_tax_amount",
+    "income_tax_liability_returns",
+    "social_security_benefits",
+    "ctc_amount",
+    "ctc_claims",
+    "actc_amount",
+    "actc_claims",
+    "eitc_amount",
+    "eitc_claims",
+    "premium_tax_credit_amount",
+    "premium_tax_credit_returns",
+    "taxable_social_security_amount",
+    "taxable_social_security_returns",
+    "itemized_deduction_amount",
+    "salt_deduction_amount",
+    "medical_expense_deduction_amount",
+    "home_mortgage_interest_amount",
+    "home_mortgage_interest_returns"
+  ],
+  "headline": [
+    {
+      "baseline": 2262598220378.4546,
+      "difference": 41222547277.55762,
+      "label": "federal income tax, net of refundable credits",
+      "metric_id": "income_tax_net",
+      "newly_read_inputs_effect": -1458937493.3515625,
+      "relative_difference": 0.018219119464640304,
+      "tested": 2303820767656.012,
+      "unit": "usd"
+    },
+    {
+      "baseline": 147539081163.67752,
+      "difference": 1121041401.613556,
+      "label": "Child Tax Credit, total",
+      "metric_id": "ctc_total",
+      "newly_read_inputs_effect": 1051165920.8919067,
+      "relative_difference": 0.007598267474432014,
+      "tested": 148660122565.29108,
+      "unit": "usd"
+    },
+    {
+      "baseline": 66612638093.138626,
+      "difference": 514207350.78907776,
+      "label": "Earned Income Tax Credit, total",
+      "metric_id": "eitc_total",
+      "newly_read_inputs_effect": -391122690.1106491,
+      "relative_difference": 0.007719366257047298,
+      "tested": 67126845443.927704,
+      "unit": "usd"
+    },
+    {
+      "baseline": 1464840944351.0034,
+      "difference": 0.0,
+      "label": "Social Security benefits",
+      "metric_id": "social_security_total",
+      "newly_read_inputs_effect": 0.0,
+      "relative_difference": 0.0,
+      "tested": 1464840944351.0034,
+      "unit": "usd"
+    },
+    {
+      "baseline": 101948659046.78394,
+      "difference": -2410413360.475876,
+      "label": "SNAP benefits",
+      "metric_id": "snap_total",
+      "newly_read_inputs_effect": -848012.1117553711,
+      "relative_difference": -0.023643404268512688,
+      "tested": 99538245686.30806,
+      "unit": "usd"
+    },
+    {
+      "baseline": 23408655.29112474,
+      "difference": 170954.2138335742,
+      "label": "SPM units receiving SNAP",
+      "metric_id": "snap_units",
+      "newly_read_inputs_effect": 0.0,
+      "relative_difference": 0.007303034356629214,
+      "tested": 23579609.504958313,
+      "unit": "count"
+    },
+    {
+      "baseline": 56097079523.72741,
+      "difference": -1202924069.8959198,
+      "label": "SSI payments",
+      "metric_id": "ssi_total",
+      "newly_read_inputs_effect": 0.0,
+      "relative_difference": -0.02144361310978976,
+      "tested": 54894155453.83149,
+      "unit": "usd"
+    },
+    {
+      "baseline": 72205082.46722043,
+      "difference": -689513.2661566585,
+      "label": "people enrolled in Medicaid",
+      "metric_id": "medicaid_enrollment",
+      "newly_read_inputs_effect": 9351.250728309155,
+      "relative_difference": -0.009549373016361874,
+      "tested": 71515569.20106377,
+      "unit": "count"
+    },
+    {
+      "baseline": 880018891104.8518,
+      "difference": -11768.247924804688,
+      "label": "Medicaid benefit value",
+      "metric_id": "medicaid_total",
+      "newly_read_inputs_effect": 5706.6331787109375,
+      "relative_difference": -1.337272193103697e-08,
+      "tested": 880018879336.6039,
+      "unit": "usd"
+    },
+    {
+      "baseline": 536193092986.17456,
+      "difference": -21184989456.366577,
+      "label": "state income tax",
+      "metric_id": "state_income_tax_total",
+      "newly_read_inputs_effect": -576193592.6147461,
+      "relative_difference": -0.03951000065738038,
+      "tested": 515008103529.808,
+      "unit": "usd"
+    },
+    {
+      "baseline": 0.0,
+      "difference": 17376679218.94322,
+      "label": "Medicare Part B income-related premium (IRMAA)",
+      "metric_id": "medicare_part_b_irmaa_total",
+      "newly_read_inputs_effect": 12271331.141513824,
+      "relative_difference": null,
+      "tested": 17376679218.94322,
+      "unit": "usd"
+    },
+    {
+      "baseline": 0.0,
+      "difference": 3337771779.4625535,
+      "label": "Medicare Part D income-related surcharge",
+      "metric_id": "medicare_part_d_irmaa_total",
+      "newly_read_inputs_effect": 2385228.0228886604,
+      "relative_difference": null,
+      "tested": 3337771779.4625535,
+      "unit": "usd"
+    },
+    {
+      "baseline": 516731355367.81287,
+      "difference": 292722637505.6658,
+      "label": "Medicare benefit cost",
+      "metric_id": "medicare_cost_total",
+      "newly_read_inputs_effect": -14656564.049072266,
+      "relative_difference": 0.5664890169037716,
+      "tested": 809453992873.4786,
+      "unit": "usd"
+    },
+    {
+      "baseline": 16683143554555.408,
+      "difference": 112195125413.86914,
+      "label": "adjusted gross income",
+      "metric_id": "adjusted_gross_income_total",
+      "newly_read_inputs_effect": -35840430579.95703,
+      "relative_difference": 0.006725059042199139,
+      "tested": 16795338679969.277,
+      "unit": "usd"
+    }
+  ],
+  "households": 57240,
+  "inputs": {
+    "dataset": {
+      "file": "populace_us_2024.h5",
+      "households": 57240,
+      "sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84",
+      "url": "https://huggingface.co/datasets/policyengine/populace-us/resolve/0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3/releases/microcosm-us-2024-national/populace-us-2024-spm-20260915/populace_us_2024.h5"
+    },
+    "derived_diagnostics": {
+      "added": {
+        "build.post_export_scoring": {
+          "spm": {
+            "geography_kind": "county"
+          }
+        }
+      },
+      "sha256": "8127b50833e8fb05b143bf65675c6bdda28cbdb2b49b358ca36a3fd28171a043",
+      "targets": 5659
+    },
+    "published_diagnostics": {
+      "sha256": "870449b44e86b13b25bcea1a57f0e7af37f4d4db18be815eea3acdf9fe6eb40e",
+      "url": "https://huggingface.co/datasets/policyengine/populace-us/resolve/0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3/releases/microcosm-us-2024-national/populace-us-2024-spm-20260915/calibration_diagnostics.json"
+    }
+  },
+  "microcosm_commit": "85d513bb550f49e3d934ade81350841b1b64cab1",
+  "microcosm_summary": {
+    "critical_rows_leaving_tolerance": [],
+    "critical_rows_outside_tolerance_under_tested": [],
+    "exact_critical_rows": 21,
+    "headline": {
+      "ctc_total": {
+        "baseline": 147539081163.67752,
+        "newly_read_inputs_effect": 1051165920.8919067,
+        "relative_difference": 0.007598267474432014,
+        "tested": 148660122565.29108
+      },
+      "eitc_total": {
+        "baseline": 66612638093.138626,
+        "newly_read_inputs_effect": -391122690.1106491,
+        "relative_difference": 0.007719366257047298,
+        "tested": 67126845443.927704
+      },
+      "income_tax_net": {
+        "baseline": 2262598220378.4546,
+        "newly_read_inputs_effect": -1458937493.3515625,
+        "relative_difference": 0.018219119464640304,
+        "tested": 2303820767656.012
+      },
+      "medicaid_enrollment": {
+        "baseline": 72205082.46722043,
+        "newly_read_inputs_effect": 9351.250728309155,
+        "relative_difference": -0.009549373016361874,
+        "tested": 71515569.20106377
+      },
+      "medicaid_total": {
+        "baseline": 880018891104.8518,
+        "newly_read_inputs_effect": 5706.6331787109375,
+        "relative_difference": -1.337272193103697e-08,
+        "tested": 880018879336.6039
+      },
+      "medicare_part_b_irmaa_total": {
+        "baseline": 0.0,
+        "newly_read_inputs_effect": 12271331.141513824,
+        "relative_difference": null,
+        "tested": 17376679218.94322
+      },
+      "medicare_part_d_irmaa_total": {
+        "baseline": 0.0,
+        "newly_read_inputs_effect": 2385228.0228886604,
+        "relative_difference": null,
+        "tested": 3337771779.4625535
+      },
+      "snap_total": {
+        "baseline": 101948659046.78394,
+        "newly_read_inputs_effect": -848012.1117553711,
+        "relative_difference": -0.023643404268512688,
+        "tested": 99538245686.30806
+      },
+      "social_security_total": {
+        "baseline": 1464840944351.0034,
+        "newly_read_inputs_effect": 0.0,
+        "relative_difference": 0.0,
+        "tested": 1464840944351.0034
+      }
+    },
+    "largest_exact_critical_move": {
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_amount@2024",
+      "relative_difference": 0.017510360624549703,
+      "requirement_id": "federal_income_tax_amount"
+    }
+  },
+  "newly_read_columns": [
+    "tax_unit_role_input"
+  ],
+  "period": 2024,
+  "spm": {
+    "geography_kind": "county"
+  },
+  "stored_input_verdict": {
+    "baseline": {
+      "passed": false,
+      "refused": [
+        "medicare_part_b_premiums",
+        "would_claim_wic"
+      ],
+      "register_sha256": "f211da96d7beb2b1d034ac8bc85d798052dd51626bd6b0eb9bbb1ff35ee1ba54",
+      "registered_non_variables": [
+        "family_source_id",
+        "family_support_channel",
+        "family_support_clone_index",
+        "filing_status_input",
+        "household_source_id",
+        "household_support_channel",
+        "household_support_clone_index",
+        "marital_unit_source_id",
+        "marital_unit_support_channel",
+        "marital_unit_support_clone_index",
+        "person_source_id",
+        "person_support_channel",
+        "person_support_clone_index",
+        "source_household_id",
+        "source_person_id",
+        "source_row_id",
+        "source_year",
+        "spm_unit_source_id",
+        "spm_unit_support_channel",
+        "spm_unit_support_clone_index",
+        "tax_unit_role_input",
+        "tax_unit_source_id",
+        "tax_unit_support_channel",
+        "tax_unit_support_clone_index"
+      ]
+    },
+    "tested": {
+      "passed": false,
+      "refused": [
+        "first_home_mortgage_interest",
+        "medicare_part_b_premiums",
+        "second_home_mortgage_interest",
+        "would_claim_wic"
+      ],
+      "register_sha256": "f211da96d7beb2b1d034ac8bc85d798052dd51626bd6b0eb9bbb1ff35ee1ba54",
+      "registered_non_variables": [
+        "family_source_id",
+        "family_support_channel",
+        "family_support_clone_index",
+        "filing_status_input",
+        "household_source_id",
+        "household_support_channel",
+        "household_support_clone_index",
+        "marital_unit_source_id",
+        "marital_unit_support_channel",
+        "marital_unit_support_clone_index",
+        "person_source_id",
+        "person_support_channel",
+        "person_support_clone_index",
+        "source_household_id",
+        "source_person_id",
+        "source_row_id",
+        "source_year",
+        "spm_unit_source_id",
+        "spm_unit_support_channel",
+        "spm_unit_support_clone_index",
+        "tax_unit_source_id",
+        "tax_unit_support_channel",
+        "tax_unit_support_clone_index"
+      ]
+    }
+  },
+  "table_1_4": {
+    "rows": [
+      {
+        "baseline": 10736284148599.646,
+        "baseline_error": -0.0034414555343980227,
+        "baseline_within": true,
+        "build_error": -0.003441455534404368,
+        "build_estimate": 10736284148599.578,
+        "label": "irs_soi.ty2023.table_1_4.all.wages_salaries_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.wages_salaries_amount@2024",
+        "newly_read_inputs_effect": 0.0,
+        "other_engine_changes_effect": 0.0,
+        "requirement_id": "soi_table_1_4_national_dollar_rows",
+        "source": "irs_soi ty2023 table_1_4",
+        "target": 10773360188644.922,
+        "tested": 10736284148599.646,
+        "tested_error": -0.0034414555343980227,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      },
+      {
+        "baseline": 1235406391063.714,
+        "baseline_error": -0.027900676390461548,
+        "baseline_within": true,
+        "build_error": -0.027900676390464046,
+        "build_estimate": 1235406391063.711,
+        "label": "irs_soi.ty2023.table_1_4.all.net_capital_gains_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.net_capital_gains_amount@2024",
+        "newly_read_inputs_effect": 0.0,
+        "other_engine_changes_effect": 0.0,
+        "requirement_id": "soi_table_1_4_national_dollar_rows",
+        "source": "irs_soi ty2023 table_1_4",
+        "target": 1270864366489.301,
+        "tested": 1235406391063.714,
+        "tested_error": -0.027900676390461548,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      },
+      {
+        "baseline": 485127965393.28503,
+        "baseline_error": 0.018405448324417924,
+        "baseline_within": true,
+        "build_error": 0.01840544832441818,
+        "build_estimate": 485127965393.28516,
+        "label": "irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024",
+        "newly_read_inputs_effect": 0.0,
+        "other_engine_changes_effect": 6.103515625e-05,
+        "requirement_id": "soi_table_1_4_national_dollar_rows",
+        "source": "irs_soi ty2023 table_1_4",
+        "target": 476360339775.7405,
+        "tested": 485127965393.2851,
+        "tested_error": 0.018405448324418053,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      },
+      {
+        "baseline": 1001719886130.0988,
+        "baseline_error": -0.011549613331514741,
+        "baseline_within": true,
+        "build_error": -0.011549613331512092,
+        "build_estimate": 1001719886130.1014,
+        "label": "irs_soi.ty2023.table_1_4.all.taxable_pension_income_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_pension_income_amount@2024",
+        "newly_read_inputs_effect": 0.0,
+        "other_engine_changes_effect": 0.0,
+        "requirement_id": "soi_table_1_4_national_dollar_rows",
+        "source": "irs_soi ty2023 table_1_4",
+        "target": 1013424547797.8289,
+        "tested": 1001719886130.0988,
+        "tested_error": -0.011549613331514741,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      },
+      {
+        "baseline": 33529071340.53068,
+        "baseline_error": -0.0032189280198143644,
+        "baseline_within": true,
+        "build_error": -0.003218928019813797,
+        "build_estimate": 33529071340.5307,
+        "label": "irs_soi.ty2023.table_1_4.all.unemployment_compensation_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.unemployment_compensation_amount@2024",
+        "newly_read_inputs_effect": 0.0,
+        "other_engine_changes_effect": 0.0,
+        "requirement_id": "soi_table_1_4_national_dollar_rows",
+        "source": "irs_soi ty2023 table_1_4",
+        "target": 33637347541.042778,
+        "tested": 33529071340.53068,
+        "tested_error": -0.0032189280198143644,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      },
+      {
+        "baseline": 510816071658.8801,
+        "baseline_error": -0.1085867937389202,
+        "baseline_within": true,
+        "build_error": -0.11043557140588779,
+        "build_estimate": 509756646760.77686,
+        "label": "irs_soi.ty2023.table_1_4.all.taxable_social_security_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_social_security_amount@2024",
+        "newly_read_inputs_effect": -834663337.3566895,
+        "other_engine_changes_effect": 3101815472.4748535,
+        "requirement_id": "soi_table_1_4_national_dollar_rows",
+        "source": "irs_soi ty2023 table_1_4",
+        "target": 573040726871.6981,
+        "tested": 513083223793.9983,
+        "tested_error": -0.10463043945412995,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      },
+      {
+        "baseline": 10156076348.183594,
+        "baseline_error": 6.016751449101742e-05,
+        "baseline_within": true,
+        "build_error": 6.016751449214431e-05,
+        "build_estimate": 10156076348.183605,
+        "label": "irs_soi.ty2023.table_1_4.all.capital_gain_distributions_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.capital_gain_distributions_amount@2024",
+        "newly_read_inputs_effect": 0.0,
+        "other_engine_changes_effect": 0.0,
+        "requirement_id": "soi_table_1_4_national_dollar_rows",
+        "source": "irs_soi ty2023 table_1_4",
+        "target": 10155465319.076845,
+        "tested": 10156076348.183594,
+        "tested_error": 6.016751449101742e-05,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      },
+      {
+        "baseline": 52075228419.32789,
+        "baseline_error": 0.00012197174494879116,
+        "baseline_within": true,
+        "build_error": 0.00012197174495040293,
+        "build_estimate": 52075228419.32797,
+        "label": "irs_soi.ty2023.table_1_4.all.estate_trust_net_income_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.estate_trust_net_income_amount@2024",
+        "newly_read_inputs_effect": 0.0,
+        "other_engine_changes_effect": 0.0,
+        "requirement_id": "soi_table_1_4_national_dollar_rows",
+        "source": "irs_soi ty2023 table_1_4",
+        "target": 52068877487.483215,
+        "tested": 52075228419.32789,
+        "tested_error": 0.00012197174494879116,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      },
+      {
+        "baseline": 5322281859.500117,
+        "baseline_error": -0.0007115800237269921,
+        "baseline_within": true,
+        "build_error": -0.0007115800237262759,
+        "build_estimate": 5322281859.500121,
+        "label": "irs_soi.ty2023.table_1_4.all.estate_trust_net_loss_amount@2024",
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.estate_trust_net_loss_amount@2024",
+        "newly_read_inputs_effect": 0.0,
+        "other_engine_changes_effect": 0.0,
+        "requirement_id": "soi_table_1_4_national_dollar_rows",
+        "source": "irs_soi ty2023 table_1_4",
+        "target": 5326071785.78782,
+        "tested": 5322281859.500117,
+        "tested_error": -0.0007115800237269921,
+        "tested_within": true,
+        "tolerance": 0.25,
+        "unit": "usd"
+      }
+    ],
+    "tally": {
+      "baseline_outside": [],
+      "baseline_within": 9,
+      "entering_tolerance": [],
+      "leaving_tolerance": [],
+      "rows": 9,
+      "rows_with_a_tolerance": 9,
+      "same_under_both": 8,
+      "smallest_tested_margin": {
+        "margin": 0.14536956054587005,
+        "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_social_security_amount@2024"
+      },
+      "tested_outside": [],
+      "tested_within": 9
+    }
+  },
+  "tax_unit_roles": {
+    "baseline": {
+      "persons": 166321,
+      "persons_differing": 27382,
+      "tax_units_differing": 14412,
+      "weighted_persons_differing": 63061652.708304375,
+      "weighted_tax_units_differing": 33256538.29962331
+    },
+    "tested": {
+      "persons": 166321,
+      "persons_differing": 0,
+      "tax_units_differing": 0,
+      "weighted_persons_differing": 0.0,
+      "weighted_tax_units_differing": 0.0
+    }
+  },
+  "tested": {
+    "versions": {
+      "policyengine-core": "3.36.1",
+      "policyengine-us": "2.144.4",
+      "spm-calculator": "1.1.0"
+    }
+  },
+  "unscored_critical_rows": [
+    {
+      "requirement_id": "itemized_deduction_amount",
+      "target_name": "irs_soi.ty2023.table_4_3.all_returns_excluding_dependents.all.itemized_deductions_amount@2024"
+    }
+  ],
+  "unscored_requirements": []
+}
