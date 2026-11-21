@@ -1,10 +1,12 @@
 name: Measure
 
-# Run by hand. A run takes about 50 minutes, and every push to a pull request
-# would start one. tests/test_results.py fails when the measurement code no
-# longer matches the committed results, which is the signal to run this.
+# A measurement takes about 50 minutes. It starts by hand, and on any pull
+# request whose measurement code no longer matches the committed results (the
+# files listed in scripts/provenance.py). A pull request that leaves that code
+# alone runs the first job only, which takes seconds.
 on:
   workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
@@ -14,14 +16,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  stale:
+    name: Do the results match the code?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      stale: ${{ steps.check.outputs.stale }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: check
+        run: python3 scripts/provenance.py check measure | tee -a "$GITHUB_OUTPUT"
+
   measure:
     name: Measure (${{ matrix.env }})
+    needs: stale
+    if: github.event_name == 'workflow_dispatch' || needs.stale.outputs.stale == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 150
     strategy:
       fail-fast: false
       matrix:
         env: [pinned, head]
+    env:
+      # A folder outside the committed results, so a run's artifact holds only
+      # what that run wrote. measure.py also refuses to replace a file.
+      OUT: out/${{ matrix.env }}
     steps:
       - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v8.1.0
@@ -29,29 +48,41 @@ jobs:
           version: "0.13.4"
       - name: Build the environment
         run: |
+          test ! -e out
+          mkdir -p "$OUT"
           uv venv --python 3.13 .venv
-          uv pip install --python .venv/bin/python -r envs/${{ matrix.env }}.txt
-          mkdir -p results/${{ matrix.env }}
-          uv pip freeze --python .venv/bin/python > results/${{ matrix.env }}/freeze.txt
-          cat results/${{ matrix.env }}/freeze.txt
+          uv pip install --python .venv/bin/python \
+            -r envs/${{ matrix.env }}.txt \
+            -c envs/${{ matrix.env }}.lock.txt
+          uv pip freeze --python .venv/bin/python > "$OUT/freeze.txt"
+          cat "$OUT/freeze.txt"
+      - name: The environment is the locked one
+        run: diff envs/${{ matrix.env }}.lock.txt "$OUT/freeze.txt"
       # One part per process: a first run that held two periods in one process
-      # exhausted the runner's 16 GB.
+      # exhausted the runner's 16 GB. The short parts run first, so a fault in
+      # them shows within minutes.
       - name: Column contract
-        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out results/${{ matrix.env }} --part contract
-      - name: Panel, 2024
-        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out results/${{ matrix.env }} --part panel --period 2024
-      - name: Panel, 2026
-        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out results/${{ matrix.env }} --part panel --period 2026
+        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out "$OUT" --part contract
       - name: WIC as loaded
-        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out results/${{ matrix.env }} --part wic_loaded
+        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out "$OUT" --part wic_loaded
       - name: WIC with the stored draw
-        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out results/${{ matrix.env }} --part wic_stored
+        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out "$OUT" --part wic_stored
+      - name: Panel, 2024
+        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out "$OUT" --part panel --period 2024
+      - name: Panel, 2026
+        run: .venv/bin/python scripts/measure.py --label ${{ matrix.env }} --out "$OUT" --part panel --period 2026
       - uses: actions/upload-artifact@v7
-        if: always()
         with:
           name: results-${{ matrix.env }}
-          path: results/${{ matrix.env }}
+          path: ${{ env.OUT }}
           if-no-files-found: error
+      # A failed run's files go out under another name, for diagnosis only.
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: incomplete-${{ matrix.env }}
+          path: ${{ env.OUT }}
+          if-no-files-found: ignore
 
   compare:
     name: Compare
@@ -63,17 +94,18 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: results-pinned
-          path: results/pinned
+          path: out/pinned
       - uses: actions/download-artifact@v8
         with:
           name: results-head
-          path: results/head
+          path: out/head
       - name: Compare
-        run: python3 scripts/compare.py results/pinned results/head --out results >> "$GITHUB_STEP_SUMMARY"
+        run: python3 scripts/compare.py out/pinned out/head --out out >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
         with:
           name: results-comparison
           path: |
-            results/comparison.json
-            results/comparison.csv
-            results/comparison.md
+            out/comparison.json
+            out/comparison.csv
+            out/comparison.md
+          if-no-files-found: error

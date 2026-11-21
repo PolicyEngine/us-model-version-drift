@@ -4,6 +4,10 @@ Usage: ``python scripts/compare.py results/pinned results/head --out results``
 
 Writes ``comparison.json``, ``comparison.csv`` and ``comparison.md`` into
 ``--out`` and prints the Markdown.
+
+It refuses two runs that are not complete and alike: a missing file, a panel
+row measured in one run and not the other, a row in error, or a row whose
+variable, kind or unit differs between the runs.
 """
 
 from __future__ import annotations
@@ -11,6 +15,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -19,8 +24,49 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from rules import compare_values  # noqa: E402
 
 
+RUN_FILES = ("environment.json", "contract.json", "wic-loaded.json", "wic-stored.json")
+WIC_VALUES = ("wic_as_loaded", "take_up_share_as_loaded", "wic_with_stored_draw", "take_up_share_with_stored_draw")
+UNIT_NAMES = {"usd": "dollars", "spm_units": "SPM units", "people": "people"}
+
+
 def load(directory: Path, name: str) -> dict:
     return json.loads((directory / name).read_text())
+
+
+def problems(baseline: Path, tested: Path) -> list[str]:
+    """Everything that makes two runs incomplete or not comparable."""
+    found: list[str] = []
+    for directory in (baseline, tested):
+        for name in RUN_FILES:
+            if not (directory / name).exists():
+                found.append(f"{directory}: no {name}")
+        if not list(directory.glob("panel-*.json")):
+            found.append(f"{directory}: no panel-<period>.json")
+    if found:
+        return found
+    panels = []
+    for directory in (baseline, tested):
+        rows = load_panel(directory)
+        keys = [(row["period"], row["id"]) for row in rows]
+        if len(set(keys)) != len(keys):
+            found.append(f"{directory}: a panel row appears twice")
+        for row in rows:
+            value = row.get("value")
+            if row.get("error") is not None or value is None or not math.isfinite(value):
+                found.append(f"{directory}: {row['period']} {row['id']} has no value ({row.get('error')})")
+        panels.append({(row["period"], row["id"]): row for row in rows})
+        wic = load_wic(directory)
+        for key in WIC_VALUES:
+            value = wic.get(key)
+            if value is None or not math.isfinite(value):
+                found.append(f"{directory}: no {key}")
+    for key in sorted(set(panels[0]) ^ set(panels[1])):
+        found.append(f"panel row {key} is in one run only")
+    for key in sorted(set(panels[0]) & set(panels[1])):
+        for field in ("variable", "kind", "unit"):
+            if panels[0][key].get(field) != panels[1][key].get(field):
+                found.append(f"panel row {key}: the runs disagree on its {field}")
+    return found
 
 
 def load_panel(directory: Path) -> list[dict]:
@@ -45,15 +91,14 @@ def panel_rows(baseline: list[dict], tested: list[dict]) -> list[dict]:
     index = {(r["period"], r["id"]): r for r in tested}
     rows = []
     for row in baseline:
-        other = index.get((row["period"], row["id"]), {})
+        other = index[(row["period"], row["id"])]
         out = {
             "period": row["period"],
             "id": row["id"],
             "variable": row["variable"],
             "kind": row["kind"],
+            "unit": row["unit"],
             **compare_values(row.get("value"), other.get("value")),
-            "baseline_error": row.get("error"),
-            "tested_error": other.get("error"),
         }
         rows.append(out)
     return rows
@@ -80,12 +125,14 @@ def contract_diff(baseline: dict, tested: dict) -> dict:
     }
 
 
-def money(value: float | None, kind: str) -> str:
+def amount(value: float | None, unit: str) -> str:
+    """Dollars in billions, counts in millions."""
     if value is None:
         return "n/a"
-    if kind == "sum" and abs(value) >= 1e8:
-        return f"{value / 1e9:,.2f}bn"
-    return f"{value:,.0f}"
+    sign = "−" if value < 0 else ""
+    if unit == "usd":
+        return f"{sign}${abs(value) / 1e9:,.2f}bn"
+    return f"{sign}{abs(value) / 1e6:,.2f}m"
 
 
 def percent(value: float | None) -> str:
@@ -131,6 +178,9 @@ def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, w
         lines.append(f"| {name} | {contract['baseline_counts'][name]} | {contract['tested_counts'][name]} |")
     lines += [
         "",
+        "The classes describe how each release defines a stored column's name. They do not show what the "
+        "loader does with the column: policyengine-core can load stored values for a variable that has a formula.",
+        "",
         f"Model-named columns only the tested release does not define ({len(contract['not_a_variable_only_in_tested'])}): "
         + (", ".join(f"`{c}`" for c in contract["not_a_variable_only_in_tested"]) or "none"),
         "",
@@ -143,7 +193,8 @@ def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, w
         "Stored columns that are not variables of the release, raw fields included: "
         f"{contract['baseline_columns_not_variables']} (baseline), {contract['tested_columns_not_variables']} (tested).",
         "",
-        "Stored columns the release computes (it has a formula for the variable, or adds or subtracts others):",
+        "Stored columns whose variable the release defines as computed (policyengine-core's "
+        "`is_input_variable()` is false for it):",
         "",
         f"- Baseline ({len(contract['computed_and_stored_baseline'])}): {names(contract['computed_and_stored_baseline'])}",
         f"- Tested ({len(contract['computed_and_stored_tested'])}): {names(contract['computed_and_stored_tested'])}",
@@ -153,9 +204,10 @@ def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, w
         missing = contract[f"{key}_required_source_inputs_missing"]
         rejected = contract[f"{key}_rejected_inputs_stored"]
         lines.append(
-            f"{label} release's own declarations: required source inputs missing from the data: "
+            f"{label} release, the two lists in `policyengine_us.spm`, checked by column name: "
+            f"`DATASET_SOURCE_INPUTS` names missing from the data: "
             f"{'not declared in this release' if missing is None else (', '.join(missing) or 'none')}; "
-            f"stored columns it says a dataset must not store: "
+            f"`REJECTED_DATASET_INPUTS` names the data stores: "
             f"{'not declared in this release' if rejected is None else (', '.join(rejected) or 'none')}."
         )
         lines.append("")
@@ -167,9 +219,16 @@ def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, w
     for label, key, kind in (
         ("`would_claim_wic` is a variable", "would_claim_wic_is_a_variable", "flag"),
         ("WIC, 2024, as the release loads the data", "wic_as_loaded", "sum"),
-        ("Take-up input share true, as loaded (January 2024, weighted)", "take_up_share_as_loaded", "share"),
         ("WIC, 2024, with the stored draw applied", "wic_with_stored_draw", "sum"),
-        ("Take-up input share true, stored draw applied", "take_up_share_with_stored_draw", "share"),
+        ("Take-up input true, as loaded: share of all people, person-weighted, January 2024", "take_up_share_as_loaded", "share"),
+        (
+            "Take-up input true, stored draw applied: share of all people, person-weighted, January 2024",
+            "take_up_share_with_stored_draw",
+            "share",
+        ),
+        ("Stored draw true: share of stored person rows, unweighted", "stored_draw_share_true_unweighted", "share"),
+        ("People in the simulation", "person_ids_in_simulation", "count"),
+        ("Stored person rows", "stored_draw_rows", "count"),
     ):
         cells = []
         for side in ("baseline", "tested"):
@@ -179,13 +238,15 @@ def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, w
             elif kind == "flag":
                 cells.append("yes" if value else "no")
             elif kind == "share":
-                cells.append(f"{value * 100:.1f}%")
+                cells.append(f"{value * 100:.2f}%")
+            elif kind == "count":
+                cells.append(f"{value:,}")
             else:
-                cells.append(money(value, "sum"))
+                cells.append(amount(value, "usd"))
         lines.append(f"| {label} | {cells[0]} | {cells[1]} |")
     lines.append(
         "| As loaded minus stored draw | "
-        + " | ".join(money(gaps[side]["difference"], "sum") for side in ("baseline", "tested"))
+        + " | ".join(amount(gaps[side]["difference"], "usd") for side in ("baseline", "tested"))
         + " |"
     )
     lines.append(
@@ -193,23 +254,26 @@ def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, w
         + " | ".join(percent(gaps[side]["relative_difference"]) for side in ("baseline", "tested"))
         + " |"
     )
-    lines.append("")
+    lines += [
+        "",
+        "The stored draw is matched to the simulation's people on `person_id`. The measurement stops unless "
+        "each side's ids are unique and the two sides hold the same ids.",
+        "",
+    ]
     for period in sorted({r["period"] for r in rows}):
         lines += [
             f"## Panel, {period}",
             "",
-            "| Row | Variable | Baseline | Tested | Difference | Relative |",
-            "|---|---|---|---|---|---|",
+            "| Row | Variable | Counts | Baseline | Tested | Difference | Relative |",
+            "|---|---|---|---|---|---|---|",
         ]
         for r in rows:
             if r["period"] != period:
                 continue
-            note = ""
-            if r["baseline_error"] or r["tested_error"]:
-                note = f" ({r['baseline_error'] or 'ok'} / {r['tested_error'] or 'ok'})"
             lines.append(
-                f"| {r['id']} | `{r['variable']}` | {money(r['baseline'], r['kind'])} | {money(r['tested'], r['kind'])} | "
-                f"{money(r['difference'], r['kind'])} | {percent(r['relative_difference'])}{note} |"
+                f"| {r['id']} | `{r['variable']}` | {UNIT_NAMES[r['unit']]} | {amount(r['baseline'], r['unit'])} | "
+                f"{amount(r['tested'], r['unit'])} | {amount(r['difference'], r['unit'])} | "
+                f"{percent(r['relative_difference'])} |"
             )
         lines.append("")
     return "\n".join(lines)
@@ -222,6 +286,9 @@ def main() -> int:
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
 
+    found = problems(args.baseline, args.tested)
+    if found:
+        raise SystemExit("the two runs are not complete and alike:\n  " + "\n  ".join(found))
     base_env, test_env = load(args.baseline, "environment.json"), load(args.tested, "environment.json")
     if base_env["dataset"]["sha256"] != test_env["dataset"]["sha256"]:
         raise SystemExit("the two runs measured different dataset bytes")
