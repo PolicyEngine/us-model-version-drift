@@ -12,6 +12,7 @@ on:
 permissions:
   contents: read
 
+# A new push to the same pull request cancels a scoring run in progress.
 concurrency:
   group: score-${{ github.ref }}
   cancel-in-progress: true
@@ -38,7 +39,8 @@ jobs:
     needs: stale
     if: github.event_name == 'workflow_dispatch' || needs.stale.outputs.stale == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    # A scoring job has taken 10 to 15 minutes.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
