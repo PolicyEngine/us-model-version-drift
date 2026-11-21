@@ -1,0 +1,661 @@
+{
+  "note": "The first complete Measure run, on 2026-11-17, at commit c0f3c91. These are the panel rows of its results-pinned and results-head artifacts, as this repository held them at commit 6f56627. The seconds each panel process took are from the same files.",
+  "panel_seconds": {
+    "head": {
+      "2024": 777.2,
+      "2026": 812.1
+    },
+    "pinned": {
+      "2024": 268.3,
+      "2026": 274.5
+    }
+  },
+  "rows": {
+    "head": [
+      {
+        "error": null,
+        "id": "income_tax_net",
+        "kind": "sum",
+        "period": 2024,
+        "value": 2303820760367.078,
+        "variable": "income_tax"
+      },
+      {
+        "error": null,
+        "id": "ctc_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 148660122252.23254,
+        "variable": "ctc"
+      },
+      {
+        "error": null,
+        "id": "eitc_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 67126845306.268524,
+        "variable": "eitc"
+      },
+      {
+        "error": null,
+        "id": "social_security_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 1464840941025.9067,
+        "variable": "social_security"
+      },
+      {
+        "error": null,
+        "id": "snap_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 99538245497.72182,
+        "variable": "snap"
+      },
+      {
+        "error": null,
+        "id": "snap_units",
+        "kind": "count_positive",
+        "period": 2024,
+        "value": 23579609.465452533,
+        "variable": "snap"
+      },
+      {
+        "error": null,
+        "id": "ssi_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 54894155396.4505,
+        "variable": "ssi"
+      },
+      {
+        "error": null,
+        "id": "medicaid_enrollment",
+        "kind": "sum",
+        "period": 2024,
+        "value": 71515569.0571549,
+        "variable": "medicaid_enrolled"
+      },
+      {
+        "error": null,
+        "id": "medicaid_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 880018877680.4186,
+        "variable": "medicaid"
+      },
+      {
+        "error": null,
+        "id": "state_income_tax_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 515008101903.88293,
+        "variable": "state_income_tax"
+      },
+      {
+        "error": null,
+        "id": "medicare_part_d_irmaa_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 3337771767.6691303,
+        "variable": "income_adjusted_part_d_premium_surcharge"
+      },
+      {
+        "error": null,
+        "id": "medicare_cost_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 809453991150.0447,
+        "variable": "medicare_cost"
+      },
+      {
+        "error": null,
+        "id": "adjusted_gross_income_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 16795338634788.234,
+        "variable": "adjusted_gross_income"
+      },
+      {
+        "error": null,
+        "id": "wic_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 11311135577.976173,
+        "variable": "wic"
+      },
+      {
+        "error": null,
+        "id": "tanf_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 5060766979.993631,
+        "variable": "tanf"
+      },
+      {
+        "error": null,
+        "id": "refundable_ctc_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 37231949614.50598,
+        "variable": "refundable_ctc"
+      },
+      {
+        "error": null,
+        "id": "employee_payroll_tax_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 759856630198.5314,
+        "variable": "employee_payroll_tax"
+      },
+      {
+        "error": null,
+        "id": "premium_tax_credit_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 60124397771.29128,
+        "variable": "premium_tax_credit"
+      },
+      {
+        "error": null,
+        "id": "household_net_income_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 15270734033009.426,
+        "variable": "household_net_income"
+      },
+      {
+        "error": null,
+        "id": "people_in_spm_poverty",
+        "kind": "sum",
+        "period": 2024,
+        "value": 41545640.13732584,
+        "variable": "person_in_poverty"
+      },
+      {
+        "error": null,
+        "id": "income_tax_net",
+        "kind": "sum",
+        "period": 2026,
+        "value": 2595023394595.203,
+        "variable": "income_tax"
+      },
+      {
+        "error": null,
+        "id": "ctc_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 158863868028.37848,
+        "variable": "ctc"
+      },
+      {
+        "error": null,
+        "id": "eitc_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 69998605387.18579,
+        "variable": "eitc"
+      },
+      {
+        "error": null,
+        "id": "social_security_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 1677873892455.981,
+        "variable": "social_security"
+      },
+      {
+        "error": null,
+        "id": "snap_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 95097690140.34113,
+        "variable": "snap"
+      },
+      {
+        "error": null,
+        "id": "snap_units",
+        "kind": "count_positive",
+        "period": 2026,
+        "value": 22593839.456833955,
+        "variable": "snap"
+      },
+      {
+        "error": null,
+        "id": "ssi_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 56690901871.95177,
+        "variable": "ssi"
+      },
+      {
+        "error": null,
+        "id": "medicaid_enrollment",
+        "kind": "sum",
+        "period": 2026,
+        "value": 70842955.89893392,
+        "variable": "medicaid_enrolled"
+      },
+      {
+        "error": null,
+        "id": "medicaid_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 880018883943.0208,
+        "variable": "medicaid"
+      },
+      {
+        "error": null,
+        "id": "state_income_tax_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 576638045771.1696,
+        "variable": "state_income_tax"
+      },
+      {
+        "error": null,
+        "id": "medicare_part_d_irmaa_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 4007672069.754963,
+        "variable": "income_adjusted_part_d_premium_surcharge"
+      },
+      {
+        "error": null,
+        "id": "medicare_cost_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 928077278635.9829,
+        "variable": "medicare_cost"
+      },
+      {
+        "error": null,
+        "id": "adjusted_gross_income_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 18986977768522.293,
+        "variable": "adjusted_gross_income"
+      },
+      {
+        "error": null,
+        "id": "wic_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 11792506210.215073,
+        "variable": "wic"
+      },
+      {
+        "error": null,
+        "id": "tanf_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 5182083755.83456,
+        "variable": "tanf"
+      },
+      {
+        "error": null,
+        "id": "refundable_ctc_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 40620329066.294,
+        "variable": "refundable_ctc"
+      },
+      {
+        "error": null,
+        "id": "employee_payroll_tax_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 840519491307.9478,
+        "variable": "employee_payroll_tax"
+      },
+      {
+        "error": null,
+        "id": "premium_tax_credit_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 47235696829.58892,
+        "variable": "premium_tax_credit"
+      },
+      {
+        "error": null,
+        "id": "household_net_income_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 17245957479108.06,
+        "variable": "household_net_income"
+      },
+      {
+        "error": null,
+        "id": "people_in_spm_poverty",
+        "kind": "sum",
+        "period": 2026,
+        "value": 47599201.85196167,
+        "variable": "person_in_poverty"
+      }
+    ],
+    "pinned": [
+      {
+        "error": null,
+        "id": "income_tax_net",
+        "kind": "sum",
+        "period": 2024,
+        "value": 2262598213311.9766,
+        "variable": "income_tax"
+      },
+      {
+        "error": null,
+        "id": "ctc_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 147539080851.74878,
+        "variable": "ctc"
+      },
+      {
+        "error": null,
+        "id": "eitc_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 66612637956.19162,
+        "variable": "eitc"
+      },
+      {
+        "error": null,
+        "id": "social_security_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 1464840941025.9067,
+        "variable": "social_security"
+      },
+      {
+        "error": null,
+        "id": "snap_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 101948658856.76624,
+        "variable": "snap"
+      },
+      {
+        "error": null,
+        "id": "snap_units",
+        "kind": "count_positive",
+        "period": 2024,
+        "value": 23408655.251528144,
+        "variable": "snap"
+      },
+      {
+        "error": null,
+        "id": "ssi_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 56097079462.83588,
+        "variable": "ssi"
+      },
+      {
+        "error": null,
+        "id": "medicaid_enrollment",
+        "kind": "sum",
+        "period": 2024,
+        "value": 72205082.32033254,
+        "variable": "medicaid_enrolled"
+      },
+      {
+        "error": null,
+        "id": "medicaid_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 880018889424.9663,
+        "variable": "medicaid"
+      },
+      {
+        "error": null,
+        "id": "state_income_tax_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 536193091301.84143,
+        "variable": "state_income_tax"
+      },
+      {
+        "error": null,
+        "id": "medicare_part_d_irmaa_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 0.0,
+        "variable": "income_adjusted_part_d_premium_surcharge"
+      },
+      {
+        "error": null,
+        "id": "medicare_cost_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 516731354249.5509,
+        "variable": "medicare_cost"
+      },
+      {
+        "error": null,
+        "id": "adjusted_gross_income_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 16683143509971.34,
+        "variable": "adjusted_gross_income"
+      },
+      {
+        "error": null,
+        "id": "wic_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 11517240776.317844,
+        "variable": "wic"
+      },
+      {
+        "error": null,
+        "id": "tanf_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 5067662649.422696,
+        "variable": "tanf"
+      },
+      {
+        "error": null,
+        "id": "refundable_ctc_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 37495465911.91746,
+        "variable": "refundable_ctc"
+      },
+      {
+        "error": null,
+        "id": "employee_payroll_tax_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 757468167357.2365,
+        "variable": "employee_payroll_tax"
+      },
+      {
+        "error": null,
+        "id": "premium_tax_credit_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 60058977058.32765,
+        "variable": "premium_tax_credit"
+      },
+      {
+        "error": null,
+        "id": "household_net_income_total",
+        "kind": "sum",
+        "period": 2024,
+        "value": 15184280201525.043,
+        "variable": "household_net_income"
+      },
+      {
+        "error": null,
+        "id": "people_in_spm_poverty",
+        "kind": "sum",
+        "period": 2024,
+        "value": 44271756.15920584,
+        "variable": "person_in_poverty"
+      },
+      {
+        "error": null,
+        "id": "income_tax_net",
+        "kind": "sum",
+        "period": 2026,
+        "value": 2610604484904.08,
+        "variable": "income_tax"
+      },
+      {
+        "error": null,
+        "id": "ctc_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 157468351520.51172,
+        "variable": "ctc"
+      },
+      {
+        "error": null,
+        "id": "eitc_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 68266669758.05227,
+        "variable": "eitc"
+      },
+      {
+        "error": null,
+        "id": "social_security_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 1705545725120.4775,
+        "variable": "social_security"
+      },
+      {
+        "error": null,
+        "id": "snap_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 100265316841.38287,
+        "variable": "snap"
+      },
+      {
+        "error": null,
+        "id": "snap_units",
+        "kind": "count_positive",
+        "period": 2026,
+        "value": 22196344.055778008,
+        "variable": "snap"
+      },
+      {
+        "error": null,
+        "id": "ssi_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 57855559925.80327,
+        "variable": "ssi"
+      },
+      {
+        "error": null,
+        "id": "medicaid_enrollment",
+        "kind": "sum",
+        "period": 2026,
+        "value": 70168488.6210724,
+        "variable": "medicaid_enrolled"
+      },
+      {
+        "error": null,
+        "id": "medicaid_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 880018869437.1897,
+        "variable": "medicaid"
+      },
+      {
+        "error": null,
+        "id": "state_income_tax_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 613774075360.7506,
+        "variable": "state_income_tax"
+      },
+      {
+        "error": null,
+        "id": "medicare_part_d_irmaa_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 3951296764.934417,
+        "variable": "income_adjusted_part_d_premium_surcharge"
+      },
+      {
+        "error": null,
+        "id": "medicare_cost_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 684158696683.1964,
+        "variable": "medicare_cost"
+      },
+      {
+        "error": null,
+        "id": "adjusted_gross_income_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 19158610569490.254,
+        "variable": "adjusted_gross_income"
+      },
+      {
+        "error": null,
+        "id": "wic_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 11766039532.482082,
+        "variable": "wic"
+      },
+      {
+        "error": null,
+        "id": "tanf_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 5045530740.344602,
+        "variable": "tanf"
+      },
+      {
+        "error": null,
+        "id": "refundable_ctc_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 40622851533.42457,
+        "variable": "refundable_ctc"
+      },
+      {
+        "error": null,
+        "id": "employee_payroll_tax_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 852126740432.294,
+        "variable": "employee_payroll_tax"
+      },
+      {
+        "error": null,
+        "id": "premium_tax_credit_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 46441464750.96096,
+        "variable": "premium_tax_credit"
+      },
+      {
+        "error": null,
+        "id": "household_net_income_total",
+        "kind": "sum",
+        "period": 2026,
+        "value": 17426291581224.53,
+        "variable": "household_net_income"
+      },
+      {
+        "error": null,
+        "id": "people_in_spm_poverty",
+        "kind": "sum",
+        "period": 2026,
+        "value": 47132500.90618125,
+        "variable": "person_in_poverty"
+      }
+    ]
+  },
+  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44141335692",
+  "workflow_run": 44141335692
+}
