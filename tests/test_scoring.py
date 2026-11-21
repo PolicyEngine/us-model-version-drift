@@ -14,6 +14,7 @@
 
 import copy
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -259,3 +260,20 @@ def test_each_scoring_environment_was_the_constrained_one(name, run):
     for package, version in fetch_wheels.pins(environment).items():
         assert wheels[package].endswith(f"/{package.replace('-', '_')}-{version}-py3-none-any.whl"), package
     assert len(others) == len(editable) + len(wheels)
+
+
+@pytest.mark.parametrize("name", ("run-44345993218-rows.json", "run-44903905024-rows.json"))
+def test_an_earlier_scoring_run_gave_the_same_rows(name):
+    """Earlier runs, under installs that were not constrained, agree with the
+    committed scores: every estimate to nine significant figures, and every
+    target, tolerance and verdict exactly."""
+    earlier = json.loads((SCORED / "earlier" / name).read_text())
+    assert earlier["workflow_run"] != json.loads((SCORED / "provenance.json").read_text())["workflow_run"]
+    now = {row["metric_id"]: row for row in json.loads((SCORED / "drift.json").read_text())["rows"]}
+    assert set(now) == {row["metric_id"] for row in earlier["rows"]}
+    for row in earlier["rows"]:
+        current = now[row["metric_id"]]
+        for key in ("baseline", "tested", "without_newly_read_inputs"):
+            assert math.isclose(current[key], row[key], rel_tol=1e-9, abs_tol=0.0), (row["metric_id"], key)
+        for key in ("requirement_id", "target", "tolerance", "within_tolerance"):
+            assert current.get(key) == row[key], (row["metric_id"], key)
