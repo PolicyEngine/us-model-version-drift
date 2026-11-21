@@ -1,15 +1,13 @@
 name: Score
 
 # Scores the default US dataset against Microcosm's critical calibration
-# targets under each measured release, with Microcosm's own scorer.
+# targets under each measured release, with Microcosm's own scorer. It starts
+# by hand, and on any pull request whose scoring code no longer matches the
+# committed scores (the files listed in scripts/provenance.py). A pull request
+# that leaves that code alone runs the first job only.
 on:
   workflow_dispatch:
   pull_request:
-    paths:
-      - scripts/fetch_wheels.py
-      - scripts/prepare_scoring.py
-      - scripts/critical_targets.py
-      - .github/workflows/score.yml
 
 permissions:
   contents: read
@@ -24,8 +22,21 @@ env:
   HF_FOLDER: https://huggingface.co/datasets/policyengine/populace-us/resolve/0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3/releases/microcosm-us-2024-national/populace-us-2024-spm-20260915
 
 jobs:
+  stale:
+    name: Do the scores match the code?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      stale: ${{ steps.check.outputs.stale }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: check
+        run: python3 scripts/provenance.py check score | tee -a "$GITHUB_OUTPUT"
+
   score:
     name: Score (${{ matrix.name }})
+    needs: stale
+    if: github.event_name == 'workflow_dispatch' || needs.stale.outputs.stale == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 330
     strategy:
@@ -55,14 +66,20 @@ jobs:
         run: python3 scripts/fetch_wheels.py --run ${{ matrix.run }} --dest wheels
       - name: Build the environment
         run: |
+          test ! -e out
+          mkdir -p out
           uv venv --python 3.13 .venv
           uv pip install --python .venv/bin/python --no-sources \
             wheels/*.whl tables \
             -e microcosm/packages/microcosm-diagnostics \
-            -e microcosm/packages/microcosm-data
-          mkdir -p out
+            -e microcosm/packages/microcosm-data \
+            -c envs/score.constraints.txt
           uv pip freeze --python .venv/bin/python > out/freeze.txt
           cat out/freeze.txt
+      # Every package from PyPI is at its constrained version. The other lines
+      # are the three engine wheels and Microcosm's two packages.
+      - name: The environment is the constrained one
+        run: grep '==' out/freeze.txt | diff envs/score.constraints.txt -
       - name: Download the dataset and its calibration diagnostics
         run: |
           mkdir -p scoring/artifacts downloads
@@ -84,7 +101,6 @@ jobs:
             --variant ${{ matrix.variant }} \
             $(printf -- '--compatibility-wheel %s ' wheels/*.whl)
       - uses: actions/upload-artifact@v7
-        if: always()
         with:
           name: scores-${{ matrix.name }}
           path: out
@@ -110,7 +126,8 @@ jobs:
           uv venv --python 3.13 .venv
           uv pip install --python .venv/bin/python --no-sources \
             -e microcosm/packages/microcosm-diagnostics \
-            -e microcosm/packages/microcosm-data
+            -e microcosm/packages/microcosm-data \
+            -c envs/score.constraints.txt
       - uses: actions/download-artifact@v8
         with:
           pattern: scores-*
@@ -127,9 +144,19 @@ jobs:
             --counterfactual downloads/scores-head-without-newly-read/scores.json \
             --diagnostics scoring/release/calibration_diagnostics.json \
             --inputs downloads/scores-pinned/scoring_inputs.json \
-            --out results/critical-targets >> "$GITHUB_STEP_SUMMARY"
+            --out out/critical-targets >> "$GITHUB_STEP_SUMMARY"
+      # One artifact holds everything a run commits: a fresh folder, so it
+      # carries nothing from the committed scores.
+      - name: Gather what the three scoring jobs recorded
+        run: |
+          for name in pinned head head-without-newly-read; do
+            cmp downloads/scores-pinned/scoring_inputs.json "downloads/scores-$name/scoring_inputs.json"
+            cp "downloads/scores-$name/freeze.txt" "out/critical-targets/freeze-$name.txt"
+          done
+          cp downloads/scores-pinned/scoring_inputs.json out/critical-targets/
+          ls -l out/critical-targets
       - uses: actions/upload-artifact@v7
         with:
           name: results-critical-targets
-          path: results/critical-targets
+          path: out/critical-targets
           if-no-files-found: error

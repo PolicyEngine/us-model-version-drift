@@ -3,6 +3,7 @@
 Record a run, after downloading its artifacts into the results folder::
 
     python scripts/provenance.py record measure --run 44141335692
+    python scripts/provenance.py record score --run 44345993218
 
 The run's commit, event and times come from GitHub (through ``gh``), so
 nobody types them.
@@ -43,6 +44,17 @@ KINDS = {
         ),
         "record": "results/provenance.json",
         "artifacts": ["results-pinned", "results-head"],
+    },
+    "score": {
+        "code": (
+            "scripts/fetch_wheels.py",
+            "scripts/prepare_scoring.py",
+            "scripts/critical_targets.py",
+            "envs/score.constraints.txt",
+            ".github/workflows/score.yml",
+        ),
+        "record": "results/critical-targets/provenance.json",
+        "artifacts": ["results-critical-targets"],
     },
 }
 

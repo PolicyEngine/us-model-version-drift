@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import critical_targets  # noqa: E402
 import fetch_wheels  # noqa: E402
 import prepare_scoring  # noqa: E402
+import provenance  # noqa: E402
 
 json_values = st.recursive(
     st.none() | st.booleans() | st.integers() | st.floats(allow_nan=False, allow_infinity=False) | st.text(max_size=5),
@@ -235,8 +236,26 @@ def test_scorer_totals_equal_the_measured_panel():
 
 
 def test_scores_come_from_this_scoring_code():
-    import hashlib
+    assert not provenance.is_stale("score"), "scoring code changed since these scores: run Score again"
+    record = json.loads((SCORED / "provenance.json").read_text())
+    assert record["workflow"] == "Score"
+    assert record["artifacts"] == ["results-critical-targets"]
 
-    recorded = json.loads((SCORED / "provenance.json").read_text())["scoring_code_sha256"]
-    assert recorded == {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in recorded}
-    assert set(recorded) == {"scripts/fetch_wheels.py", "scripts/prepare_scoring.py", ".github/workflows/score.yml"}
+
+@pytest.mark.parametrize("name, run", (("pinned", "pinned"), ("head", "head"), ("head-without-newly-read", "head")))
+def test_each_scoring_environment_was_the_constrained_one(name, run):
+    """Every PyPI package sat at its constrained version. The only other
+    installs were the measured run's three engine wheels and Microcosm's two
+    packages."""
+    lines = (SCORED / f"freeze-{name}.txt").read_text().splitlines()
+    constraints = (ROOT / "envs" / "score.constraints.txt").read_text().splitlines()
+    assert [line for line in lines if "==" in line] == constraints
+    others = [line for line in lines if "==" not in line]
+    editable = [line for line in others if line.startswith("-e ")]
+    assert sorted(line.rsplit("/", 1)[-1] for line in editable) == ["microcosm-data", "microcosm-diagnostics"]
+    environment = json.loads((ROOT / "results" / run / "environment.json").read_text())
+    wheels = {line.split(" @ ", 1)[0]: line for line in others if " @ file://" in line}
+    assert set(wheels) == set(fetch_wheels.PACKAGES)
+    for package, version in fetch_wheels.pins(environment).items():
+        assert wheels[package].endswith(f"/{package.replace('-', '_')}-{version}-py3-none-any.whl"), package
+    assert len(others) == len(editable) + len(wheels)
