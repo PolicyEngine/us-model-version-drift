@@ -1,6 +1,8 @@
 {
   "person_ids_in_simulation": 166321,
-  "person_ids_matched": 166321,
+  "person_ids_stored": 166321,
+  "person_ids_unique_and_identical_sets": true,
+  "stored_draw_true_rows_applied": 7470,
   "take_up_share_with_stored_draw": 0.03799470686325908,
   "wic_with_stored_draw": 6633045181.377785
 }

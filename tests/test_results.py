@@ -17,7 +17,7 @@
   classification rule, table by table.
 - The stored WIC draw was applied to every person, matched on a unique id.
 - Two separate processes agree on WIC as loaded, and three earlier runs
-  agree with this one on every row they measured.
+  gave exactly this run's value for every row they measured.
 """
 
 import json
@@ -197,8 +197,9 @@ EARLIER = {
 
 @pytest.mark.parametrize("name", sorted(EARLIER))
 def test_an_earlier_run_gave_the_same_rows(name):
-    """Every row an earlier run measured agrees with this one to nine
-    significant figures, under code that has changed since."""
+    """Every row an earlier run measured equals this run's exactly, under
+    code that has changed since. If a later run differs in a last digit, this
+    fails, and the README's claim of equal digits has to change with it."""
     earlier = load("earlier", name)
     assert earlier["workflow_run"] != load("provenance.json")["workflow_run"]
     definitions = {metric_id: (variable, kind) for metric_id, variable, kind, _ in measure.PANEL}
@@ -207,6 +208,6 @@ def test_an_earlier_run_gave_the_same_rows(name):
         now = {(row["period"], row["id"]): row["value"] for row in panel(run)}
         for row in earlier["rows"][run]:
             assert (row["variable"], row["kind"]) == definitions[row["id"]], row
-            assert math.isclose(now[(row["period"], row["id"])], row["value"], rel_tol=1e-9, abs_tol=0.0), row
+            assert now[(row["period"], row["id"])] == row["value"], row
             compared += 1
     assert compared == EARLIER[name]

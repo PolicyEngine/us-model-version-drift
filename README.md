@@ -4,7 +4,7 @@ How far PolicyEngine US results on the default dataset move between two releases
 
 ## Results
 
-Measured on 2026-11-21: [workflow run 44904663719](https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44904663719). Every figure below comes from the files in `results/`, and [`results/comparison.md`](results/comparison.md) lists every row.
+Measured on 2026-11-21: [workflow run 44907751024](https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44907751024). Every figure below comes from the files in `results/`, and [`results/comparison.md`](results/comparison.md) lists every row.
 
 | Environment | policyengine-us | policyengine-core | spm-calculator |
 |---|---|---|---|
@@ -97,7 +97,9 @@ The scorer needs a Supplemental Poverty Measure (SPM) geography, and the publish
 
 ### Run time
 
-RUNTIME_PARAGRAPH
+On a GitHub-hosted `ubuntu-latest` runner, one process that builds the simulation and computes one year of the panel took 427 and 446 seconds on 2.2.2, and 554 and 578 seconds on 2.144.4. The dataset was already on the runner's disk: an earlier step had downloaded it.
+
+Times vary a lot between runs. Across this run and the two earlier complete runs in `results/earlier/`, a panel year took 268 to 473 seconds on 2.2.2 and 546 to 812 seconds on 2.144.4. Within a run, 2.144.4 took between 1.2 and 3.0 times as long as 2.2.2.
 
 ## What this does not show
 
@@ -106,7 +108,7 @@ RUNTIME_PARAGRAPH
 - Nothing here attributes a row's movement to a particular change.
 - A national total can hide changes that offset each other across households.
 - Each release extends the 2024 file to 2026 with its own uprating factors. The 2026 rows therefore mix differences in rules with differences in uprating.
-- Two releases, one dataset. AGREEMENT_SENTENCE
+- Two releases, one dataset. Three earlier runs, from 2026-11-17 to 2026-11-21 and under earlier versions of this code, measured the same panel. Every row they measured, 204 in all, equals this run's in every digit (`results/earlier/`).
 - The environments install under lock files, so every package version is fixed. The interpreter is Python 3.13; its patch version is recorded in `results/*/environment.json`, not pinned.
 
 ## Method
@@ -126,7 +128,7 @@ The tests in `tests/` check the rules with property-based tests, and check the c
 - Each run installed exactly its lock file.
 - Each run measured exactly the panel the code defines.
 - The column classes follow from the recorded definitions.
-- The earlier runs in `results/earlier/` agree with this one.
+- The earlier runs in `results/earlier/` gave exactly this run's panel rows.
 - The critical-target tables rebuild byte for byte from `drift.json`, the scores used the measured releases and dataset, and the earlier scoring runs in `results/critical-targets/earlier/` agree with this one.
 
 ## Measure again

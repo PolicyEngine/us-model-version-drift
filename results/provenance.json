@@ -3,15 +3,23 @@
     "results-pinned",
     "results-head"
   ],
-  "completed": "2026-11-17T18:37:38Z",
-  "event": "pull_request",
-  "head_sha": "c0f3c915005e96bd61784df59cda9f20f09ebd63",
-  "measurement_code_sha256": {
+  "checked_out": [
+    "f2e8bc4d89658cb2a6bcb5e329242f8a3e2d23c8"
+  ],
+  "code_sha256": {
+    ".github/workflows/measure.yml": "9c65e6a33ef7b957455440e718adcd6bb24215d83398b6d58670db8a8df8f8f0",
+    "envs/head.lock.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
     "envs/head.txt": "984a9f33eae7154be83c07c0ec181f8023cc8c0e5153b03a95ec5b6212c772a7",
+    "envs/pinned.lock.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
     "envs/pinned.txt": "4dab09cbeb389d03a3e459d8c8b940c176ff37093509a7dd6cfc6aa0b850b0b7",
-    "scripts/measure.py": "9229f6342bafeebffd5491fd6046234153dd642227f95837e8f9a307d656efb7",
-    "scripts/rules.py": "a46c00824a485a18a423ebf3ec72c9264b97cd6f3c3dae3ab6621f3965b4b138"
+    "scripts/measure.py": "33c630b536efbdf7208ce698c82a3b405b66387204a43afde250266c8d4e27d0",
+    "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
   },
-  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44141335692",
-  "workflow_run": 44141335692
+  "completed": "2026-11-21T13:47:14Z",
+  "event": "pull_request",
+  "head_sha": "8af9bc5fe0b8bce2972e88b9e44f9943e48538b2",
+  "started": "2026-11-21T13:13:04Z",
+  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44907751024",
+  "workflow": "Measure",
+  "workflow_run": 44907751024
 }
