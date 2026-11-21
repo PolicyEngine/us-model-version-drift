@@ -133,7 +133,7 @@ The tests in `tests/` check the rules with property-based tests, and check the c
 
 ## Measure again
 
-The `Measure` workflow builds both environments on GitHub-hosted runners and uploads the results. A measurement takes about 50 minutes. It starts on a pull request whenever the measurement code no longer matches the committed results, and by hand:
+The `Measure` workflow builds both environments on GitHub-hosted runners and uploads the results. A measurement has taken 33 to 47 minutes. It starts on a pull request whenever the measurement code no longer matches the committed results, and by hand:
 
 ```bash
 gh workflow run measure.yml --ref <branch>
