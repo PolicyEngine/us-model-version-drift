@@ -77,7 +77,7 @@ A second run, on 2026-11-18 ([workflow run 44345993218](https://github.com/Polic
 - The scorer did not score one critical row: the itemized-deduction total from SOI table 4.3.
 - 8 of the 9 Table 1.4 rows have the same estimate under both releases. Only taxable Social Security moves, from −10.9% to −10.5%.
 - The scorer's programme totals equal this repository's 2024 panel to within one part in 10⁸, and a test checks this. The scorer runs in batches of households; the panel runs on the whole file.
-- 2.144.4 reads one stored column that 2.2.2 does not define, `tax_unit_role_input`. Under 2.2.2, the tax-unit roles the engine assigns differ from the stored ones for 27,382 people (63.1 million weighted); under 2.144.4, for none. That column accounts for −$35.8bn of the $112.2bn rise in adjusted gross income.
+- 2.144.4 reads one stored column that 2.2.2 does not define, `tax_unit_role_input`. Under 2.2.2, the tax-unit roles the engine assigns differ from the stored ones for 27,382 people (63.1 million weighted); under 2.144.4, for none. Reading that column lowers adjusted gross income under 2.144.4 by $35.8bn: the rise between the releases is $112.2bn with it and $148.0bn without it.
 - Microcosm's stored-input check fails under both releases. Both ignore `would_claim_wic` and `medicare_part_b_premiums`, and 2.144.4 also ignores the two mortgage-interest columns.
 
 Every requirement is an IRS Statistics of Income (SOI) or Social Security Administration row for 2024. None covers Medicare, SNAP, SSI, state income tax, poverty or WIC, the rows that moved most between the releases. Passing these rows does not show that the head release is safe to promote.
