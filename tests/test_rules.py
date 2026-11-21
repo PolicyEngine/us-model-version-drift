@@ -13,6 +13,8 @@
   refuses repeated or unmatched ids.
 - The comparison refuses runs that are incomplete or not alike.
 - Results are stale exactly when a measurement file differs from the record.
+- Result files count as one run's only when each names that run and
+  repository and all carry the same code hashes.
 """
 
 import json
@@ -34,10 +36,14 @@ import measure  # noqa: E402
 import provenance  # noqa: E402
 from rules import (  # noqa: E402
     CLASSES,
+    RUN_KEYS,
     classify_column,
     classify_columns,
     compare_values,
+    file_hashes,
     relative_difference,
+    run_identity,
+    stamped_by_one_run,
 )
 
 names = st.text(alphabet="abcXYZ_019", min_size=1, max_size=6)
@@ -282,3 +288,55 @@ def test_results_are_stale_exactly_when_the_code_differs(tmp_path):
         assert provenance.is_stale("measure", tmp_path), path
         (tmp_path / path).write_text(original)
     assert not provenance.is_stale("measure", tmp_path)
+
+
+def stamp(run="7", repository="o/r", code=None):
+    return {
+        "run": {"github_repository": repository, "github_run_id": run, "github_sha": "c" * 40},
+        "code_sha256": {"a.py": "1" * 64} if code is None else code,
+    }
+
+
+def test_result_files_of_one_run_agree():
+    assert stamped_by_one_run([stamp(), stamp()], "o/r", 7) == {"a.py": "1" * 64}
+
+
+@pytest.mark.parametrize(
+    "stamps",
+    (
+        [],
+        [stamp(), stamp(run="8")],
+        [stamp(run=None)],
+        [stamp(repository="someone/else")],
+        [stamp(), stamp(code={"a.py": "2" * 64})],
+        [stamp(code={})],
+        [{"code_sha256": {"a.py": "1" * 64}}],
+    ),
+)
+def test_result_files_from_elsewhere_are_refused(stamps):
+    with pytest.raises(ValueError):
+        stamped_by_one_run(stamps, "o/r", 7)
+
+
+@given(st.dictionaries(st.sampled_from(RUN_KEYS + ("HOME", "PATH")), st.text(max_size=8)))
+def test_run_identity_reads_only_the_run_variables(environ):
+    identity = run_identity(environ)
+    assert set(identity) == {key.lower() for key in RUN_KEYS}
+    for key in RUN_KEYS:
+        assert identity[key.lower()] == environ.get(key)
+
+
+def test_file_hashes_follow_the_bytes(tmp_path):
+    (tmp_path / "a.txt").write_text("one")
+    (tmp_path / "b.txt").write_text("one")
+    first = file_hashes(tmp_path, ["a.txt", "b.txt"])
+    assert first["a.txt"] == first["b.txt"]
+    (tmp_path / "b.txt").write_text("two")
+    second = file_hashes(tmp_path, ["a.txt", "b.txt"])
+    assert second["a.txt"] == first["a.txt"] and second["b.txt"] != first["b.txt"]
+
+
+def test_the_measurement_stamps_its_own_code():
+    assert "scripts/measure.py" in measure.MEASUREMENT_CODE and "scripts/rules.py" in measure.MEASUREMENT_CODE
+    assert provenance.KINDS["measure"]["code"] is measure.MEASUREMENT_CODE
+    assert all((ROOT / path).is_file() for path in measure.MEASUREMENT_CODE)

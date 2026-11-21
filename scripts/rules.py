@@ -5,8 +5,10 @@ Nothing here imports a tax-benefit model, so the tests run anywhere.
 
 from __future__ import annotations
 
+import hashlib
 import math
 import re
+from pathlib import Path
 from typing import Iterable, Mapping
 
 # The policyengine-us variable naming convention. A stored column the release
@@ -87,3 +89,54 @@ def compare_values(baseline: float | None, tested: float | None) -> dict:
         "difference": tested - baseline,
         "relative_difference": relative_difference(baseline, tested),
     }
+
+
+RUN_KEYS = (
+    "GITHUB_REPOSITORY",
+    "GITHUB_RUN_ID",
+    "GITHUB_RUN_ATTEMPT",
+    "GITHUB_SHA",
+    "GITHUB_REF",
+    "GITHUB_EVENT_NAME",
+)
+
+
+def file_hashes(root: Path, paths: Iterable[str]) -> dict[str, str]:
+    """The sha256 of each file, keyed by its path under ``root``."""
+    return {path: hashlib.sha256((Path(root) / path).read_bytes()).hexdigest() for path in paths}
+
+
+def run_identity(environ: Mapping[str, str]) -> dict[str, str | None]:
+    """Which workflow run this process belongs to, from GitHub's variables.
+
+    Every value is ``None`` outside GitHub Actions. On a pull request,
+    ``github_sha`` is the merge commit the job checked out, not the branch's
+    head commit.
+    """
+    return {key.lower(): environ.get(key) for key in RUN_KEYS}
+
+
+def stamped_by_one_run(stamps: Iterable[Mapping], repository: str, run: int) -> dict[str, str]:
+    """The code hashes that several result files of one run agree on.
+
+    Each stamp is a result file's ``{"run": ..., "code_sha256": ...}``. Raises
+    ``ValueError`` unless every file names this repository and this run, and
+    all carry the same hashes.
+    """
+    stamps = list(stamps)
+    if not stamps:
+        raise ValueError("no result file to check")
+    hashes = None
+    for stamp in stamps:
+        identity = stamp.get("run") or {}
+        if identity.get("github_repository") != repository:
+            raise ValueError(f"a result file comes from {identity.get('github_repository')}, not {repository}")
+        if str(identity.get("github_run_id")) != str(run):
+            raise ValueError(f"a result file comes from run {identity.get('github_run_id')}, not {run}")
+        code = stamp.get("code_sha256")
+        if not code:
+            raise ValueError("a result file records no code hashes")
+        if hashes is not None and code != hashes:
+            raise ValueError("the result files were made by different code")
+        hashes = dict(code)
+    return hashes

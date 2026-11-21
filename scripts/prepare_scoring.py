@@ -25,7 +25,29 @@ import argparse
 import copy
 import hashlib
 import json
+import os
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from rules import file_hashes, run_identity  # noqa: E402
+
+ROOT = Path(__file__).resolve().parents[1]
+
+# The files that decide what a scoring run produces. Each job writes their
+# hashes into its output, and a test fails while the committed scores carry
+# other hashes than the tree.
+SCORING_CODE = (
+    "scripts/fetch_wheels.py",
+    "scripts/prepare_scoring.py",
+    "scripts/critical_targets.py",
+    "scripts/rules.py",
+    "envs/score.constraints.txt",
+    ".github/workflows/score.yml",
+)
+# The scoring jobs of the Score workflow, by the name each uploads under.
+SCORING_JOBS = ("pinned", "head", "head-without-newly-read")
 
 DATASET_FILE = "populace_us_2024.h5"
 DATASET_SHA256 = "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84"
@@ -82,6 +104,11 @@ def report() -> dict:
     }
 
 
+def stamp() -> dict:
+    """Which workflow run this process belongs to, and the code it ran."""
+    return {"run": run_identity(os.environ), "code_sha256": file_hashes(ROOT, SCORING_CODE)}
+
+
 def household_count(h5: Path) -> int:
     import h5py
 
@@ -121,6 +148,7 @@ def main() -> int:
             "added": {"build.post_export_scoring": {"spm": SPM_SELECTION}},
             "targets": len(published.get("targets") or ()),
         },
+        **stamp(),
     }
     if args.h5 is not None:
         actual = sha256_of(args.h5)

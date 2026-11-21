@@ -150,10 +150,9 @@ jobs:
       - name: Gather what the three scoring jobs recorded
         run: |
           for name in pinned head head-without-newly-read; do
-            cmp downloads/scores-pinned/scoring_inputs.json "downloads/scores-$name/scoring_inputs.json"
             cp "downloads/scores-$name/freeze.txt" "out/critical-targets/freeze-$name.txt"
+            cp "downloads/scores-$name/scoring_inputs.json" "out/critical-targets/scoring_inputs-$name.json"
           done
-          cp downloads/scores-pinned/scoring_inputs.json out/critical-targets/
           ls -l out/critical-targets
       - uses: actions/upload-artifact@v7
         with:

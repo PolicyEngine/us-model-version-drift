@@ -23,6 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from prepare_scoring import stamp  # noqa: E402
 from rules import relative_difference  # noqa: E402
 
 TABLE_1_4 = "soi_table_1_4_national_dollar_rows"
@@ -382,6 +383,8 @@ def main() -> int:
     exact_ids = [item.requirement_id for item in US_EXACT_CRITICAL_TARGET_FIT_REQUIREMENTS]
     result = build_result(drift, recert.drift_summary(drift), inputs, exact_ids)
     print(write_outputs(args.out, drift, result))
+    # The combining job's own stamp, beside the three scoring jobs' stamps.
+    (args.out / "combine.json").write_text(json.dumps(stamp(), indent=2, sort_keys=True) + "\n")
     return 0
 
 

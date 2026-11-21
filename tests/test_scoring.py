@@ -29,6 +29,7 @@ import critical_targets  # noqa: E402
 import fetch_wheels  # noqa: E402
 import prepare_scoring  # noqa: E402
 import provenance  # noqa: E402
+from rules import stamped_by_one_run  # noqa: E402
 
 json_values = st.recursive(
     st.none() | st.booleans() | st.integers() | st.floats(allow_nan=False, allow_infinity=False) | st.text(max_size=5),
@@ -211,7 +212,7 @@ def test_committed_tables_regenerate_from_drift(tmp_path):
 
 def test_scores_used_the_measured_releases_and_dataset():
     result = json.loads((SCORED / "critical_targets.json").read_text())
-    inputs = json.loads((SCORED / "scoring_inputs.json").read_text())
+    inputs = json.loads((SCORED / "scoring_inputs-pinned.json").read_text())
     for side, run in (("baseline", "pinned"), ("tested", "head")):
         environment = json.loads((ROOT / "results" / run / "environment.json").read_text())
         assert result[side]["versions"] == fetch_wheels.pins(environment)
@@ -241,6 +242,33 @@ def test_scores_come_from_this_scoring_code():
     record = json.loads((SCORED / "provenance.json").read_text())
     assert record["workflow"] == "Score"
     assert record["artifacts"] == ["results-critical-targets"]
+
+
+def test_every_scoring_job_names_the_recorded_run_and_code():
+    """The three scoring jobs and the combining job each stamped their own
+    output. All four name the recorded run and carry the hashes of the
+    scoring code in this tree."""
+    record = json.loads((SCORED / "provenance.json").read_text())
+    stamps = provenance.stamps("score")
+    assert len(stamps) == len(prepare_scoring.SCORING_JOBS) + 1
+    assert stamped_by_one_run(stamps, provenance.REPOSITORY, record["workflow_run"]) == record["code_sha256"]
+    assert record["code_sha256"] == provenance.code_hashes("score")
+
+
+def test_the_scoring_jobs_read_the_same_inputs():
+    files = [json.loads((SCORED / f"scoring_inputs-{name}.json").read_text()) for name in prepare_scoring.SCORING_JOBS]
+    for key in ("dataset", "published_diagnostics", "derived_diagnostics"):
+        assert files[0][key] == files[1][key] == files[2][key], key
+    embedded = json.loads((SCORED / "critical_targets.json").read_text())["inputs"]
+    assert embedded == files[0]
+
+
+def test_a_stamp_names_the_run_and_the_scoring_code():
+    stamp = prepare_scoring.stamp()
+    assert set(stamp) == {"run", "code_sha256"}
+    assert set(stamp["code_sha256"]) == set(prepare_scoring.SCORING_CODE)
+    assert {"scripts/critical_targets.py", "scripts/rules.py", ".github/workflows/score.yml"} <= set(prepare_scoring.SCORING_CODE)
+    assert provenance.KINDS["score"]["code"] is prepare_scoring.SCORING_CODE
 
 
 @pytest.mark.parametrize("name, run", (("pinned", "pinned"), ("head", "head"), ("head-without-newly-read", "head")))

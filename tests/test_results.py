@@ -3,8 +3,9 @@
 - The comparison is a pure function of the two runs' files: regenerating it
   gives the committed files byte for byte.
 - The results were measured by the measurement code in this tree: the hashes
-  recorded with them equal the files' hashes. A change to that code fails
-  here until someone measures again.
+  each run stamped into its files equal the files' hashes. A change to that
+  code fails here until someone measures again. Both environments' files
+  name the one recorded run.
 - Each run installed exactly its lock file, and the lock agrees with the
   releases its environment file pins. The two locks differ in the engine
   packages only.
@@ -15,8 +16,8 @@
 - The contract's classes follow from the recorded definitions under the
   classification rule, table by table.
 - The stored WIC draw was applied to every person, matched on a unique id.
-- Two separate processes agree on WIC as loaded, and an earlier run agrees
-  with this one on every row it measured.
+- Two separate processes agree on WIC as loaded, and three earlier runs
+  agree with this one on every row they measured.
 """
 
 import json
@@ -33,7 +34,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import measure  # noqa: E402
 import provenance  # noqa: E402
-from rules import CLASSES, classify_columns  # noqa: E402
+from rules import CLASSES, classify_columns, stamped_by_one_run  # noqa: E402
 
 RUNS = ("pinned", "head")
 ENGINE_PACKAGES = {"policyengine-us", "policyengine-core"}
@@ -67,6 +68,19 @@ def test_results_come_from_this_measurement_code():
     assert record["workflow"] == "Measure"
     assert record["artifacts"] == ["results-pinned", "results-head"]
     assert record["started"] < record["completed"]
+
+
+def test_each_result_file_names_the_recorded_run_and_code():
+    """The run stamped its files itself. Both environments' files name the
+    recorded run and carry the hashes of the measurement code in this tree."""
+    record = load("provenance.json")
+    stamps = provenance.stamps("measure")
+    assert len(stamps) == len(RUNS)
+    assert stamped_by_one_run(stamps, provenance.REPOSITORY, record["workflow_run"]) == record["code_sha256"]
+    assert record["code_sha256"] == provenance.code_hashes("measure")
+    assert record["checked_out"] == sorted({stamp["run"]["github_sha"] for stamp in stamps})
+    for stamp in stamps:
+        assert stamp["run"]["github_event_name"] == record["event"]
 
 
 def pins(path: Path) -> dict[str, str]:
@@ -167,18 +181,32 @@ def test_stored_draw_was_applied_to_every_person(run):
 @pytest.mark.parametrize("run", RUNS)
 def test_two_processes_agree_on_wic_as_loaded(run):
     in_panel = [row["value"] for row in panel(run) if row["id"] == "wic_total" and row["period"] == 2024]
-    assert in_panel == [wic(run)["wic_as_loaded"]]
+    assert len(in_panel) == 1
+    assert math.isclose(in_panel[0], wic(run)["wic_as_loaded"], rel_tol=1e-12, abs_tol=0.0)
 
 
-def test_an_earlier_run_gave_the_same_rows():
-    earlier = load("earlier", "run-44133383190-panel-rows.json")
+EARLIER = {
+    # The first run printed these rows before its runners shut down.
+    "run-44133383190-panel-rows.json": 2 * len(measure.PANEL) + 4,
+    # The first complete run.
+    "run-44141335692-panel-rows.json": 2 * len(measure.PANEL) * len(measure.PERIODS),
+    # A complete run four days later, under the lock files.
+    "run-44904663719-panel-rows.json": 2 * len(measure.PANEL) * len(measure.PERIODS),
+}
+
+
+@pytest.mark.parametrize("name", sorted(EARLIER))
+def test_an_earlier_run_gave_the_same_rows(name):
+    """Every row an earlier run measured agrees with this one to nine
+    significant figures, under code that has changed since."""
+    earlier = load("earlier", name)
     assert earlier["workflow_run"] != load("provenance.json")["workflow_run"]
+    definitions = {metric_id: (variable, kind) for metric_id, variable, kind, _ in measure.PANEL}
     compared = 0
     for run in RUNS:
         now = {(row["period"], row["id"]): row["value"] for row in panel(run)}
-        then = earlier["rows"][run]
-        assert sum(1 for row in then if row["period"] == 2024) == len(measure.PANEL)
-        for row in then:
+        for row in earlier["rows"][run]:
+            assert (row["variable"], row["kind"]) == definitions[row["id"]], row
             assert math.isclose(now[(row["period"], row["id"])], row["value"], rel_tol=1e-9, abs_tol=0.0), row
             compared += 1
-    assert compared >= 2 * len(measure.PANEL)
+    assert compared == EARLIER[name]
