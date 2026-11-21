@@ -78,6 +78,23 @@ The Medicare row compares two definitions. `medicare_cost` is each release's est
 
 The rise reflects that change of definition. It does not show a change in policy or in the data.
 
+### Fit to Microcosm's critical calibration targets
+
+Scored on 2026-11-21: [workflow run 44910821596](https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44910821596). It scored both releases with Microcosm's own scorer (`tools/build_us_compatibility_recertification.py score` at microcosm commit `85d513b`), against the target values in the default dataset's published calibration diagnostics. Those are the values the build was calibrated to; this repository did not rebuild them from the source publications. [`results/critical-targets/critical_targets.md`](results/critical-targets/critical_targets.md) lists every row.
+
+- Both releases keep all 21 scored target rows of Microcosm's 18 exact critical requirements within tolerance. Both also keep all 9 national dollar rows of SOI Table 1.4 within ±25%. The tolerance is each requirement's own limit on the absolute relative error, with no allowance for improving on an earlier build.
+- The tightest row is federal income tax liability against SOI historic table 2. Its error is +0.3% under 2.2.2 and +2.1% under 2.144.4, against a ±5% tolerance.
+- One row has no score. The itemized-deduction requirement also covers the total from SOI table 4.3 (all returns excluding dependents), and Microcosm's scorer cannot reproduce that row. The requirement's three other rows are scored.
+- 8 of the 9 Table 1.4 rows have the same estimate under both releases. Only taxable Social Security moves, from −10.9% to −10.5%.
+- The scorer's programme totals equal this repository's 2024 panel to within one part in 10⁸, and a test checks this. The scorer runs in batches of households; the panel runs on the whole file.
+- 2.144.4 reads one stored column that 2.2.2 does not define, `tax_unit_role_input`. Under 2.2.2, the tax-unit roles the engine assigns differ from the stored ones for 27,382 people (63.1 million weighted); under 2.144.4, for none. Reading that column lowers adjusted gross income under 2.144.4 by $35.8bn: the rise between the releases is $112.2bn with it and $148.0bn without it.
+- Microcosm's stored-input check fails under both releases. Both ignore `would_claim_wic` and `medicare_part_b_premiums`, and 2.144.4 also ignores the two mortgage-interest columns.
+- Two earlier scoring runs, on 2026-11-18 and 2026-11-21, gave the same verdict for every row. Their installs were not constrained, and five packages changed version between them. Every estimate agrees with this run's to within 3 parts in 10¹⁶ (`results/critical-targets/earlier/`).
+
+Every requirement is an IRS Statistics of Income (SOI) or Social Security Administration row for 2024. None covers Medicare, SNAP, SSI, state income tax, poverty or WIC, the rows that moved most between the releases. Passing these rows does not show that the head release is safe to promote.
+
+The scorer needs a Supplemental Poverty Measure (SPM) geography, and the published diagnostics record none. `scripts/prepare_scoring.py` adds `{"geography_kind": "county"}`, the selection in Microcosm's published scoring of an October build and in the `policyengine` bundle. It checks that nothing else in the file changes. No critical target is a poverty measure.
+
 ### Run time
 
 On a GitHub-hosted `ubuntu-latest` runner, one process that builds the simulation and computes one year of the panel took 427 and 446 seconds on 2.2.2, and 554 and 578 seconds on 2.144.4. The dataset was already on the runner's disk: an earlier step had downloaded it.
@@ -86,7 +103,7 @@ Times vary a lot between runs. Across this run and the two earlier complete runs
 
 ## What this does not show
 
-- The panel reports movement between two releases. It scores neither release against external targets.
+- The panel reports movement between two releases. Only the critical-target scoring compares either release with external figures, and only for the rows Microcosm names, in 2024.
 - The two environments differ in policyengine-us and in policyengine-core, so a row's movement can come from either package.
 - Nothing here attributes a row's movement to a particular change.
 - A national total can hide changes that offset each other across households.
@@ -112,6 +129,7 @@ The tests in `tests/` check the rules with property-based tests, and check the c
 - Each run measured exactly the panel the code defines.
 - The column classes follow from the recorded definitions.
 - The earlier runs in `results/earlier/` gave exactly this run's panel rows.
+- The critical-target tables rebuild byte for byte from `drift.json`, the scores used the measured releases and dataset, and the earlier scoring runs in `results/critical-targets/earlier/` agree with this one.
 
 ## Measure again
 
@@ -132,6 +150,26 @@ python scripts/compare.py results/pinned results/head --out results
 ```
 
 `results/provenance.json` records the run's commit and its start and finish times, read from GitHub.
+
+## Score again
+
+The `Score` workflow runs Microcosm's scorer three times on GitHub-hosted runners: each release as stored, and 2.144.4 without the stored column it newly reads. It takes about 15 minutes. It starts on a pull request whenever the scoring code no longer matches the committed scores, and by hand:
+
+```bash
+gh workflow run score.yml --ref <branch>
+```
+
+Then replace the files in `results/critical-targets` (keeping `earlier/`) with the run's `results-critical-targets` artifact, and record the run. Recording fails if the files come from another run:
+
+```bash
+python scripts/provenance.py record score --run <run id>
+```
+
+The tables rebuild from `drift.json` without Microcosm, and a test checks that they match byte for byte:
+
+```bash
+python scripts/critical_targets.py --render results/critical-targets --out results/critical-targets
+```
 
 ## Run one environment yourself
 

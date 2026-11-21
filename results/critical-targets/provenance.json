@@ -1,0 +1,23 @@
+{
+  "artifacts": [
+    "results-critical-targets"
+  ],
+  "checked_out": [
+    "162fa96a6839a4122f6336708af9b257ada7cc32"
+  ],
+  "code_sha256": {
+    ".github/workflows/score.yml": "93f9e46c0f29a2f903f8a7d079e56f5f52ab1f1f89557508039898c7f7409aac",
+    "envs/score.constraints.txt": "ee06574b35b095b5f35073cbbd4939537320244fbf3888c1b200c1e4290e2181",
+    "scripts/critical_targets.py": "ffeb06eebaeafac702877a2e6412ebbe9500d135c98929614d8f46b35e519e30",
+    "scripts/fetch_wheels.py": "222b0b7e0cc8d5a8876ec6d04eeaf0b0a6ed77fe448e49b1064f3abc15cc6fe3",
+    "scripts/prepare_scoring.py": "bcc06ae389fe3d9917d7df13dc617ac9fcc13a253d1394fa3603f81626533439",
+    "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
+  },
+  "completed": "2026-11-21T14:01:46Z",
+  "event": "pull_request",
+  "head_sha": "3dfc8f3852c3ca06adf533faee877d75e8faf328",
+  "started": "2026-11-21T13:50:01Z",
+  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44910821596",
+  "workflow": "Score",
+  "workflow_run": 44910821596
+}

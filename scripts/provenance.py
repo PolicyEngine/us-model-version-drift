@@ -5,6 +5,7 @@ the code it ran. After copying a run's artifacts into the results folder,
 record the run::
 
     python scripts/provenance.py record measure --run 44904663719
+    python scripts/provenance.py record score --run 44345993218
 
 ``record`` refuses files that another run made, or that different code made.
 It takes the code hashes from the files, and the run's commit, event and
@@ -29,6 +30,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import measure  # noqa: E402
+import prepare_scoring  # noqa: E402
 from rules import file_hashes, stamped_by_one_run  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,6 +45,15 @@ KINDS = {
         "record": "results/provenance.json",
         "artifacts": ["results-pinned", "results-head"],
         "stamped": ("results/pinned/environment.json", "results/head/environment.json"),
+    },
+    "score": {
+        "code": prepare_scoring.SCORING_CODE,
+        "record": "results/critical-targets/provenance.json",
+        "artifacts": ["results-critical-targets"],
+        "stamped": (
+            *(f"results/critical-targets/scoring_inputs-{name}.json" for name in prepare_scoring.SCORING_JOBS),
+            "results/critical-targets/combine.json",
+        ),
     },
 }
 
