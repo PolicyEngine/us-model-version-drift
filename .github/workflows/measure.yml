@@ -11,6 +11,7 @@ on:
 permissions:
   contents: read
 
+# A new push to the same pull request cancels a measurement in progress.
 concurrency:
   group: measure-${{ github.ref }}
   cancel-in-progress: true

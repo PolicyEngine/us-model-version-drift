@@ -7,7 +7,8 @@ two periods in one process exhausted a 16 GB runner). The parts write into
 folder never mixes two runs:
 
 - ``contract``: ``environment.json`` (package versions, interpreter, the
-  dataset's identity) and ``contract.json`` (every column the dataset stores,
+  dataset's identity, the workflow run and the hashes of the measurement
+  code) and ``contract.json`` (every column the dataset stores,
   classified by how this release defines its name).
 - ``panel``: ``panel-<period>.json``, weighted totals and counts for a fixed
   panel of programmes in one year.
@@ -32,6 +33,7 @@ import importlib.metadata as metadata
 import json
 import logging
 import math
+import os
 import platform
 import sys
 import time
@@ -40,7 +42,24 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from rules import classify_columns  # noqa: E402
+from rules import classify_columns, file_hashes, run_identity  # noqa: E402
+
+ROOT = Path(__file__).resolve().parents[1]
+
+# The files that decide what a run measures. Each run writes their hashes into
+# ``environment.json``, and a test fails while the committed results carry
+# other hashes than the tree. ``compare.py`` is absent on purpose: the
+# comparison is a pure function of the two runs' files, and a test
+# regenerates it.
+MEASUREMENT_CODE = (
+    "scripts/measure.py",
+    "scripts/rules.py",
+    "envs/pinned.txt",
+    "envs/pinned.lock.txt",
+    "envs/head.txt",
+    "envs/head.lock.txt",
+    ".github/workflows/measure.yml",
+)
 
 DATASET_REPO = "policyengine/populace-us"
 DATASET_FILE = "populace_us_2024.h5"
@@ -438,6 +457,10 @@ def main() -> int:
             },
             "release_default_dataset": default["name"],
             "release_default_dataset_sha256": default["sha256"],
+            # Which run made these files, and with what code: the files
+            # themselves say so, so nobody has to remember where they came from.
+            "run": run_identity(os.environ),
+            "code_sha256": file_hashes(ROOT, MEASUREMENT_CODE),
         }
         write(args.out / "environment.json", environment)
         print(json.dumps(environment, indent=2), flush=True)
