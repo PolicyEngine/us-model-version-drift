@@ -6,7 +6,8 @@
       "id": "income_tax_net",
       "kind": "sum",
       "period": 2026,
-      "seconds": 485.0,
+      "seconds": 336.0,
+      "unit": "usd",
       "value": 2595023394595.203,
       "variable": "income_tax"
     },
@@ -16,6 +17,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 158863868028.37848,
       "variable": "ctc"
     },
@@ -25,6 +27,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 69998605387.18579,
       "variable": "eitc"
     },
@@ -34,6 +37,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 1677873892455.981,
       "variable": "social_security"
     },
@@ -42,7 +46,8 @@
       "id": "snap_total",
       "kind": "sum",
       "period": 2026,
-      "seconds": 82.1,
+      "seconds": 55.1,
+      "unit": "usd",
       "value": 95097690140.34113,
       "variable": "snap"
     },
@@ -52,6 +57,7 @@
       "kind": "count_positive",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "spm_units",
       "value": 22593839.456833955,
       "variable": "snap"
     },
@@ -61,6 +67,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 56690901871.95177,
       "variable": "ssi"
     },
@@ -70,6 +77,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "people",
       "value": 70842955.89893392,
       "variable": "medicaid_enrolled"
     },
@@ -78,7 +86,8 @@
       "id": "medicaid_total",
       "kind": "sum",
       "period": 2026,
-      "seconds": 0.7,
+      "seconds": 0.6,
+      "unit": "usd",
       "value": 880018883943.0208,
       "variable": "medicaid"
     },
@@ -87,7 +96,8 @@
       "id": "state_income_tax_total",
       "kind": "sum",
       "period": 2026,
-      "seconds": 29.8,
+      "seconds": 20.7,
+      "unit": "usd",
       "value": 576638045771.1696,
       "variable": "state_income_tax"
     },
@@ -97,6 +107,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 4007672069.754963,
       "variable": "income_adjusted_part_d_premium_surcharge"
     },
@@ -106,6 +117,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 928077278635.9829,
       "variable": "medicare_cost"
     },
@@ -115,6 +127,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 18986977768522.293,
       "variable": "adjusted_gross_income"
     },
@@ -124,6 +137,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 11792506210.215073,
       "variable": "wic"
     },
@@ -133,6 +147,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 5182083755.83456,
       "variable": "tanf"
     },
@@ -142,6 +157,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 40620329066.294,
       "variable": "refundable_ctc"
     },
@@ -151,6 +167,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.0,
+      "unit": "usd",
       "value": 840519491307.9478,
       "variable": "employee_payroll_tax"
     },
@@ -160,6 +177,7 @@
       "kind": "sum",
       "period": 2026,
       "seconds": 0.1,
+      "unit": "usd",
       "value": 47235696829.58892,
       "variable": "premium_tax_credit"
     },
@@ -168,7 +186,8 @@
       "id": "household_net_income_total",
       "kind": "sum",
       "period": 2026,
-      "seconds": 33.0,
+      "seconds": 22.4,
+      "unit": "usd",
       "value": 17245957479108.06,
       "variable": "household_net_income"
     },
@@ -177,10 +196,11 @@
       "id": "people_in_spm_poverty",
       "kind": "sum",
       "period": 2026,
-      "seconds": 153.3,
+      "seconds": 118.0,
+      "unit": "people",
       "value": 47599201.85196167,
       "variable": "person_in_poverty"
     }
   ],
-  "seconds": 812.1
+  "seconds": 577.6
 }

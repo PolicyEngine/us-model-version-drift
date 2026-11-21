@@ -136,7 +136,7 @@ def amount(value: float | None, unit: str) -> str:
 
 
 def percent(value: float | None) -> str:
-    return "n/a" if value is None else f"{value * 100:+.2f}%"
+    return "n/a" if value is None else f"{value * 100:+.2f}%".replace("-", "−")
 
 
 def wic_gaps(wic: dict) -> dict:
@@ -264,7 +264,7 @@ def markdown(base_env: dict, test_env: dict, rows: list[dict], contract: dict, w
         lines += [
             f"## Panel, {period}",
             "",
-            "| Row | Variable | Counts | Baseline | Tested | Difference | Relative |",
+            "| Row | Variable | Unit | Baseline | Tested | Difference | Relative |",
             "|---|---|---|---|---|---|---|",
         ]
         for r in rows:
