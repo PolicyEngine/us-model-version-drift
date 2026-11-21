@@ -3,19 +3,25 @@
 Run it inside an environment that holds exactly one policyengine-us release.
 Each call measures one part, so memory stays bounded (a first run that held
 two periods in one process exhausted a 16 GB runner). The parts write into
-``--out``:
+``--out``, and a part refuses to replace a file that is already there, so a
+folder never mixes two runs:
 
 - ``contract``: ``environment.json`` (package versions, interpreter, the
   dataset's identity) and ``contract.json`` (every column the dataset stores,
-  classified against the variables this release defines).
-- ``panel``: ``panel-<period>.json``, weighted totals for a fixed panel of
-  programmes in one year.
+  classified by how this release defines its name).
+- ``panel``: ``panel-<period>.json``, weighted totals and counts for a fixed
+  panel of programmes in one year.
 - ``wic_loaded``: ``wic-loaded.json``, WIC as the release loads the dataset.
 - ``wic_stored``: ``wic-stored.json``, WIC with the dataset's stored take-up
   draw applied to the release's take-up input.
 
 Every figure comes from ``policyengine_us.Microsimulation()`` on the release's
 own default dataset. Nothing is imputed or approximated here.
+
+A part exits with an error when it cannot measure everything it should: a
+panel row that fails, a stored draw that does not line up with the
+simulation's people, or a release whose default dataset is not the measured
+file.
 """
 
 from __future__ import annotations
@@ -25,10 +31,10 @@ import hashlib
 import importlib.metadata as metadata
 import json
 import logging
+import math
 import platform
 import sys
 import time
-import traceback
 import warnings
 from pathlib import Path
 
@@ -43,32 +49,37 @@ DATASET_SHA256 = "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee
 ENTITY_TABLES = ("person", "household", "tax_unit", "spm_unit", "family", "marital_unit")
 PERIODS = (2024, 2026)
 
-# (id, variable, kind). ``sum`` is a weighted total; ``count_positive`` is the
-# weighted number of units with a positive value. The first block follows the
-# headline rows of Microcosm's compatibility scorer
+# (id, variable, kind, unit). ``sum`` is a weighted total; ``count_positive``
+# is the weighted number of units with a positive value. The unit says what a
+# row counts: dollars, or one of three counts. ``medicaid_enrollment`` and
+# ``people_in_spm_poverty`` sum a true/false variable over people, so they
+# count people. The first block follows the headline rows of Microcosm's
+# compatibility scorer
 # (microcosm.data.compatibility_recertification.HEADLINE_METRICS); the second
 # adds programmes it does not list.
+USD, SPM_UNITS, PEOPLE = "usd", "spm_units", "people"
+UNITS = (USD, SPM_UNITS, PEOPLE)
 PANEL = (
-    ("income_tax_net", "income_tax", "sum"),
-    ("ctc_total", "ctc", "sum"),
-    ("eitc_total", "eitc", "sum"),
-    ("social_security_total", "social_security", "sum"),
-    ("snap_total", "snap", "sum"),
-    ("snap_units", "snap", "count_positive"),
-    ("ssi_total", "ssi", "sum"),
-    ("medicaid_enrollment", "medicaid_enrolled", "sum"),
-    ("medicaid_total", "medicaid", "sum"),
-    ("state_income_tax_total", "state_income_tax", "sum"),
-    ("medicare_part_d_irmaa_total", "income_adjusted_part_d_premium_surcharge", "sum"),
-    ("medicare_cost_total", "medicare_cost", "sum"),
-    ("adjusted_gross_income_total", "adjusted_gross_income", "sum"),
-    ("wic_total", "wic", "sum"),
-    ("tanf_total", "tanf", "sum"),
-    ("refundable_ctc_total", "refundable_ctc", "sum"),
-    ("employee_payroll_tax_total", "employee_payroll_tax", "sum"),
-    ("premium_tax_credit_total", "premium_tax_credit", "sum"),
-    ("household_net_income_total", "household_net_income", "sum"),
-    ("people_in_spm_poverty", "person_in_poverty", "sum"),
+    ("income_tax_net", "income_tax", "sum", USD),
+    ("ctc_total", "ctc", "sum", USD),
+    ("eitc_total", "eitc", "sum", USD),
+    ("social_security_total", "social_security", "sum", USD),
+    ("snap_total", "snap", "sum", USD),
+    ("snap_units", "snap", "count_positive", SPM_UNITS),
+    ("ssi_total", "ssi", "sum", USD),
+    ("medicaid_enrollment", "medicaid_enrolled", "sum", PEOPLE),
+    ("medicaid_total", "medicaid", "sum", USD),
+    ("state_income_tax_total", "state_income_tax", "sum", USD),
+    ("medicare_part_d_irmaa_total", "income_adjusted_part_d_premium_surcharge", "sum", USD),
+    ("medicare_cost_total", "medicare_cost", "sum", USD),
+    ("adjusted_gross_income_total", "adjusted_gross_income", "sum", USD),
+    ("wic_total", "wic", "sum", USD),
+    ("tanf_total", "tanf", "sum", USD),
+    ("refundable_ctc_total", "refundable_ctc", "sum", USD),
+    ("employee_payroll_tax_total", "employee_payroll_tax", "sum", USD),
+    ("premium_tax_credit_total", "premium_tax_credit", "sum", USD),
+    ("household_net_income_total", "household_net_income", "sum", USD),
+    ("people_in_spm_poverty", "person_in_poverty", "sum", PEOPLE),
 )
 
 
@@ -120,6 +131,31 @@ def fetch_dataset() -> Path:
     return path
 
 
+def release_default_dataset() -> dict[str, str | None]:
+    """The default dataset this release names, and the hash it certifies.
+
+    Both measured releases check the file ``Microsimulation()`` loads against
+    ``DEFAULT_DATASET_SHA256`` and raise on a mismatch. When that hash equals
+    the measured file's, the simulation read the bytes this script hashed.
+    """
+    import policyengine_us.system as system
+
+    return {
+        "name": getattr(system, "DEFAULT_DATASET", None),
+        "sha256": getattr(system, "DEFAULT_DATASET_SHA256", None),
+    }
+
+
+def require_measured_default() -> dict[str, str | None]:
+    default = release_default_dataset()
+    if default["sha256"] != DATASET_SHA256:
+        raise SystemExit(
+            f"this release's default dataset {default['name']} is certified as sha256 "
+            f"{default['sha256']}, not the measured file's {DATASET_SHA256}"
+        )
+    return default
+
+
 def stored_columns(path: Path) -> dict[str, list[str]]:
     import pandas as pd
 
@@ -163,13 +199,15 @@ def build_simulation(captured: Captured | None = None):
 
 
 def variable_table(sim) -> dict[str, bool]:
-    """Each variable the release defines, mapped to whether it is computed."""
-    out: dict[str, bool] = {}
-    for name, variable in sim.tax_benefit_system.variables.items():
-        has_formula = len(getattr(variable, "formulas", {}) or {}) > 0
-        has_adds = bool(getattr(variable, "adds", None)) or bool(getattr(variable, "subtracts", None))
-        out[name] = has_formula or has_adds
-    return out
+    """Each variable the release defines, mapped to whether it is computed.
+
+    policyengine-core decides: a variable is computed when its own
+    ``is_input_variable()`` is false.
+    """
+    return {
+        name: not variable.is_input_variable()
+        for name, variable in sim.tax_benefit_system.variables.items()
+    }
 
 
 def declared_sets() -> dict[str, list[str] | None]:
@@ -204,6 +242,14 @@ def measure_contract(sim, columns: dict[str, list[str]], messages: list[str]) ->
         "counts": {name: len(cols) for name, cols in overall.items()},
         "not_a_variable": overall["not_a_variable"],
         "computed_variable": overall["computed_variable"],
+        "classes": overall,
+        # How the release defines each stored column's name: "input",
+        # "computed", or null when it defines no such variable.
+        "definitions": {
+            column: (None if column not in variables else "computed" if variables[column] else "input")
+            for column in every
+        },
+        "tables": {table: sorted(cols) for table, cols in columns.items()},
         "by_table": by_table,
         "declared": declared,
         "required_source_inputs_missing": (
@@ -234,20 +280,29 @@ def weighted(sim, variable: str, period, kind: str) -> float:
 def measure_panel(sim, period: int) -> dict:
     defined = set(sim.tax_benefit_system.variables)
     rows = []
-    for metric_id, variable, kind in PANEL:
-        row = {"period": period, "id": metric_id, "variable": variable, "kind": kind}
+    for metric_id, variable, kind, unit in PANEL:
+        row = {"period": period, "id": metric_id, "variable": variable, "kind": kind, "unit": unit}
         started = time.time()
         if variable not in defined:
             row.update(value=None, error="variable not defined in this release")
         else:
             try:
-                row.update(value=weighted(sim, variable, period, kind), error=None)
-            except Exception as exc:  # record, keep measuring
+                value = weighted(sim, variable, period, kind)
+                if math.isfinite(value):
+                    row.update(value=value, error=None)
+                else:
+                    row.update(value=None, error=f"not a finite number: {value}")
+            except Exception as exc:  # record every row, then fail the part
                 row.update(value=None, error=f"{type(exc).__name__}: {str(exc)[:400]}")
         row["seconds"] = round(time.time() - started, 1)
         print(json.dumps(row), flush=True)
         rows.append(row)
     return {"period": period, "rows": rows}
+
+
+def panel_errors(payload: dict) -> list[str]:
+    """The rows of one measured panel year that hold no value."""
+    return [f"{row['id']}: {row['error']}" for row in payload["rows"] if row["error"] is not None]
 
 
 def measure_wic_as_loaded(sim, dataset: Path) -> dict:
@@ -263,6 +318,8 @@ def measure_wic_as_loaded(sim, dataset: Path) -> dict:
     }
     out["wic_as_loaded"] = weighted(sim, "wic", period, "sum")
     if "takes_up_wic_if_eligible" in defined:
+        # The input is monthly. This is its January value, averaged over
+        # every person with person weights.
         out["take_up_share_as_loaded"] = weighted(sim, "takes_up_wic_if_eligible", f"{period}-01", "mean")
     with pd.HDFStore(str(dataset), "r") as store:
         person = store.select("person", columns=["person_id", "would_claim_wic"])
@@ -271,46 +328,75 @@ def measure_wic_as_loaded(sim, dataset: Path) -> dict:
     return out
 
 
+def align_by_id(simulation_ids, stored_ids, stored_values):
+    """Stored values in the simulation's row order, matched on a unique id.
+
+    Raises ``ValueError`` unless each side's ids are unique and the two sides
+    hold the same ids: a repeated or missing id would make the match
+    ambiguous.
+    """
+    import numpy as np
+
+    simulation_ids = np.asarray(simulation_ids).astype("int64")
+    stored_ids = np.asarray(stored_ids).astype("int64")
+    stored_values = np.asarray(stored_values)
+    if len(stored_ids) != len(stored_values):
+        raise ValueError("stored ids and stored values differ in length")
+    if len(np.unique(stored_ids)) != len(stored_ids):
+        raise ValueError("stored ids repeat")
+    if len(np.unique(simulation_ids)) != len(simulation_ids):
+        raise ValueError("the simulation's ids repeat")
+    order = np.argsort(stored_ids, kind="stable")
+    position = np.searchsorted(stored_ids[order], simulation_ids)
+    position = np.clip(position, 0, max(len(stored_ids) - 1, 0))
+    if len(stored_ids) != len(simulation_ids) or not np.array_equal(stored_ids[order][position], simulation_ids):
+        raise ValueError("the stored ids and the simulation's ids are not the same set")
+    return stored_values[order][position]
+
+
 def measure_wic_with_stored_draw(dataset: Path) -> dict:
     """WIC with the dataset's stored take-up draw applied.
 
     The dataset stores each person's WIC take-up draw as ``would_claim_wic``.
     A release that does not define that variable cannot read it. This applies
     the stored draw to ``takes_up_wic_if_eligible`` for each month of 2024 on
-    a fresh simulation, matching rows by ``person_id``.
+    a fresh simulation, before any benefit is calculated. It matches people on
+    ``person_id``, which must be unique on both sides and cover the same
+    people.
     """
-    import numpy as np
     import pandas as pd
 
     period = 2024
     months = [f"{period}-{m:02d}" for m in range(1, 13)]
-    out: dict = {}
     fresh = build_simulation()
     if "takes_up_wic_if_eligible" not in fresh.tax_benefit_system.variables:
-        out["wic_with_stored_draw"] = None
-        out["note"] = "this release has no takes_up_wic_if_eligible input"
-        return out
+        raise SystemExit("this release has no takes_up_wic_if_eligible input")
     with pd.HDFStore(str(dataset), "r") as store:
         person = store.select("person", columns=["person_id", "would_claim_wic"])
-    ids = np.asarray(fresh.calculate("person_id", period).values).astype("int64")
-    stored = person.drop_duplicates("person_id").set_index("person_id")["would_claim_wic"]
-    aligned = stored.reindex(ids)
-    out["person_ids_matched"] = int(aligned.notna().sum())
-    out["person_ids_in_simulation"] = int(len(ids))
-    if aligned.isna().any():
-        out["wic_with_stored_draw"] = None
-        out["note"] = "stored person_id values do not cover the simulation's people"
-        return out
-    values = aligned.to_numpy(dtype=bool)
+    ids = fresh.calculate("person_id", period).values
+    try:
+        values = align_by_id(ids, person["person_id"].to_numpy(), person["would_claim_wic"].to_numpy()).astype(bool)
+    except ValueError as exc:
+        raise SystemExit(f"cannot apply the stored draw: {exc}")
+    out: dict = {
+        "person_ids_in_simulation": int(len(ids)),
+        "person_ids_stored": int(len(person)),
+        "person_ids_unique_and_identical_sets": True,
+        "stored_draw_true_rows_applied": int(values.sum()),
+    }
     for month in months:
         fresh.set_input("takes_up_wic_if_eligible", month, values)
+    # The same measure as ``take_up_share_as_loaded``: the January input,
+    # averaged over every person with person weights.
     out["take_up_share_with_stored_draw"] = weighted(fresh, "takes_up_wic_if_eligible", months[0], "mean")
     out["wic_with_stored_draw"] = weighted(fresh, "wic", period, "sum")
     return out
 
 
 def write(path: Path, payload: dict) -> None:
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    """Write one result file. Fails if it exists: no run reuses another's file."""
+    with path.open("x") as handle:
+        handle.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
 
 
 PARTS = ("contract", "panel", "wic_loaded", "wic_stored")
@@ -334,10 +420,10 @@ def main() -> int:
 
     started = time.time()
     dataset = fetch_dataset()
+    default = require_measured_default()
+    failures: list[str] = []
 
     if args.part == "contract":
-        import policyengine_us.system as system
-
         environment = {
             "label": args.label,
             "packages": package_versions(),
@@ -350,8 +436,8 @@ def main() -> int:
                 "sha256": DATASET_SHA256,
                 "bytes": dataset.stat().st_size,
             },
-            "release_default_dataset": getattr(system, "DEFAULT_DATASET", None),
-            "release_default_dataset_sha256": getattr(system, "DEFAULT_DATASET_SHA256", None),
+            "release_default_dataset": default["name"],
+            "release_default_dataset_sha256": default["sha256"],
         }
         write(args.out / "environment.json", environment)
         print(json.dumps(environment, indent=2), flush=True)
@@ -362,21 +448,19 @@ def main() -> int:
         payload = measure_panel(build_simulation(), args.period)
         payload["seconds"] = round(time.time() - started, 1)
         write(args.out / f"panel-{args.period}.json", payload)
+        failures = panel_errors(payload)
     elif args.part == "wic_loaded":
         payload = measure_wic_as_loaded(build_simulation(), dataset)
         write(args.out / "wic-loaded.json", payload)
         print(json.dumps(payload, indent=2), flush=True)
     else:
-        try:
-            payload = measure_wic_with_stored_draw(dataset)
-        except Exception as exc:
-            payload = {
-                "stored_draw_error": f"{type(exc).__name__}: {str(exc)[:600]}",
-                "stored_draw_traceback": traceback.format_exc()[-2000:],
-            }
+        payload = measure_wic_with_stored_draw(dataset)
         write(args.out / "wic-stored.json", payload)
         print(json.dumps(payload, indent=2), flush=True)
     print(f"{args.part} done in {round(time.time() - started, 1)} s", flush=True)
+    if failures:
+        print("rows without a value:\n  " + "\n  ".join(failures), file=sys.stderr, flush=True)
+        return 1
     return 0
 
 

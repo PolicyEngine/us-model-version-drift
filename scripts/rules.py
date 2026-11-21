@@ -9,8 +9,9 @@ import math
 import re
 from typing import Iterable, Mapping
 
-# The policyengine-us variable naming convention. A stored column outside it
-# (a raw Census field such as ``A_AGE``) cannot name a model variable.
+# The policyengine-us variable naming convention. A stored column the release
+# does not define, named outside it (a raw Census field such as ``A_AGE``), is
+# a raw field rather than a missing variable.
 MODEL_NAMED = re.compile(r"[a-z][a-z0-9_]*")
 
 RAW_FIELD = "raw_field"
@@ -24,22 +25,29 @@ def classify_column(
     column: str,
     variables: Mapping[str, bool],
 ) -> str:
-    """Classify one stored column against one model release.
+    """Classify one stored column by how one release defines its name.
 
     ``variables`` maps each variable the release defines to whether the
-    release computes it (it has a formula, or it adds or subtracts others).
+    release declares a way to compute it: policyengine-core's
+    ``Variable.is_input_variable()`` is false (the variable has a formula, or
+    declares ``adds`` or ``subtracts``).
 
-    - ``raw_field``: the name is outside the model's naming convention.
-    - ``not_a_variable``: a model-style name the release does not define. The
-      loader cannot read it as an input.
-    - ``computed_variable``: the release defines it and computes it.
-    - ``input_variable``: the release defines it and reads it from data.
+    - ``input_variable``: the release defines the name as an input.
+    - ``computed_variable``: the release defines the name and declares a way
+      to compute it. Core can still load stored values for such a variable, so
+      this class describes the definition, not what the loader does.
+    - ``not_a_variable``: the release does not define the name, and the name
+      follows the model's convention. The loader cannot read it.
+    - ``raw_field``: the release does not define the name, and the name is
+      outside the convention.
+
+    A defined name is classified by its definition whatever its spelling.
     """
-    if not MODEL_NAMED.fullmatch(column):
-        return RAW_FIELD
-    if column not in variables:
+    if column in variables:
+        return COMPUTED_VARIABLE if variables[column] else INPUT_VARIABLE
+    if MODEL_NAMED.fullmatch(column):
         return NOT_A_VARIABLE
-    return COMPUTED_VARIABLE if variables[column] else INPUT_VARIABLE
+    return RAW_FIELD
 
 
 def classify_columns(
