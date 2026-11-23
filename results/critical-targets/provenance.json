@@ -3,21 +3,34 @@
     "results-critical-targets"
   ],
   "checked_out": [
-    "162fa96a6839a4122f6336708af9b257ada7cc32"
+    "55b7ed35912d38a40187504f0838d72e4bf83a2d"
   ],
   "code_sha256": {
-    ".github/workflows/score.yml": "93f9e46c0f29a2f903f8a7d079e56f5f52ab1f1f89557508039898c7f7409aac",
+    ".github/workflows/score.yml": "5526cbf06b4997907da1688999d06774d996a25b64ffae855322dcbba6a90604",
     "envs/score.constraints.txt": "ee06574b35b095b5f35073cbbd4939537320244fbf3888c1b200c1e4290e2181",
-    "scripts/critical_targets.py": "ffeb06eebaeafac702877a2e6412ebbe9500d135c98929614d8f46b35e519e30",
+    "scripts/critical_targets.py": "d5a9dde8d5db739c8d6dfd114a72e7356f9320286f1aafad6c519824860a5588",
     "scripts/fetch_wheels.py": "222b0b7e0cc8d5a8876ec6d04eeaf0b0a6ed77fe448e49b1064f3abc15cc6fe3",
-    "scripts/prepare_scoring.py": "bcc06ae389fe3d9917d7df13dc617ac9fcc13a253d1394fa3603f81626533439",
+    "scripts/prepare_scoring.py": "6791de32ee7c969243ce9a90c93caee3c4d30851f74a8f4f6f443c5d07bb9d36",
     "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
   },
-  "completed": "2026-11-21T14:01:46Z",
+  "completed": "2026-11-23T15:07:54Z",
   "event": "pull_request",
-  "head_sha": "3dfc8f3852c3ca06adf533faee877d75e8faf328",
-  "started": "2026-11-21T13:50:01Z",
-  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44910821596",
+  "files": {
+    "results/critical-targets/combine.json": "f74826797c45c3102cf7b5850d38d347f511930e48431df49097810324e0dec4",
+    "results/critical-targets/critical_targets.csv": "3ba0c6087f722de43d1eeab799c01a9ebd8557dfdb22ec99a5029374654807c0",
+    "results/critical-targets/critical_targets.json": "cfd0819c76bed1d704529e62eb9add17b94b1134f08abc6ed4d749e515cd6a8b",
+    "results/critical-targets/critical_targets.md": "a98072a422a02d73942dafcc6f9f6af3d3cb04f540b41b30bde6e028564cd641",
+    "results/critical-targets/drift.json": "ed8106819aef336c22ca7d685eeb559006d5d1756e3512748f389df8cfa8bfe2",
+    "results/critical-targets/freeze-head-without-newly-read.txt": "ad9992d37161fa0046119467249d7ec9f80f835a53fdc062ecc4231297153b6a",
+    "results/critical-targets/freeze-head.txt": "ad9992d37161fa0046119467249d7ec9f80f835a53fdc062ecc4231297153b6a",
+    "results/critical-targets/freeze-pinned.txt": "2b3acf7b6c0ec7f48af8d934b7d89b9d0f33c6f4fee61033880c4e91aa8522ec",
+    "results/critical-targets/scoring_inputs-head-without-newly-read.json": "36863659148c33a99cfaca4f19be642f69f8f754bb77f4ae506e0e211807ce08",
+    "results/critical-targets/scoring_inputs-head.json": "36863659148c33a99cfaca4f19be642f69f8f754bb77f4ae506e0e211807ce08",
+    "results/critical-targets/scoring_inputs-pinned.json": "36863659148c33a99cfaca4f19be642f69f8f754bb77f4ae506e0e211807ce08"
+  },
+  "head_sha": "0bfd6fad060b20272a1caa94defd4a4640aba4ad",
+  "started": "2026-11-23T14:53:13Z",
+  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/45199019867",
   "workflow": "Score",
-  "workflow_run": 44910821596
+  "workflow_run": 45199019867
 }

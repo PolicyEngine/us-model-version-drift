@@ -4,13 +4,14 @@
 - Tested: policyengine-us 2.144.4, policyengine-core 3.36.1, spm-calculator 1.1.0
 - Dataset sha256 `6496cc4393d4…`, 57,240 households, period 2024
 - Targets and tolerances: the dataset's published calibration diagnostics and Microcosm's critical-target requirements at commit `85d513bb550f`
+- Build estimates: Microcosm build `populace-us-2024-buildp-sparse-rmloss100-cae8640-20260728T011454Z`, made with policyengine-us 1.764.6 and policyengine-core 3.26.11. The dataset carries that build's calibration diagnostics unchanged.
 - Stored columns the tested engine newly reads: `tax_unit_role_input`
 
 ## The 18 exact requirements
 
 21 scored target rows serve the 18 requirements: a requirement can name more than one publication. Within tolerance: 21 under the baseline, 21 under the tested release.
 
-| Requirement | Source | Target | Build's own estimate | Baseline | Tested | Tolerance | Baseline | Tested |
+| Requirement | Source | Target | Build estimate | Baseline | Tested | Tolerance | Baseline | Tested |
 |---|---|---|---|---|---|---|---|---|
 | federal_income_tax_amount | `irs_soi ty2022 historic_table_2` | $2,358.7bn | $2,361.5bn (+0.1%) | $2,366.4bn (+0.3%) | $2,407.8bn (+2.1%) | ±5% | in | in |
 | income_tax_liability_returns | `irs_soi ty2022 historic_table_2` | 113.56m | 113.20m (-0.3%) | 113.27m (-0.3%) | 113.19m (-0.3%) | ±15% | in | in |

@@ -363,7 +363,9 @@ def test_each_scoring_environment_was_the_constrained_one(name, run):
     assert len(others) == len(editable) + len(wheels)
 
 
-EARLIER_RUNS = (44345993218, 44903905024)
+EARLIER_RUNS = (44345993218, 44903905024, 44910821596)
+# The two earlier runs whose installs were not constrained.
+UNCONSTRAINED_RUNS = EARLIER_RUNS[:2]
 
 
 @pytest.mark.parametrize("run", EARLIER_RUNS)
@@ -391,7 +393,7 @@ def exact_pins(path: Path) -> dict[str, str]:
 
 @pytest.mark.parametrize("job", prepare_scoring.SCORING_JOBS)
 def test_the_earlier_runs_installs_differed_in_five_packages(job):
-    first, second = (exact_pins(SCORED / "earlier" / f"run-{run}-freeze-{job}.txt") for run in EARLIER_RUNS)
+    first, second = (exact_pins(SCORED / "earlier" / f"run-{run}-freeze-{job}.txt") for run in UNCONSTRAINED_RUNS)
     assert set(first) == set(second)
     assert sorted(name for name in first if first[name] != second[name]) == [
         "certifi",

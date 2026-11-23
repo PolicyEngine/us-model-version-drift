@@ -84,15 +84,15 @@
         "unit": "usd"
       },
       {
-        "baseline": 113271458.03619444,
-        "baseline_error": -0.0025636256077424466,
+        "baseline": 113271458.03619447,
+        "baseline_error": -0.002563625607742184,
         "baseline_within": true,
         "build_error": -0.0032066513958069255,
         "build_estimate": 113198434.36226505,
         "label": "irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_returns@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_returns@2024",
         "newly_read_inputs_effect": -357235.1189647317,
-        "other_engine_changes_effect": 270904.58840605617,
+        "other_engine_changes_effect": 270904.58840602636,
         "requirement_id": "income_tax_liability_returns",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 113562590.0,
@@ -122,15 +122,15 @@
         "unit": "usd"
       },
       {
-        "baseline": 89316545570.82774,
-        "baseline_error": -0.037899388338010105,
+        "baseline": 89316545570.82773,
+        "baseline_error": -0.037899388338010265,
         "baseline_within": true,
         "build_error": -0.03927989401152965,
         "build_estimate": 89188386419.48213,
         "label": "irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024",
         "newly_read_inputs_effect": 370714020.84028625,
-        "other_engine_changes_effect": -24932904.145629883,
+        "other_engine_changes_effect": -24932904.145614624,
         "requirement_id": "ctc_amount",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 92834932737.99818,
@@ -141,15 +141,15 @@
         "unit": "usd"
       },
       {
-        "baseline": 37988072.73776328,
-        "baseline_error": -0.0021260669042016543,
+        "baseline": 37988072.737763286,
+        "baseline_error": -0.0021260669042014583,
         "baseline_within": true,
         "build_error": -0.0025648231116190195,
         "build_estimate": 37971369.723315544,
         "label": "irs_soi.ty2022.historic_table_2.us.all.ctc_claims@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.ctc_claims@2024",
         "newly_read_inputs_effect": 432301.50887753814,
-        "other_engine_changes_effect": 115181.28007627279,
+        "other_engine_changes_effect": 115181.28007626534,
         "requirement_id": "ctc_claims",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 38069010.0,
@@ -160,15 +160,15 @@
         "unit": "count"
       },
       {
-        "baseline": 37495465996.77001,
-        "baseline_error": -0.011525515469723307,
+        "baseline": 37495465996.77002,
+        "baseline_error": -0.011525515469723106,
         "baseline_within": true,
         "build_error": -0.00795127592816654,
         "build_estimate": 37631046408.09286,
         "label": "irs_soi.ty2022.historic_table_2.us.all.actc_amount@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.actc_amount@2024",
         "newly_read_inputs_effect": -48028054.06894684,
-        "other_engine_changes_effect": -215488243.42860413,
+        "other_engine_changes_effect": -215488243.42861176,
         "requirement_id": "actc_amount",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 37932659450.069534,
@@ -217,15 +217,15 @@
         "unit": "usd"
       },
       {
-        "baseline": 23608311.552332,
-        "baseline_error": -0.009600034285476046,
+        "baseline": 23608311.552331995,
+        "baseline_error": -0.009600034285476202,
         "baseline_within": true,
         "build_error": -0.006357627365857466,
         "build_estimate": 23685601.289193578,
         "label": "irs_soi.ty2024.filing_season_week47.eitc_all_returns.earned_income_credit.total_earned_income_credit_returns@2024",
         "metric_id": "target:irs_soi.ty2024.filing_season_week47.eitc_all_returns.earned_income_credit.total_earned_income_credit_returns@2024",
         "newly_read_inputs_effect": -301258.2763052359,
-        "other_engine_changes_effect": -109102.86835252494,
+        "other_engine_changes_effect": -109102.86835252121,
         "requirement_id": "eitc_claims",
         "source": "irs_soi ty2024 filing_season_week47",
         "target": 23837149.0,
@@ -426,15 +426,15 @@
         "unit": "usd"
       },
       {
-        "baseline": 183664882061.43542,
-        "baseline_error": -0.014197955330633043,
+        "baseline": 183664882061.43546,
+        "baseline_error": -0.014197955330632879,
         "baseline_within": true,
         "build_error": -4.243375510888927e-05,
         "build_estimate": 186302198766.89908,
         "label": "irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_amount@2024",
         "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_amount@2024",
         "newly_read_inputs_effect": 77248148.81021118,
-        "other_engine_changes_effect": 596368528.394104,
+        "other_engine_changes_effect": 596368528.3940735,
         "requirement_id": "home_mortgage_interest_amount",
         "source": "irs_soi ty2023 table_2_1",
         "target": 186310104604.25217,
@@ -582,12 +582,12 @@
       "unit": "count"
     },
     {
-      "baseline": 880018891104.8518,
-      "difference": -11768.247802734375,
+      "baseline": 880018891104.8517,
+      "difference": -11768.247680664062,
       "label": "Medicaid benefit value",
       "metric_id": "medicaid_total",
       "newly_read_inputs_effect": 5706.63330078125,
-      "relative_difference": -1.3372721792323684e-08,
+      "relative_difference": -1.33727216536104e-08,
       "tested": 880018879336.604,
       "unit": "usd"
     },
@@ -632,12 +632,12 @@
       "unit": "usd"
     },
     {
-      "baseline": 16683143554555.408,
-      "difference": 112195125413.8711,
+      "baseline": 16683143554555.41,
+      "difference": 112195125413.86914,
       "label": "adjusted gross income",
       "metric_id": "adjusted_gross_income_total",
       "newly_read_inputs_effect": -35840430579.95508,
-      "relative_difference": 0.0067250590421992565,
+      "relative_difference": 0.0067250590421991385,
       "tested": 16795338679969.28,
       "unit": "usd"
     }
@@ -645,11 +645,11 @@
   "households": 57240,
   "inputs": {
     "code_sha256": {
-      ".github/workflows/score.yml": "93f9e46c0f29a2f903f8a7d079e56f5f52ab1f1f89557508039898c7f7409aac",
+      ".github/workflows/score.yml": "5526cbf06b4997907da1688999d06774d996a25b64ffae855322dcbba6a90604",
       "envs/score.constraints.txt": "ee06574b35b095b5f35073cbbd4939537320244fbf3888c1b200c1e4290e2181",
-      "scripts/critical_targets.py": "ffeb06eebaeafac702877a2e6412ebbe9500d135c98929614d8f46b35e519e30",
+      "scripts/critical_targets.py": "d5a9dde8d5db739c8d6dfd114a72e7356f9320286f1aafad6c519824860a5588",
       "scripts/fetch_wheels.py": "222b0b7e0cc8d5a8876ec6d04eeaf0b0a6ed77fe448e49b1064f3abc15cc6fe3",
-      "scripts/prepare_scoring.py": "bcc06ae389fe3d9917d7df13dc617ac9fcc13a253d1394fa3603f81626533439",
+      "scripts/prepare_scoring.py": "6791de32ee7c969243ce9a90c93caee3c4d30851f74a8f4f6f443c5d07bb9d36",
       "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
     },
     "dataset": {
@@ -669,6 +669,16 @@
       "sha256": "8127b50833e8fb05b143bf65675c6bdda28cbdb2b49b358ca36a3fd28171a043",
       "targets": 5659
     },
+    "estimates_from": {
+      "build_id": "populace-us-2024-buildp-sparse-rmloss100-cae8640-20260728T011454Z",
+      "built_at": "2026-07-28T03:56:03.415544+00:00",
+      "manifest": {
+        "sha256": "dd949ba3c4c7a56aff8442c6db5a031d2c84c3da59f5d14832f468c358604506",
+        "url": "https://huggingface.co/datasets/policyengine/populace-us/resolve/0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3/releases/microcosm-us-2024-national/populace-us-2024-spm-20260915/parent_release_manifest.json"
+      },
+      "policyengine-core": "3.26.11",
+      "policyengine-us": "1.764.6"
+    },
     "published_diagnostics": {
       "sha256": "870449b44e86b13b25bcea1a57f0e7af37f4d4db18be815eea3acdf9fe6eb40e",
       "url": "https://huggingface.co/datasets/policyengine/populace-us/resolve/0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3/releases/microcosm-us-2024-national/populace-us-2024-spm-20260915/calibration_diagnostics.json"
@@ -678,8 +688,8 @@
       "github_ref": "refs/pull/2/merge",
       "github_repository": "PolicyEngine/us-model-version-drift",
       "github_run_attempt": "1",
-      "github_run_id": "44910821596",
-      "github_sha": "162fa96a6839a4122f6336708af9b257ada7cc32"
+      "github_run_id": "45199019867",
+      "github_sha": "55b7ed35912d38a40187504f0838d72e4bf83a2d"
     }
   },
   "microcosm_commit": "85d513bb550f49e3d934ade81350841b1b64cab1",
@@ -713,9 +723,9 @@
         "tested": 71515569.20106377
       },
       "medicaid_total": {
-        "baseline": 880018891104.8518,
+        "baseline": 880018891104.8517,
         "newly_read_inputs_effect": 5706.63330078125,
-        "relative_difference": -1.3372721792323684e-08,
+        "relative_difference": -1.33727216536104e-08,
         "tested": 880018879336.604
       },
       "medicare_part_b_irmaa_total": {
@@ -868,15 +878,15 @@
         "unit": "usd"
       },
       {
-        "baseline": 485127965393.28503,
-        "baseline_error": 0.018405448324417924,
+        "baseline": 485127965393.2851,
+        "baseline_error": 0.018405448324418053,
         "baseline_within": true,
         "build_error": 0.01840544832441818,
         "build_estimate": 485127965393.28516,
         "label": "irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024",
         "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024",
         "newly_read_inputs_effect": 0.0,
-        "other_engine_changes_effect": 0.0,
+        "other_engine_changes_effect": -6.103515625e-05,
         "requirement_id": "soi_table_1_4_national_dollar_rows",
         "source": "irs_soi ty2023 table_1_4",
         "target": 476360339775.7405,
