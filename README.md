@@ -84,18 +84,21 @@ The panel has no enrollment row, so it cannot split the rise among these changes
 
 ### Fit to Microcosm's critical calibration targets
 
-Scored on 2026-11-21: [workflow run 44910821596](https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44910821596). It scored both releases with Microcosm's own scorer (`tools/build_us_compatibility_recertification.py score` at microcosm commit `85d513b`), against the target values in the default dataset's published calibration diagnostics. Those are the values the build was calibrated to; this repository did not rebuild them from the source publications. [`results/critical-targets/critical_targets.md`](results/critical-targets/critical_targets.md) lists every row.
+Scored on 2026-11-21: [workflow run 44910821596](https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44910821596). It scored both releases with Microcosm's own scorer (`tools/build_us_compatibility_recertification.py score` at microcosm commit `85d513b`), against the target values in the default dataset's published calibration diagnostics. Those are the values the build was calibrated to; this repository did not rebuild them from the source publications. The default dataset carries that file unchanged from its parent, Microcosm's build P of July 2026 (`populace-us-2024-buildp-sparse-rmloss100-cae8640-20260728T011454Z`), which `parent_release_manifest.json` in the release names. So the build's own estimates in the tables are build P's, made with policyengine-us 1.764.6 and policyengine-core 3.26.11. [`results/critical-targets/critical_targets.md`](results/critical-targets/critical_targets.md) lists every row.
 
 - Both releases keep all 21 scored target rows of Microcosm's 18 exact critical requirements within tolerance. Both also keep all 9 national dollar rows of SOI Table 1.4 within ±25%. The tolerance is each requirement's own limit on the absolute relative error, with no allowance for improving on an earlier build.
+- These verdicts differ from Microcosm's publication gate, which checks a build's own estimates. The gate lets a row outside tolerance pass for 13 of the 18 exact requirements if it improves on the previous build and stays within ±25%; the verdicts here allow no such exception. The gate also checks a row this scorer cannot reproduce (below). And every row here is a national total for 2024.
 - The tightest row is federal income tax liability against SOI historic table 2. Its error is +0.3% under 2.2.2 and +2.1% under 2.144.4, against a ±5% tolerance.
 - One row has no score. The itemized-deduction requirement also covers the total from SOI table 4.3 (all returns excluding dependents), and Microcosm's scorer cannot reproduce that row. The requirement's three other rows are scored.
 - 8 of the 9 Table 1.4 rows have the same estimate under both releases. Only taxable Social Security moves, from −10.9% to −10.5%.
-- The scorer's programme totals equal this repository's 2024 panel to within one part in 10⁸, and a test checks this. The scorer runs in batches of households; the panel runs on the whole file.
+- 13 of the scorer's 14 programme totals are also rows of this repository's 2024 panel. Each equals the panel's to within one part in 10⁸ under both releases, and a test checks all 13. The scorer runs in batches of households; the panel runs on the whole file. The fourteenth, Medicare's income-related surcharge on Part B premiums, has no panel row. It is $0 under 2.2.2 and $17.38bn under 2.144.4, for the reason the Part D surcharge is zero under 2.2.2 (above).
 - 2.144.4 reads one stored column that 2.2.2 does not define, `tax_unit_role_input`. Under 2.2.2, the tax-unit roles the engine assigns differ from the stored ones for 27,382 people (63.1 million weighted); under 2.144.4, for none. Reading that column lowers adjusted gross income under 2.144.4 by $35.8bn: the rise between the releases is $112.2bn with it and $148.0bn without it.
 - Microcosm's stored-input check fails under both releases. Both ignore `would_claim_wic` and `medicare_part_b_premiums`, and 2.144.4 also ignores the two mortgage-interest columns.
-- Two earlier scoring runs, on 2026-11-18 and 2026-11-21, gave the same verdict for every row. Their installs were not constrained, and five packages changed version between them. Every estimate agrees with this run's to within 3 parts in 10¹⁶ (`results/critical-targets/earlier/`).
+- Two earlier scoring runs, on 2026-11-18 and 2026-11-21, gave the same verdict for every row. Their installs were not constrained, and five packages changed version between them (their freezes are in `results/critical-targets/earlier/`). Every estimate agrees with this run's to within 3 parts in 10¹⁶, and a test checks them to 1 part in 10¹⁵.
 
 Every requirement is an IRS Statistics of Income (SOI) or Social Security Administration row for 2024. None covers Medicare, SNAP, SSI, state income tax, poverty or WIC, the rows that moved most between the releases. Passing these rows does not show that the head release is safe to promote.
+
+Microcosm's step that combines the scores checks that the baseline ran the build's own engine. The baseline here is 2.2.2, not build P's 1.764.6, so `scripts/critical_targets.py` passes 2.2.2's versions for that check. The step uses them for nothing else, so no estimate, tolerance or verdict depends on them.
 
 The scorer needs a Supplemental Poverty Measure (SPM) geography, and the published diagnostics record none. `scripts/prepare_scoring.py` adds `{"geography_kind": "county"}`, the selection in Microcosm's published scoring of an October build and in the `policyengine` bundle. It checks that nothing else in the file changes. No critical target is a poverty measure.
 
@@ -121,7 +124,7 @@ Times vary a lot between runs. Across this run and the two earlier complete runs
 
 Each run writes its workflow run id and the hashes of its measurement code into `environment.json`. `scripts/provenance.py` records a run only if both environments' files name that run and carry the same hashes, and only if every file in `results/pinned` and `results/head` is the file that run uploaded, byte for byte, with none missing or extra. It records each file's hash.
 
-Every total comes from a real microsimulation run. Each run downloads the dataset from the Hugging Face dataset `policyengine/populace-us` at revision `populace-us-2024-spm-20260915` and checks its hash. It also checks that the release certifies that same hash for its own default dataset. Each release loads its default from the tag `populace-us-2024-spm-20260909` and verifies the file against that hash, so both copies are the same bytes. This repository stores aggregates and column names, and no records.
+Every total comes from a real microsimulation run. Each run downloads the dataset from the Hugging Face dataset `policyengine/populace-us` at revision `populace-us-2024-spm-20260915` and checks its hash. It also checks that the release certifies that same hash for its own default dataset. Each release loads its default from the tag `populace-us-2024-spm-20260909` and verifies the file against that hash, so both copies are the same bytes. This repository stores aggregates and column names, and no records. One cell of the filing-status table in `results/critical-targets/drift.json` counts a single tax unit, so its weighted total is that unit's weight; the dataset itself publishes every weight.
 
 A run fails if it cannot measure everything. A panel row with no finite value fails its part. So does a stored draw whose ids do not line up, an environment that differs from its lock file, or a release with another default dataset. A part never replaces an existing file, and `scripts/compare.py` refuses two runs that are incomplete or that disagree on what a row measures.
 
@@ -135,7 +138,7 @@ The tests in `tests/` check the rules with property-based tests, and check the c
 - Each run measured exactly the panel the code defines.
 - The column classes follow from the recorded definitions.
 - The earlier runs in `results/earlier/` gave exactly this run's panel rows.
-- The critical-target tables rebuild byte for byte from `drift.json`, the scores used the measured releases and dataset, and the earlier scoring runs in `results/critical-targets/earlier/` agree with this one.
+- The critical-target tables rebuild byte for byte from `drift.json`, every score file still has the hash recorded from the run's artifact, the scores used the measured releases and dataset, and the earlier scoring runs in `results/critical-targets/earlier/` agree with this one.
 
 ## Measure again
 
@@ -165,7 +168,7 @@ The `Score` workflow runs Microcosm's scorer three times on GitHub-hosted runner
 gh workflow run score.yml --ref <branch>
 ```
 
-Then replace the files in `results/critical-targets` (keeping `earlier/`) with the run's `results-critical-targets` artifact, and record the run. Recording fails if the files come from another run:
+Then replace the files in `results/critical-targets` (keeping `earlier/`) with the run's `results-critical-targets` artifact, and record the run. Recording downloads the run's artifact and fails unless the committed files are exactly its files. The scores also go stale when the measured releases or dataset change:
 
 ```bash
 python scripts/provenance.py record score --run <run id>

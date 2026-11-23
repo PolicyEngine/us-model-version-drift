@@ -31,7 +31,10 @@ jobs:
       stale: ${{ steps.check.outputs.stale }}
     steps:
       - uses: actions/checkout@v6
+      # The explicit shell adds pipefail, so a check that fails fails the step
+      # rather than leaving an empty answer that skips scoring.
       - id: check
+        shell: bash
         run: python3 scripts/provenance.py check score | tee -a "$GITHUB_OUTPUT"
 
   score:
@@ -82,15 +85,17 @@ jobs:
       # are the three engine wheels and Microcosm's two packages.
       - name: The environment is the constrained one
         run: grep '==' out/freeze.txt | diff envs/score.constraints.txt -
-      - name: Download the dataset and its calibration diagnostics
+      - name: Download the dataset, its calibration diagnostics and its parent's manifest
         run: |
           mkdir -p scoring/artifacts downloads
           curl -sSfL -o scoring/artifacts/populace_us_2024.h5 "$HF_FOLDER/populace_us_2024.h5"
           curl -sSfL -o downloads/calibration_diagnostics.json "$HF_FOLDER/calibration_diagnostics.json"
+          curl -sSfL -o downloads/parent_release_manifest.json "$HF_FOLDER/parent_release_manifest.json"
       - name: Lay out the scorer's inputs
         run: |
           .venv/bin/python -B scripts/prepare_scoring.py \
             --diagnostics downloads/calibration_diagnostics.json \
+            --parent-manifest downloads/parent_release_manifest.json \
             --h5 scoring/artifacts/populace_us_2024.h5 \
             --out scoring
           cp scoring/scoring_inputs.json out/
@@ -137,7 +142,11 @@ jobs:
       - name: Lay out the diagnostics the scores read
         run: |
           curl -sSfL -o downloads/calibration_diagnostics.json "$HF_FOLDER/calibration_diagnostics.json"
-          .venv/bin/python -B scripts/prepare_scoring.py --diagnostics downloads/calibration_diagnostics.json --out scoring
+          curl -sSfL -o downloads/parent_release_manifest.json "$HF_FOLDER/parent_release_manifest.json"
+          .venv/bin/python -B scripts/prepare_scoring.py \
+            --diagnostics downloads/calibration_diagnostics.json \
+            --parent-manifest downloads/parent_release_manifest.json \
+            --out scoring
       - name: Combine
         run: |
           .venv/bin/python -B scripts/critical_targets.py \

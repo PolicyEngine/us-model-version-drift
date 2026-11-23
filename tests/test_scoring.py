@@ -9,7 +9,11 @@
   the scores came from the scoring code in this tree, and they used the
   measured releases and dataset.
 - Microcosm's batched scorer and this repository's whole-file panel give the
-  same 2024 totals.
+  same 2024 totals, for exactly the 13 totals both compute.
+- Every committed score file is, byte for byte, the file the recorded run
+  uploaded, and the estimates are named for the build that made them.
+- Two earlier runs, whose installs differed in five packages, agree with the
+  committed scores to within rounding.
 """
 
 import copy
@@ -183,7 +187,9 @@ def test_result_and_markdown_render_from_a_drift_document():
         ],
         "scores": {"baseline": score_document("1.0.0"), "tested": score_document("2.0.0")},
     }
-    result = critical_targets.build_result(drift, {"exact_critical_rows": 2}, {"dataset": {}}, ["ctc_amount", "eitc_amount", "missing_one"])
+    built = {"build_id": "build-x", "policyengine-us": "0.9.0", "policyengine-core": "0.1.0"}
+    inputs = {"dataset": {}, "estimates_from": built}
+    result = critical_targets.build_result(drift, {"exact_critical_rows": 2}, inputs, ["ctc_amount", "eitc_amount", "missing_one"])
     assert [row["requirement_id"] for row in result["exact"]["rows"]] == ["ctc_amount", "eitc_amount"]
     assert result["unscored_requirements"] == ["missing_one"]
     assert result["exact"]["tally"]["leaving_tolerance"] == ["target:eitc_amount"]
@@ -191,6 +197,7 @@ def test_result_and_markdown_render_from_a_drift_document():
     text = critical_targets.markdown(result)
     assert "| eitc_amount |" in text and "OUT" in text and "missing_one" in text
     assert "policyengine-us 2.0.0" in text and "SNAP benefits" in text
+    assert "`build-x`, made with policyengine-us 0.9.0" in text
     json.dumps(result)
 
 
@@ -221,6 +228,25 @@ def test_scores_used_the_measured_releases_and_dataset():
     assert inputs["published_diagnostics"]["sha256"] == prepare_scoring.PUBLISHED_DIAGNOSTICS_SHA256
 
 
+# The scorer's programme totals that the 2024 panel also measures. The
+# scorer's fourteenth, the Part B income-related surcharge, has no panel row.
+SHARED_TOTALS = {
+    "income_tax_net",
+    "ctc_total",
+    "eitc_total",
+    "social_security_total",
+    "snap_total",
+    "snap_units",
+    "ssi_total",
+    "medicaid_enrollment",
+    "medicaid_total",
+    "state_income_tax_total",
+    "medicare_part_d_irmaa_total",
+    "medicare_cost_total",
+    "adjusted_gross_income_total",
+}
+
+
 def test_scorer_totals_equal_the_measured_panel():
     """Two harnesses, one dataset: Microcosm's batched scorer and this
     repository's whole-file panel give the same 2024 totals."""
@@ -230,7 +256,8 @@ def test_scorer_totals_equal_the_measured_panel():
         for side, run in (("baseline", "pinned"), ("tested", "head"))
     }
     shared = [row for row in result["headline"] if row["metric_id"] in panels["baseline"]]
-    assert len(shared) >= 12
+    assert {row["metric_id"] for row in shared} == SHARED_TOTALS
+    assert {row["metric_id"] for row in result["headline"]} - SHARED_TOTALS == {"medicare_part_b_irmaa_total"}
     for row in shared:
         for side in ("baseline", "tested"):
             measured = panels[side][row["metric_id"]]
@@ -242,6 +269,52 @@ def test_scores_come_from_this_scoring_code():
     record = json.loads((SCORED / "provenance.json").read_text())
     assert record["workflow"] == "Score"
     assert record["artifacts"] == ["results-critical-targets"]
+    assert provenance.scores_differ_from_measured() == []
+
+
+def test_every_score_file_is_the_recorded_runs_artifact():
+    record = json.loads((SCORED / "provenance.json").read_text())
+    assert provenance.files_differ_from_record("score") == []
+    assert set(record["files"]) == set(provenance.committed("score"))
+    for name in ("drift.json", "critical_targets.json", "combine.json"):
+        assert f"results/critical-targets/{name}" in record["files"]
+
+
+def test_estimates_are_named_for_the_build_that_made_them():
+    inputs = json.loads((SCORED / "critical_targets.json").read_text())["inputs"]
+    built = inputs["estimates_from"]
+    assert built["manifest"]["sha256"] == prepare_scoring.PARENT_MANIFEST_SHA256
+    assert inputs["published_diagnostics"]["sha256"] == prepare_scoring.PUBLISHED_DIAGNOSTICS_SHA256
+    assert (built["policyengine-us"], built["policyengine-core"]) == ("1.764.6", "3.26.11")
+    assert built["build_id"] in (SCORED / "critical_targets.md").read_text()
+
+
+def test_a_parent_listing_other_diagnostics_is_refused():
+    parent = {
+        "artifacts": {"calibration_diagnostics": {"sha256": "a" * 64}},
+        "build": {
+            "build_id": "b",
+            "built_at": "t",
+            "built_with_model_package": {"version": "1"},
+            "built_with_core_package": {"version": "2"},
+        },
+    }
+    assert prepare_scoring.estimates_from(parent, "a" * 64)["policyengine-us"] == "1"
+    with pytest.raises(ValueError):
+        prepare_scoring.estimates_from(parent, "b" * 64)
+
+
+def test_scores_are_stale_when_the_measured_releases_change(tmp_path):
+    for run in ("pinned", "head"):
+        (tmp_path / "results" / run).mkdir(parents=True)
+        (tmp_path / "results" / run / "environment.json").write_bytes((ROOT / "results" / run / "environment.json").read_bytes())
+    (tmp_path / "results" / "critical-targets").mkdir()
+    (tmp_path / "results" / "critical-targets" / "critical_targets.json").write_bytes((SCORED / "critical_targets.json").read_bytes())
+    assert provenance.scores_differ_from_measured(tmp_path) == []
+    environment = json.loads((tmp_path / "results" / "head" / "environment.json").read_text())
+    environment["packages"]["policyengine-us"] = "9.9.9"
+    (tmp_path / "results" / "head" / "environment.json").write_text(json.dumps(environment))
+    assert provenance.scores_differ_from_measured(tmp_path) != []
 
 
 def test_every_scoring_job_names_the_recorded_run_and_code():
@@ -290,18 +363,40 @@ def test_each_scoring_environment_was_the_constrained_one(name, run):
     assert len(others) == len(editable) + len(wheels)
 
 
-@pytest.mark.parametrize("name", ("run-44345993218-rows.json", "run-44903905024-rows.json"))
-def test_an_earlier_scoring_run_gave_the_same_rows(name):
+EARLIER_RUNS = (44345993218, 44903905024)
+
+
+@pytest.mark.parametrize("run", EARLIER_RUNS)
+def test_an_earlier_scoring_run_gave_the_same_rows(run):
     """Earlier runs, under installs that were not constrained, agree with the
-    committed scores: every estimate to nine significant figures, and every
+    committed scores: every estimate to within 1 part in 10^15, and every
     target, tolerance and verdict exactly."""
-    earlier = json.loads((SCORED / "earlier" / name).read_text())
-    assert earlier["workflow_run"] != json.loads((SCORED / "provenance.json").read_text())["workflow_run"]
+    earlier = json.loads((SCORED / "earlier" / f"run-{run}-rows.json").read_text())
+    record = json.loads((SCORED / "provenance.json").read_text())
+    assert earlier["workflow_run"] == run != record["workflow_run"]
+    assert earlier["date"] < record["started"]
     now = {row["metric_id"]: row for row in json.loads((SCORED / "drift.json").read_text())["rows"]}
     assert set(now) == {row["metric_id"] for row in earlier["rows"]}
     for row in earlier["rows"]:
         current = now[row["metric_id"]]
         for key in ("baseline", "tested", "without_newly_read_inputs"):
-            assert math.isclose(current[key], row[key], rel_tol=1e-9, abs_tol=0.0), (row["metric_id"], key)
+            assert math.isclose(current[key], row[key], rel_tol=1e-15, abs_tol=0.0), (row["metric_id"], key)
         for key in ("requirement_id", "target", "tolerance", "within_tolerance"):
             assert current.get(key) == row[key], (row["metric_id"], key)
+
+
+def exact_pins(path: Path) -> dict[str, str]:
+    return dict(line.split("==", 1) for line in path.read_text().splitlines() if "==" in line)
+
+
+@pytest.mark.parametrize("job", prepare_scoring.SCORING_JOBS)
+def test_the_earlier_runs_installs_differed_in_five_packages(job):
+    first, second = (exact_pins(SCORED / "earlier" / f"run-{run}-freeze-{job}.txt") for run in EARLIER_RUNS)
+    assert set(first) == set(second)
+    assert sorted(name for name in first if first[name] != second[name]) == [
+        "certifi",
+        "decorator",
+        "pydantic",
+        "pydantic-core",
+        "pyyaml",
+    ]

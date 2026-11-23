@@ -10,6 +10,12 @@ targets in a release's ``calibration_diagnostics.json``. It reads three things:
   selection to score under;
 - ``<artifacts>/<the H5>``.
 
+The diagnostics hold the target rows and the estimates the build calibrated
+to them. The default dataset carries that file unchanged from its parent
+build, which the release's ``parent_release_manifest.json`` names; this
+script checks that the manifest lists the same file and records which build
+and engine made those estimates.
+
 The default dataset is a published release with no recertification report, and
 its diagnostics record no SPM selection (``build.post_export_scoring`` is
 null). This script writes a report that holds only the dataset's identity, and
@@ -55,6 +61,7 @@ REPOSITORY = "policyengine/populace-us"
 REVISION = "0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3"
 RELEASE_FOLDER = "releases/microcosm-us-2024-national/populace-us-2024-spm-20260915"
 PUBLISHED_DIAGNOSTICS_SHA256 = "870449b44e86b13b25bcea1a57f0e7af37f4d4db18be815eea3acdf9fe6eb40e"
+PARENT_MANIFEST_SHA256 = "dd949ba3c4c7a56aff8442c6db5a031d2c84c3da59f5d14832f468c358604506"
 
 # The selection in ``scores.*.scoring.spm`` of the compatibility_drift.json
 # Microcosm published with populace-us-2024-b5db384-recert-pe-us-2.90.4, and
@@ -104,6 +111,22 @@ def report() -> dict:
     }
 
 
+def estimates_from(parent: dict, diagnostics_sha256: str) -> dict:
+    """The build whose estimates the diagnostics hold, from the parent's
+    release manifest, which must list the same diagnostics file."""
+    listed = parent["artifacts"]["calibration_diagnostics"]["sha256"]
+    if listed != diagnostics_sha256:
+        raise ValueError(f"the parent build lists diagnostics {listed}, not {diagnostics_sha256}")
+    build = parent["build"]
+    return {
+        "build_id": build["build_id"],
+        "built_at": build["built_at"],
+        "policyengine-us": build["built_with_model_package"]["version"],
+        "policyengine-core": build["built_with_core_package"]["version"],
+        "manifest": {"sha256": PARENT_MANIFEST_SHA256, "url": url("parent_release_manifest.json")},
+    }
+
+
 def stamp() -> dict:
     """Which workflow run this process belongs to, and the code it ran."""
     return {"run": run_identity(os.environ), "code_sha256": file_hashes(ROOT, SCORING_CODE)}
@@ -119,6 +142,7 @@ def household_count(h5: Path) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--diagnostics", required=True, type=Path, help="the published calibration_diagnostics.json")
+    parser.add_argument("--parent-manifest", required=True, type=Path, help="the published parent_release_manifest.json")
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--h5", type=Path, help="the downloaded dataset; checked and counted when given")
     args = parser.parse_args()
@@ -127,6 +151,13 @@ def main() -> int:
     if published_sha256 != PUBLISHED_DIAGNOSTICS_SHA256:
         raise SystemExit(f"calibration_diagnostics.json has sha256 {published_sha256}")
     published = json.loads(args.diagnostics.read_text())
+    parent_sha256 = sha256_of(args.parent_manifest)
+    if parent_sha256 != PARENT_MANIFEST_SHA256:
+        raise SystemExit(f"parent_release_manifest.json has sha256 {parent_sha256}")
+    try:
+        estimates = estimates_from(json.loads(args.parent_manifest.read_text()), published_sha256)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
     if "post_export_scoring" in published["build"] and published["build"]["post_export_scoring"] is not None:
         raise SystemExit("the published diagnostics already record a selection")
     derived = derive(published)
@@ -143,6 +174,7 @@ def main() -> int:
     inputs = {
         "dataset": {"file": DATASET_FILE, "sha256": DATASET_SHA256, "url": url(DATASET_FILE)},
         "published_diagnostics": {"sha256": published_sha256, "url": url("calibration_diagnostics.json")},
+        "estimates_from": estimates,
         "derived_diagnostics": {
             "sha256": sha256_of(derived_path),
             "added": {"build.post_export_scoring": {"spm": SPM_SELECTION}},

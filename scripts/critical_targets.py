@@ -7,8 +7,9 @@ tolerance. This script calls it and writes the result as JSON, CSV and
 Markdown.
 
 The baseline here is the release the ``policyengine`` bundle pins. Microcosm's
-function calls its baseline "the parent's built-with engine"; this script
-passes the baseline run's own versions for it.
+function calls its baseline "the parent's built-with engine" and checks that
+the baseline scores ran it; this script passes the baseline run's own
+versions for that check, which is the only use the function makes of them.
 """
 
 from __future__ import annotations
@@ -162,6 +163,7 @@ def side_text(result: dict, side: str) -> str:
 
 def markdown(result: dict) -> str:
     exact, table = result["exact"], result["table_1_4"]
+    built = result["inputs"]["estimates_from"]
     requirements = len(result["exact_requirement_ids"])
     lines = [
         "# Critical targets",
@@ -171,6 +173,9 @@ def markdown(result: dict) -> str:
         f"- Dataset sha256 `{result['dataset_sha256'][:12]}…`, {result['households']:,} households, period {result['period']}",
         f"- Targets and tolerances: the dataset's published calibration diagnostics and Microcosm's "
         f"critical-target requirements at commit `{result['microcosm_commit'][:12]}`",
+        f"- Build estimates: Microcosm build `{built['build_id']}`, made with policyengine-us "
+        f"{built['policyengine-us']} and policyengine-core {built['policyengine-core']}. The dataset carries "
+        "that build's calibration diagnostics unchanged.",
         f"- Stored columns the tested engine newly reads: {names(result['newly_read_columns'])}",
         "",
         f"## The {requirements} exact requirements",
@@ -179,7 +184,7 @@ def markdown(result: dict) -> str:
         "a requirement can name more than one publication. Within tolerance: "
         f"{exact['tally']['baseline_within']} under the baseline, {exact['tally']['tested_within']} under the tested release.",
         "",
-        "| Requirement | Source | Target | Build's own estimate | Baseline | Tested | Tolerance | Baseline | Tested |",
+        "| Requirement | Source | Target | Build estimate | Baseline | Tested | Tolerance | Baseline | Tested |",
         "|---|---|---|---|---|---|---|---|---|",
     ]
     for row in exact["rows"]:

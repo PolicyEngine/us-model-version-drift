@@ -19,7 +19,9 @@ Ask whether the committed results still match the code::
     python scripts/provenance.py check measure
 
 It prints ``stale=true`` or ``stale=false``. The workflow reads that line to
-decide whether to measure, and a test fails while results are stale.
+decide whether to measure, and a test fails while results are stale. Scores
+are also stale when the releases or dataset they scored differ from the ones
+the committed measurement ran.
 """
 
 from __future__ import annotations
@@ -34,6 +36,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import fetch_wheels  # noqa: E402
 import measure  # noqa: E402
 import prepare_scoring  # noqa: E402
 from rules import file_hashes, stamped_by_one_run  # noqa: E402
@@ -60,7 +63,7 @@ KINDS = {
     "score": {
         "code": prepare_scoring.SCORING_CODE,
         "record": "results/critical-targets/provenance.json",
-        "artifacts": ["results-critical-targets"],
+        "artifacts": {"results-critical-targets": ("results/critical-targets", "*")},
         "stamped": (
             *(f"results/critical-targets/scoring_inputs-{name}.json" for name in prepare_scoring.SCORING_JOBS),
             "results/critical-targets/combine.json",
@@ -78,10 +81,29 @@ def recorded(kind: str = "measure", root: Path = ROOT) -> dict | None:
     return json.loads(path.read_text()) if path.exists() else None
 
 
+def scores_differ_from_measured(root: Path = ROOT) -> list[str]:
+    """How the scored releases and dataset differ from the measured ones."""
+    path = root / "results" / "critical-targets" / "critical_targets.json"
+    if not path.exists():
+        return ["no committed scores"]
+    result = json.loads(path.read_text())
+    found = []
+    for side, run in (("baseline", "pinned"), ("tested", "head")):
+        environment = json.loads((root / "results" / run / "environment.json").read_text())
+        if result[side]["versions"] != fetch_wheels.pins(environment):
+            found.append(f"the {side} scores ran other releases than the {run} measurement")
+        if result["dataset_sha256"] != environment["dataset"]["sha256"]:
+            found.append(f"the scores read another dataset than the {run} measurement")
+    return found
+
+
 def is_stale(kind: str = "measure", root: Path = ROOT) -> bool:
-    """Whether the committed results predate the code in this tree."""
+    """Whether the committed results predate the code in this tree, or, for
+    scores, the committed measurement."""
     record = recorded(kind, root)
-    return record is None or record.get("code_sha256") != code_hashes(kind, root)
+    if record is None or record.get("code_sha256") != code_hashes(kind, root):
+        return True
+    return kind == "score" and bool(scores_differ_from_measured(root))
 
 
 def stamps(kind: str = "measure", root: Path = ROOT) -> list[dict]:
