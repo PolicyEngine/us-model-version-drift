@@ -1,15 +1,18 @@
 """Record which workflow run and which code produced a set of results.
 
-Each run stamps its own result files with its run id and with the hashes of
+Each run stamps its environment files with its run id and with the hashes of
 the code it ran. After copying a run's artifacts into the results folder,
 record the run::
 
     python scripts/provenance.py record measure --run 44904663719
     python scripts/provenance.py record score --run 44345993218
 
-``record`` refuses files that another run made, or that different code made.
-It takes the code hashes from the files, and the run's commit, event and
-times from GitHub (through ``gh``), so nobody types them.
+``record`` downloads the run's artifacts from GitHub (through ``gh``) and
+refuses the committed results unless they are exactly those artifacts' files,
+byte for byte, with none missing and none extra. It also refuses stamps that
+name another run or other code. It writes each file's hash, the code hashes
+from the stamps, and the run's commit, event and times from GitHub, so nobody
+types them. A test checks the committed files against the recorded hashes.
 
 Ask whether the committed results still match the code::
 
@@ -22,9 +25,11 @@ decide whether to measure, and a test fails while results are stale.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -38,12 +43,18 @@ REPOSITORY = "PolicyEngine/us-model-version-drift"
 
 # For each kind of result: the files that decide what a run produces, where
 # its record lives, the artifacts it comes from, and the result files that
-# carry the run's stamp.
+# carry the run's stamp. Each artifact maps to the folder that holds its
+# committed copy and the pattern its files match there. The comparison is not
+# among them: it is a pure function of the two environments' files, and a test
+# rebuilds it byte for byte with the compare.py in the tree.
 KINDS = {
     "measure": {
         "code": measure.MEASUREMENT_CODE,
         "record": "results/provenance.json",
-        "artifacts": ["results-pinned", "results-head"],
+        "artifacts": {
+            "results-pinned": ("results/pinned", "*"),
+            "results-head": ("results/head", "*"),
+        },
         "stamped": ("results/pinned/environment.json", "results/head/environment.json"),
     },
     "score": {
@@ -77,17 +88,84 @@ def stamps(kind: str = "measure", root: Path = ROOT) -> list[dict]:
     return [json.loads((root / path).read_text()) for path in KINDS[kind]["stamped"]]
 
 
+def sha256_of(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def committed(kind: str = "measure", root: Path = ROOT) -> dict[str, str]:
+    """The committed result files that copy the kind's artifacts, each with the
+    artifact it belongs to."""
+    out = {}
+    for artifact, (folder, pattern) in KINDS[kind]["artifacts"].items():
+        for path in sorted((root / folder).glob(pattern)):
+            name = path.relative_to(root).as_posix()
+            if path.is_file() and name != KINDS[kind]["record"]:
+                out[name] = artifact
+    return out
+
+
+def match_artifacts(kind: str, downloaded: dict[str, Path], root: Path = ROOT) -> dict[str, str]:
+    """Each result file's hash, taken from the artifacts' bytes.
+
+    Raises ``ValueError`` unless the committed files are exactly the
+    artifacts' files: none missing, none extra, every byte the same.
+    """
+    expected = {}
+    for artifact, (folder, _) in KINDS[kind]["artifacts"].items():
+        base = downloaded[artifact]
+        for path in sorted(p for p in base.rglob("*") if p.is_file()):
+            expected[f"{folder}/{path.relative_to(base).as_posix()}"] = sha256_of(path)
+    have = committed(kind, root)
+    found = [f"missing from results: {name}" for name in sorted(set(expected) - set(have))]
+    found += [f"not in the run's artifacts: {name}" for name in sorted(set(have) - set(expected))]
+    found += [
+        f"differs from the run's artifact: {name}"
+        for name in sorted(set(expected) & set(have))
+        if sha256_of(root / name) != expected[name]
+    ]
+    if found:
+        raise ValueError("; ".join(found))
+    return dict(sorted(expected.items()))
+
+
+def files_differ_from_record(kind: str = "measure", root: Path = ROOT) -> list[str]:
+    """How the committed result files differ from the recorded ones."""
+    files = (recorded(kind, root) or {}).get("files", {})
+    have = committed(kind, root)
+    found = [f"recorded but not committed: {name}" for name in sorted(set(files) - set(have))]
+    found += [f"committed but not recorded: {name}" for name in sorted(set(have) - set(files))]
+    found += [
+        f"changed since recording: {name}"
+        for name in sorted(set(files) & set(have))
+        if sha256_of(root / name) != files[name]
+    ]
+    return found
+
+
+def download(run: int, artifacts, dest: Path) -> dict[str, Path]:
+    """Download each named artifact of the run into its own folder."""
+    out = {}
+    for name in artifacts:
+        out[name] = dest / name
+        subprocess.run(
+            ["gh", "run", "download", str(run), "-R", REPOSITORY, "-n", name, "-D", str(out[name])],
+            check=True,
+        )
+    return out
+
+
+def gh_api(path: str) -> dict:
+    done = subprocess.run(["gh", "api", path], capture_output=True, text=True, check=True)
+    return json.loads(done.stdout)
+
+
 def run_facts(run: int) -> dict:
-    """What GitHub records about one workflow run."""
-    done = subprocess.run(
-        ["gh", "api", f"repos/{REPOSITORY}/actions/runs/{run}"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    payload = json.loads(done.stdout)
+    """What GitHub records about one workflow run. The run finished when its
+    last job did; the run's own ``updated_at`` can change later."""
+    payload = gh_api(f"repos/{REPOSITORY}/actions/runs/{run}")
     if payload["conclusion"] != "success":
         raise SystemExit(f"run {run} concluded {payload['conclusion']}, not success")
+    jobs = gh_api(f"repos/{REPOSITORY}/actions/runs/{run}/jobs?per_page=100")["jobs"]
     return {
         "workflow_run": run,
         "workflow": payload["name"],
@@ -95,7 +173,7 @@ def run_facts(run: int) -> dict:
         "event": payload["event"],
         "head_sha": payload["head_sha"],
         "started": payload["run_started_at"],
-        "completed": payload["updated_at"],
+        "completed": max(job["completed_at"] for job in jobs),
     }
 
 
@@ -111,15 +189,19 @@ def main() -> int:
     if args.run is None:
         parser.error("record needs --run")
     found = stamps(args.kind)
+    artifacts = list(KINDS[args.kind]["artifacts"])
     try:
         hashes = stamped_by_one_run(found, REPOSITORY, args.run)
+        with tempfile.TemporaryDirectory() as tmp:
+            files = match_artifacts(args.kind, download(args.run, artifacts, Path(tmp)))
     except ValueError as exc:
         raise SystemExit(f"cannot record run {args.run}: {exc}")
     record = {
         **run_facts(args.run),
         # On a pull request the job checks out a merge commit, not head_sha.
         "checked_out": sorted({item["run"]["github_sha"] for item in found}),
-        "artifacts": KINDS[args.kind]["artifacts"],
+        "artifacts": artifacts,
+        "files": files,
         "code_sha256": hashes,
     }
     text = json.dumps(record, indent=2, sort_keys=True) + "\n"
