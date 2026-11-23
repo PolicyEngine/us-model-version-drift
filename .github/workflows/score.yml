@@ -1,0 +1,174 @@
+name: Score
+
+# Scores the default US dataset against Microcosm's critical calibration
+# targets under each measured release, with Microcosm's own scorer. It starts
+# by hand and on every pull request. Its first job asks scripts/provenance.py
+# whether the committed scores are stale: whether the scoring code
+# (SCORING_CODE in scripts/prepare_scoring.py) no longer matches them, or the
+# committed measurement (results/pinned and results/head) ran other releases
+# or another dataset than they scored. Only then do the scoring jobs run.
+on:
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
+
+# A new push to the same pull request cancels a scoring run in progress.
+concurrency:
+  group: score-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # PolicyEngine/microcosm main on 2026-11-17: the scorer and the requirements.
+  MICROCOSM_SHA: 85d513bb550f49e3d934ade81350841b1b64cab1
+  HF_FOLDER: https://huggingface.co/datasets/policyengine/populace-us/resolve/0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3/releases/microcosm-us-2024-national/populace-us-2024-spm-20260915
+
+jobs:
+  stale:
+    name: Do the scores match the code?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      stale: ${{ steps.check.outputs.stale }}
+    steps:
+      - uses: actions/checkout@v6
+      # The explicit shell adds pipefail, so a check that fails fails the step
+      # rather than leaving an empty answer that skips scoring.
+      - id: check
+        shell: bash
+        run: python3 scripts/provenance.py check score | tee -a "$GITHUB_OUTPUT"
+
+  score:
+    name: Score (${{ matrix.name }})
+    needs: stale
+    if: github.event_name == 'workflow_dispatch' || needs.stale.outputs.stale == 'true'
+    runs-on: ubuntu-latest
+    # A scoring job has taken 10 to 15 minutes.
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: pinned
+            run: pinned
+            variant: as_stored
+          - name: head
+            run: head
+            variant: as_stored
+          - name: head-without-newly-read
+            run: head
+            variant: without_newly_read_inputs
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: PolicyEngine/microcosm
+          ref: ${{ env.MICROCOSM_SHA }}
+          path: microcosm
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          version: "0.13.4"
+      - name: Fetch the engine wheels the measured run used
+        run: python3 scripts/fetch_wheels.py --run ${{ matrix.run }} --dest wheels
+      - name: Build the environment
+        run: |
+          test ! -e out
+          mkdir -p out
+          uv venv --python 3.13 .venv
+          uv pip install --python .venv/bin/python --no-sources \
+            wheels/*.whl tables \
+            -e microcosm/packages/microcosm-diagnostics \
+            -e microcosm/packages/microcosm-data \
+            -c envs/score.constraints.txt
+          uv pip freeze --python .venv/bin/python > out/freeze.txt
+          cat out/freeze.txt
+      # Every package from PyPI is at its constrained version. The other lines
+      # are the three engine wheels and Microcosm's two packages.
+      - name: The environment is the constrained one
+        run: grep '==' out/freeze.txt | diff envs/score.constraints.txt -
+      - name: Download the dataset, its calibration diagnostics and its parent's manifest
+        run: |
+          mkdir -p scoring/artifacts downloads
+          curl -sSfL -o scoring/artifacts/populace_us_2024.h5 "$HF_FOLDER/populace_us_2024.h5"
+          curl -sSfL -o downloads/calibration_diagnostics.json "$HF_FOLDER/calibration_diagnostics.json"
+          curl -sSfL -o downloads/parent_release_manifest.json "$HF_FOLDER/parent_release_manifest.json"
+      - name: Lay out the scorer's inputs
+        run: |
+          .venv/bin/python -B scripts/prepare_scoring.py \
+            --diagnostics downloads/calibration_diagnostics.json \
+            --parent-manifest downloads/parent_release_manifest.json \
+            --h5 scoring/artifacts/populace_us_2024.h5 \
+            --out scoring
+          cp scoring/scoring_inputs.json out/
+      - name: Score
+        run: |
+          .venv/bin/python microcosm/tools/build_us_compatibility_recertification.py score \
+            --release-dir scoring/release \
+            --artifact-root scoring/artifacts \
+            --output out/scores.json \
+            --variant ${{ matrix.variant }} \
+            $(printf -- '--compatibility-wheel %s ' wheels/*.whl)
+      - uses: actions/upload-artifact@v7
+        with:
+          name: scores-${{ matrix.name }}
+          path: out
+          if-no-files-found: error
+
+  combine:
+    name: Critical targets
+    needs: score
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: PolicyEngine/microcosm
+          ref: ${{ env.MICROCOSM_SHA }}
+          path: microcosm
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          version: "0.13.4"
+      - name: Build the environment
+        run: |
+          uv venv --python 3.13 .venv
+          uv pip install --python .venv/bin/python --no-sources \
+            -e microcosm/packages/microcosm-diagnostics \
+            -e microcosm/packages/microcosm-data \
+            -c envs/score.constraints.txt
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: scores-*
+          path: downloads
+      - name: Lay out the diagnostics the scores read
+        run: |
+          curl -sSfL -o downloads/calibration_diagnostics.json "$HF_FOLDER/calibration_diagnostics.json"
+          curl -sSfL -o downloads/parent_release_manifest.json "$HF_FOLDER/parent_release_manifest.json"
+          .venv/bin/python -B scripts/prepare_scoring.py \
+            --diagnostics downloads/calibration_diagnostics.json \
+            --parent-manifest downloads/parent_release_manifest.json \
+            --out scoring
+      - name: Combine
+        run: |
+          .venv/bin/python -B scripts/critical_targets.py \
+            --baseline downloads/scores-pinned/scores.json \
+            --tested downloads/scores-head/scores.json \
+            --counterfactual downloads/scores-head-without-newly-read/scores.json \
+            --diagnostics scoring/release/calibration_diagnostics.json \
+            --inputs downloads/scores-pinned/scoring_inputs.json \
+            --out out/critical-targets >> "$GITHUB_STEP_SUMMARY"
+      # One artifact holds everything a run commits: a fresh folder, so it
+      # carries nothing from the committed scores.
+      - name: Gather what the three scoring jobs recorded
+        run: |
+          for name in pinned head head-without-newly-read; do
+            cp "downloads/scores-$name/freeze.txt" "out/critical-targets/freeze-$name.txt"
+            cp "downloads/scores-$name/scoring_inputs.json" "out/critical-targets/scoring_inputs-$name.json"
+          done
+          ls -l out/critical-targets
+      - uses: actions/upload-artifact@v7
+        with:
+          name: results-critical-targets
+          path: out/critical-targets
+          if-no-files-found: error

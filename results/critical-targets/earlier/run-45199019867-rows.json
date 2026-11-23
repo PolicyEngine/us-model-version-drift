@@ -1,0 +1,538 @@
+{
+  "date": "2026-11-23T14:53:13Z",
+  "note": "The fourth Score run, the first under the round 1 review's fixes, whose scores were committed until the next run's labels changed the scoring code. These are the rows of its results-critical-targets artifact's drift.json.",
+  "rows": [
+    {
+      "baseline": 2262598220378.4546,
+      "metric_id": "income_tax_net",
+      "requirement_id": null,
+      "target": null,
+      "tested": 2303820767656.0127,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 2305279705149.364
+    },
+    {
+      "baseline": 147539081163.67752,
+      "metric_id": "ctc_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 148660122565.29105,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 147608956644.3992
+    },
+    {
+      "baseline": 66612638093.138626,
+      "metric_id": "eitc_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 67126845443.927704,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 67517968134.03835
+    },
+    {
+      "baseline": 1464840944351.0034,
+      "metric_id": "social_security_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 1464840944351.0034,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 1464840944351.0034
+    },
+    {
+      "baseline": 101948659046.78394,
+      "metric_id": "snap_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 99538245686.30806,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 99539093698.41982
+    },
+    {
+      "baseline": 23408655.29112474,
+      "metric_id": "snap_units",
+      "requirement_id": null,
+      "target": null,
+      "tested": 23579609.504958313,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 23579609.504958313
+    },
+    {
+      "baseline": 56097079523.72741,
+      "metric_id": "ssi_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 54894155453.83149,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 54894155453.83149
+    },
+    {
+      "baseline": 72205082.46722043,
+      "metric_id": "medicaid_enrollment",
+      "requirement_id": null,
+      "target": null,
+      "tested": 71515569.20106377,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 71506217.95033547
+    },
+    {
+      "baseline": 880018891104.8517,
+      "metric_id": "medicaid_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 880018879336.604,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 880018873629.9707
+    },
+    {
+      "baseline": 536193092986.17456,
+      "metric_id": "state_income_tax_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 515008103529.808,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 515584297122.42267
+    },
+    {
+      "baseline": 0.0,
+      "metric_id": "medicare_part_b_irmaa_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 17376679218.94322,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 17364407887.801704
+    },
+    {
+      "baseline": 0.0,
+      "metric_id": "medicare_part_d_irmaa_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 3337771779.4625535,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 3335386551.439665
+    },
+    {
+      "baseline": 516731355367.81287,
+      "metric_id": "medicare_cost_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 809453992873.4786,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 809468649437.5277
+    },
+    {
+      "baseline": 16683143554555.41,
+      "metric_id": "adjusted_gross_income_total",
+      "requirement_id": null,
+      "target": null,
+      "tested": 16795338679969.28,
+      "tolerance": null,
+      "within_tolerance": null,
+      "without_newly_read_inputs": 16831179110549.234
+    },
+    {
+      "baseline": 23608311.552331995,
+      "metric_id": "target:irs_soi.ty2024.filing_season_week47.eitc_all_returns.earned_income_credit.total_earned_income_credit_returns@2024",
+      "requirement_id": "eitc_claims",
+      "target": 23837149.0,
+      "tested": 23197950.407674238,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 23499208.683979474
+    },
+    {
+      "baseline": 66612638093.138626,
+      "metric_id": "target:irs_soi.ty2024.filing_season_week47.eitc_all_returns.earned_income_credit.total_earned_income_credit_amount@2024",
+      "requirement_id": "eitc_amount",
+      "target": 69041649000.0,
+      "tested": 67126845443.927704,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 67517968134.03835
+    },
+    {
+      "baseline": 7968831.400281696,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.premium_tax_credit_returns@2024",
+      "requirement_id": "premium_tax_credit_returns",
+      "target": 7841370.0,
+      "tested": 7929596.735922223,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 7958548.366284767
+    },
+    {
+      "baseline": 60058977176.854324,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.premium_tax_credit_amount@2024",
+      "requirement_id": "premium_tax_credit_amount",
+      "target": 60398047561.677315,
+      "tested": 60124397933.5013,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 60127931196.214386
+    },
+    {
+      "baseline": 131714443097.61911,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.limited_state_local_taxes_amount@2024",
+      "requirement_id": "salt_deduction_amount",
+      "target": 137379203044.0616,
+      "tested": 131802838997.04749,
+      "tolerance": 0.1,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 131593389608.48459
+    },
+    {
+      "baseline": 24490667.75887756,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.taxable_social_security_returns@2024",
+      "requirement_id": "taxable_social_security_returns",
+      "target": 24475090.0,
+      "tested": 24587947.479928464,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 24638905.932256885
+    },
+    {
+      "baseline": 510816071658.8801,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.taxable_social_security_amount@2024",
+      "requirement_id": "taxable_social_security_amount",
+      "target": 510771015700.78534,
+      "tested": 513083223793.9983,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 513917887131.35504
+    },
+    {
+      "baseline": 720544737876.803,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.itemized_deductions_amount@2024",
+      "requirement_id": "itemized_deduction_amount",
+      "target": 728802287524.4347,
+      "tested": 722052900716.4214,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 719711375784.3063
+    },
+    {
+      "baseline": 98753202081.19997,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.medical_dental_expense_amount@2024",
+      "requirement_id": "medical_expense_deduction_amount",
+      "target": 89891939590.30547,
+      "tested": 99110919175.02856,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 97275031062.37509
+    },
+    {
+      "baseline": 113271458.03619447,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_returns@2024",
+      "requirement_id": "income_tax_liability_returns",
+      "target": 113562590.0,
+      "tested": 113185127.50563577,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 113542362.6246005
+    },
+    {
+      "baseline": 2366408193716.642,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_amount@2024",
+      "requirement_id": "federal_income_tax_amount",
+      "target": 2358715520045.6733,
+      "tested": 2407844854573.51,
+      "tolerance": 0.05,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 2409736430958.7837
+    },
+    {
+      "baseline": 37988072.737763286,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.ctc_claims@2024",
+      "requirement_id": "ctc_claims",
+      "target": 38069010.0,
+      "tested": 38535555.52671709,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 38103254.01783955
+    },
+    {
+      "baseline": 89316545570.82773,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024",
+      "requirement_id": "ctc_amount",
+      "target": 92834932737.99818,
+      "tested": 89662326687.5224,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 89291612666.68211
+    },
+    {
+      "baseline": 17641859.26380883,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.actc_claims@2024",
+      "requirement_id": "actc_claims",
+      "target": 17691450.0,
+      "tested": 17570321.592887886,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 17613103.044013083
+    },
+    {
+      "baseline": 37495465996.77002,
+      "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.actc_amount@2024",
+      "requirement_id": "actc_amount",
+      "target": 37932659450.069534,
+      "tested": 37231949699.27246,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 37279977753.34141
+    },
+    {
+      "baseline": 720544737876.803,
+      "metric_id": "target:irs_soi.ty2023.table_1_2.all_returns.all.total_itemized_deductions_amount@2024",
+      "requirement_id": "itemized_deduction_amount",
+      "target": 751096520902.8955,
+      "tested": 722052900716.4214,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 719711375784.3063
+    },
+    {
+      "baseline": 10736284148599.646,
+      "metric_id": "target:irs_soi.ty2023.table_1_4.all.wages_salaries_amount@2024",
+      "requirement_id": "soi_table_1_4_national_dollar_rows",
+      "target": 10773360188644.922,
+      "tested": 10736284148599.646,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 10736284148599.646
+    },
+    {
+      "baseline": 1235406391063.714,
+      "metric_id": "target:irs_soi.ty2023.table_1_4.all.net_capital_gains_amount@2024",
+      "requirement_id": "soi_table_1_4_national_dollar_rows",
+      "target": 1270864366489.301,
+      "tested": 1235406391063.714,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 1235406391063.714
+    },
+    {
+      "baseline": 485127965393.2851,
+      "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024",
+      "requirement_id": "soi_table_1_4_national_dollar_rows",
+      "target": 476360339775.7405,
+      "tested": 485127965393.28503,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 485127965393.28503
+    },
+    {
+      "baseline": 1001719886130.0988,
+      "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_pension_income_amount@2024",
+      "requirement_id": "soi_table_1_4_national_dollar_rows",
+      "target": 1013424547797.8289,
+      "tested": 1001719886130.0988,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 1001719886130.0988
+    },
+    {
+      "baseline": 33529071340.53068,
+      "metric_id": "target:irs_soi.ty2023.table_1_4.all.unemployment_compensation_amount@2024",
+      "requirement_id": "soi_table_1_4_national_dollar_rows",
+      "target": 33637347541.042778,
+      "tested": 33529071340.53068,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 33529071340.53068
+    },
+    {
+      "baseline": 510816071658.8801,
+      "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_social_security_amount@2024",
+      "requirement_id": "soi_table_1_4_national_dollar_rows",
+      "target": 573040726871.6981,
+      "tested": 513083223793.9983,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 513917887131.35504
+    },
+    {
+      "baseline": 720544737876.803,
+      "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.total_itemized_deductions_amount@2024",
+      "requirement_id": "itemized_deduction_amount",
+      "target": 751096520902.8955,
+      "tested": 722052900716.4214,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 719711375784.3063
+    },
+    {
+      "baseline": 131714443097.61911,
+      "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.limited_state_local_taxes_amount@2024",
+      "requirement_id": "salt_deduction_amount",
+      "target": 131608046105.74428,
+      "tested": 131802838997.04749,
+      "tolerance": 0.1,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 131593389608.48459
+    },
+    {
+      "baseline": 1464840944351.0034,
+      "metric_id": "target:ssa_supplement.cy2024.oasdi_ssi_payments.social_security_benefits.payment_amount@2024",
+      "requirement_id": "social_security_benefits",
+      "target": 1471195000000.0,
+      "tested": 1464840944351.0034,
+      "tolerance": 0.05,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 1464840944351.0034
+    },
+    {
+      "baseline": 10156076348.183594,
+      "metric_id": "target:irs_soi.ty2023.table_1_4.all.capital_gain_distributions_amount@2024",
+      "requirement_id": "soi_table_1_4_national_dollar_rows",
+      "target": 10155465319.076845,
+      "tested": 10156076348.183594,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 10156076348.183594
+    },
+    {
+      "baseline": 52075228419.32789,
+      "metric_id": "target:irs_soi.ty2023.table_1_4.all.estate_trust_net_income_amount@2024",
+      "requirement_id": "soi_table_1_4_national_dollar_rows",
+      "target": 52068877487.483215,
+      "tested": 52075228419.32789,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 52075228419.32789
+    },
+    {
+      "baseline": 5322281859.500117,
+      "metric_id": "target:irs_soi.ty2023.table_1_4.all.estate_trust_net_loss_amount@2024",
+      "requirement_id": "soi_table_1_4_national_dollar_rows",
+      "target": 5326071785.78782,
+      "tested": 5322281859.500117,
+      "tolerance": 0.25,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 5322281859.500117
+    },
+    {
+      "baseline": 11570126.846896643,
+      "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_returns@2024",
+      "requirement_id": "home_mortgage_interest_returns",
+      "target": 11644348.0,
+      "tested": 11619824.14451804,
+      "tolerance": 0.15,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 11609087.456411712
+    },
+    {
+      "baseline": 183664882061.43546,
+      "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_amount@2024",
+      "requirement_id": "home_mortgage_interest_amount",
+      "target": 186310104604.25217,
+      "tested": 184338498738.63974,
+      "tolerance": 0.2,
+      "within_tolerance": {
+        "baseline": true,
+        "tested": true
+      },
+      "without_newly_read_inputs": 184261250589.82953
+    }
+  ],
+  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/45199019867",
+  "workflow_run": 45199019867
+}
