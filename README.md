@@ -81,7 +81,7 @@ The Medicare row compares two definitions, and other rules changed with them. `m
 - 2.144.4 also charges the Part B premium only to people enrolled in Part B (`medicare_part_b_enrolled`). That variable defaults to Medicare enrollment, and the dataset stores no Part B enrollment column, so on this file the condition excludes no Medicare enrollee.
 - The income-related surcharges on Part B and Part D premiums are zero under 2.2.2 in 2024, for the reason above, and positive under 2.144.4.
 
-The panel has no enrollment row, so it cannot split the rise among these changes. Each is a change in the model, not in policy or in the data.
+The panel has no enrollment row, so it cannot split the rise among these changes, and the two environments also differ in policyengine-core. Each listed change is in the model, not in policy or in the data.
 
 ### Fit to Microcosm's critical calibration targets
 
@@ -113,7 +113,7 @@ Times vary a lot between runs. Across this run and the two earlier complete runs
 
 - The panel reports movement between two releases. Only the critical-target scoring compares either release with external figures, and only for the rows Microcosm names, in 2024.
 - The two environments differ in policyengine-us and in policyengine-core, so a row's movement can come from either package.
-- One movement is attributed to a cause: scoring 2.144.4 without the stored column it newly reads, `tax_unit_role_input`, isolates that column's effect on the scored totals (above). Nothing here attributes any other movement to a particular change.
+- The panel measures how far each total moved, not why. The README names causes in three places, all above. Scoring 2.144.4 without the stored column it newly reads, `tax_unit_role_input`, measures that column's effect on every scored total. The releases' source shows why both Medicare surcharges are zero under 2.2.2 in 2024. And it shows which Medicare definitions and rules changed, though the panel cannot split the Medicare rise among them. No other movement is attributed to a cause.
 - A national total can hide changes that offset each other across households.
 - Each release extends the 2024 file to 2026 with its own uprating factors. The 2026 rows therefore mix differences in rules with differences in uprating.
 - Two releases, one dataset. Three earlier runs, from 2026-11-17 to 2026-11-21 and under earlier versions of this code, measured the same panel. Every row they measured, 204 in all, equals this run's in every digit (`results/earlier/`).

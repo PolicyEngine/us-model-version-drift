@@ -145,6 +145,19 @@ def links_among(names, root: Path = ROOT) -> list[str]:
     return sorted(name for name in names if (root / name).is_symlink())
 
 
+def linked_folders(kind: str, root: Path = ROOT) -> list[str]:
+    """The kind's result folders, or the folders above them inside the
+    repository, that are symbolic links. Listing a linked folder follows the
+    link, so its files would look like the folder's own."""
+    found = set()
+    for folder in [f for f, _ in KINDS[kind]["artifacts"].values()] + [str(Path(KINDS[kind]["record"]).parent)]:
+        parts = Path(folder).parts
+        for depth in range(1, len(parts) + 1):
+            if (root.joinpath(*parts[:depth])).is_symlink():
+                found.add(Path(*parts[:depth]).as_posix())
+    return sorted(found)
+
+
 def match_artifacts(kind: str, downloaded: dict[str, Path], root: Path = ROOT) -> dict[str, str]:
     """Each result file's hash, taken from the artifacts' bytes.
 
@@ -159,7 +172,8 @@ def match_artifacts(kind: str, downloaded: dict[str, Path], root: Path = ROOT) -
             expected[f"{folder}/{path.relative_to(base).as_posix()}"] = sha256_of(path)
     have = committed(kind, root)
     links = links_among(have, root)
-    found = [f"a symbolic link, not a file: {name}" for name in links]
+    found = [f"a symbolic link, not a folder: {name}" for name in linked_folders(kind, root)]
+    found += [f"a symbolic link, not a file: {name}" for name in links]
     found += [f"missing from results: {name}" for name in sorted(set(expected) - set(have))]
     found += [f"not in the run's artifacts: {name}" for name in sorted(set(have) - set(expected) - set(links))]
     found += [
@@ -177,7 +191,8 @@ def files_differ_from_record(kind: str = "measure", root: Path = ROOT) -> list[s
     files = (recorded(kind, root) or {}).get("files", {})
     have = committed(kind, root)
     links = links_among(have, root)
-    found = [f"a symbolic link, not a file: {name}" for name in links]
+    found = [f"a symbolic link, not a folder: {name}" for name in linked_folders(kind, root)]
+    found += [f"a symbolic link, not a file: {name}" for name in links]
     found += [f"recorded but not committed: {name}" for name in sorted(set(files) - set(have))]
     found += [f"committed but not recorded: {name}" for name in sorted(set(have) - set(files) - set(links))]
     found += [

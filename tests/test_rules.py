@@ -375,6 +375,26 @@ def test_only_the_outside_folder_is_left_out_of_the_score_record():
         assert sorted(provenance.committed("score", root)) == [f"{folder}/drift.json", f"{folder}/sub/extra.json"]
 
 
+@pytest.mark.parametrize("linked", ("results/pinned", "results"))
+def test_a_linked_result_folder_is_refused(linked):
+    """A result folder, or the folder above it, that is a link to a copy with
+    identical files is still refused: its files are not the folder's own."""
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        files = {("results-pinned", "a"): b"1", ("results-head", "b"): b"2"}
+        downloaded = lay_out(tmp / "artifacts", files)
+        root = tmp / "repo"
+        commit(root, files)
+        recorded = provenance.match_artifacts("measure", downloaded, root)
+        (root / provenance.KINDS["measure"]["record"]).write_text(json.dumps({"files": recorded}))
+        real = root / f"{linked}-real"
+        (root / linked).rename(real)
+        (root / linked).symlink_to(real.name if linked == "results/pinned" else real)
+        with pytest.raises(ValueError, match="not a folder"):
+            provenance.match_artifacts("measure", downloaded, root)
+        assert any("not a folder" in line for line in provenance.files_differ_from_record("measure", root))
+
+
 def stamp(run="7", repository="o/r", code=None):
     return {
         "run": {"github_repository": repository, "github_run_id": run, "github_sha": "c" * 40},

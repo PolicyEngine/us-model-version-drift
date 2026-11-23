@@ -195,7 +195,14 @@ def test_earlier_row_count():
 
 @pytest.mark.parametrize(
     "figure",
-    ("16 of the 19", "15 of 20", "33 to 47 minutes", "Nothing here attributes a row's movement to a particular change."),
+    (
+        "16 of the 19",
+        "15 of 20",
+        "33 to 47 minutes",
+        "Nothing here attributes a row's movement to a particular change.",
+        "Nothing here attributes any other movement",
+        "One movement is attributed to a cause",
+    ),
 )
 def test_superseded_figures_are_gone(figure):
     assert figure not in README
@@ -297,7 +304,7 @@ def test_newly_read_column_and_roles():
     within = [abs(without[row["metric_id"]] / row["target"] - 1) <= row["tolerance"] for row in rows]
     assert all(within)
     quoted(f"With it withheld, 2.144.4 still keeps all {len(within)} scored rows within tolerance.")
-    quoted("Nothing here attributes any other movement to a particular change.")
+    quoted("No other movement is attributed to a cause.")
 
 
 def test_refused_columns():
