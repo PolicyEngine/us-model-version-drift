@@ -1,0 +1,41 @@
+{
+  "artifacts": [
+    "results-pinned",
+    "results-head"
+  ],
+  "checked_out": [
+    "f2e8bc4d89658cb2a6bcb5e329242f8a3e2d23c8"
+  ],
+  "code_sha256": {
+    ".github/workflows/measure.yml": "9c65e6a33ef7b957455440e718adcd6bb24215d83398b6d58670db8a8df8f8f0",
+    "envs/head.lock.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
+    "envs/head.txt": "984a9f33eae7154be83c07c0ec181f8023cc8c0e5153b03a95ec5b6212c772a7",
+    "envs/pinned.lock.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
+    "envs/pinned.txt": "4dab09cbeb389d03a3e459d8c8b940c176ff37093509a7dd6cfc6aa0b850b0b7",
+    "scripts/measure.py": "33c630b536efbdf7208ce698c82a3b405b66387204a43afde250266c8d4e27d0",
+    "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
+  },
+  "completed": "2026-11-21T13:47:14Z",
+  "event": "pull_request",
+  "files": {
+    "results/head/contract.json": "4b4db006b0bb64700291bebb54c71ddb58520dfa1318f9a7cbee8779105544d7",
+    "results/head/environment.json": "f2c6659a146ca39fbbb39dce99d9dcb94f7d755ea5ff40dd8570f266ef9b05d3",
+    "results/head/freeze.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
+    "results/head/panel-2024.json": "270aa8ac19ab6ba840ad4dec9eb42f80677225aa070a8875af8483550e0c74e7",
+    "results/head/panel-2026.json": "f9f098eb6e68cf944879815143a713400185987bb0e67faadab6dad53e151c9b",
+    "results/head/wic-loaded.json": "7d101b41023e99b545e7fcec76cfaf0431a25fe2e1c059c100ff8acfb827066b",
+    "results/head/wic-stored.json": "4db0490b9fa9a79caccddd5766d44b117c32e7d4bcd62685a1ac9b6f64ba4332",
+    "results/pinned/contract.json": "fffe8997d26cbf6eeff029a769af40483c2846d77bb1769da65c31fb8c300dd3",
+    "results/pinned/environment.json": "df41f9bcf719bdd0519ece9cb03a4fd693e3b36c98c71b51d94a81745e61cbbf",
+    "results/pinned/freeze.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
+    "results/pinned/panel-2024.json": "f3273c2785dc655c6515a2753383684348cc9a8596a2a31434ead7ad197022e6",
+    "results/pinned/panel-2026.json": "7d3c5837dd4fa0e0db9f2b0adce298a3caaa567102050b4d43e1ee6953ebec5e",
+    "results/pinned/wic-loaded.json": "53729048b07c5f4c5d038124f1d820e245d00ca3cfcb58dd3165390738f73b95",
+    "results/pinned/wic-stored.json": "76dc3451486041e18428bdfc2f1e529bbe19aaa0f0175807f768b4f32c0ca6c0"
+  },
+  "head_sha": "8af9bc5fe0b8bce2972e88b9e44f9943e48538b2",
+  "started": "2026-11-21T13:13:04Z",
+  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44907751024",
+  "workflow": "Measure",
+  "workflow_run": 44907751024
+}

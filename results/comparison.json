@@ -1,0 +1,644 @@
+{
+  "baseline": {
+    "code_sha256": {
+      ".github/workflows/measure.yml": "9c65e6a33ef7b957455440e718adcd6bb24215d83398b6d58670db8a8df8f8f0",
+      "envs/head.lock.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
+      "envs/head.txt": "984a9f33eae7154be83c07c0ec181f8023cc8c0e5153b03a95ec5b6212c772a7",
+      "envs/pinned.lock.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
+      "envs/pinned.txt": "4dab09cbeb389d03a3e459d8c8b940c176ff37093509a7dd6cfc6aa0b850b0b7",
+      "scripts/measure.py": "33c630b536efbdf7208ce698c82a3b405b66387204a43afde250266c8d4e27d0",
+      "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
+    },
+    "dataset": {
+      "bytes": 826917837,
+      "file": "populace_us_2024.h5",
+      "repo": "policyengine/populace-us",
+      "revision": "populace-us-2024-spm-20260915",
+      "sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84"
+    },
+    "label": "pinned",
+    "packages": {
+      "h5py": "3.16.0",
+      "huggingface-hub": "2.4.0",
+      "microdf-python": "1.5.12",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "policyengine-core": "3.34.10",
+      "policyengine-us": "2.2.2",
+      "spm-calculator": "1.1.0",
+      "tables": "3.11.1"
+    },
+    "platform": "Linux-7.0.0-1020-azure-x86_64-with-glibc2.43",
+    "python": "3.13.16",
+    "release_default_dataset": "hf://datasets/policyengine/populace-us/populace_us_2024.h5@populace-us-2024-spm-20260909",
+    "release_default_dataset_sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84",
+    "run": {
+      "github_event_name": "pull_request",
+      "github_ref": "refs/pull/1/merge",
+      "github_repository": "PolicyEngine/us-model-version-drift",
+      "github_run_attempt": "1",
+      "github_run_id": "44907751024",
+      "github_sha": "f2e8bc4d89658cb2a6bcb5e329242f8a3e2d23c8"
+    }
+  },
+  "contract": {
+    "baseline_columns_not_variables": 189,
+    "baseline_counts": {
+      "computed_variable": 4,
+      "input_variable": 184,
+      "not_a_variable": 26,
+      "raw_field": 163
+    },
+    "baseline_rejected_inputs_stored": [],
+    "baseline_required_source_inputs_missing": [],
+    "computed_and_stored_baseline": [
+      "has_marketplace_health_coverage",
+      "is_spm_independent_minor_role",
+      "person_id",
+      "weeks_worked"
+    ],
+    "computed_and_stored_tested": [
+      "has_marketplace_health_coverage",
+      "is_spm_independent_minor_role",
+      "person_id",
+      "social_security_dependents",
+      "social_security_disability",
+      "social_security_retirement",
+      "social_security_survivors"
+    ],
+    "not_a_variable_in_both": [
+      "family_source_id",
+      "family_support_channel",
+      "family_support_clone_index",
+      "filing_status_input",
+      "household_source_id",
+      "household_support_channel",
+      "household_support_clone_index",
+      "marital_unit_source_id",
+      "marital_unit_support_channel",
+      "marital_unit_support_clone_index",
+      "medicare_part_b_premiums",
+      "person_source_id",
+      "person_support_channel",
+      "person_support_clone_index",
+      "source_household_id",
+      "source_person_id",
+      "source_row_id",
+      "source_year",
+      "spm_unit_source_id",
+      "spm_unit_support_channel",
+      "spm_unit_support_clone_index",
+      "tax_unit_source_id",
+      "tax_unit_support_channel",
+      "tax_unit_support_clone_index",
+      "would_claim_wic"
+    ],
+    "not_a_variable_only_in_baseline": [
+      "tax_unit_role_input"
+    ],
+    "not_a_variable_only_in_tested": [
+      "first_home_mortgage_interest",
+      "second_home_mortgage_interest"
+    ],
+    "stored_columns": 377,
+    "tested_columns_not_variables": 190,
+    "tested_counts": {
+      "computed_variable": 7,
+      "input_variable": 180,
+      "not_a_variable": 27,
+      "raw_field": 163
+    },
+    "tested_rejected_inputs_stored": [],
+    "tested_required_source_inputs_missing": []
+  },
+  "panel": [
+    {
+      "baseline": 2262598213311.9766,
+      "difference": 41222547055.10156,
+      "id": "income_tax_net",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": 0.018219119423222855,
+      "tested": 2303820760367.078,
+      "unit": "usd",
+      "variable": "income_tax"
+    },
+    {
+      "baseline": 147539080851.74878,
+      "difference": 1121041400.4837646,
+      "id": "ctc_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": 0.007598267482838782,
+      "tested": 148660122252.23254,
+      "unit": "usd",
+      "variable": "ctc"
+    },
+    {
+      "baseline": 66612637956.19162,
+      "difference": 514207350.0769043,
+      "id": "eitc_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": 0.007719366262226054,
+      "tested": 67126845306.268524,
+      "unit": "usd",
+      "variable": "eitc"
+    },
+    {
+      "baseline": 1464840941025.9067,
+      "difference": 0.0,
+      "id": "social_security_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": 0.0,
+      "tested": 1464840941025.9067,
+      "unit": "usd",
+      "variable": "social_security"
+    },
+    {
+      "baseline": 101948658856.76624,
+      "difference": -2410413359.0444183,
+      "id": "snap_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": -0.02364340429853964,
+      "tested": 99538245497.72182,
+      "unit": "usd",
+      "variable": "snap"
+    },
+    {
+      "baseline": 23408655.251528144,
+      "difference": 170954.21392438933,
+      "id": "snap_units",
+      "kind": "count_positive",
+      "period": 2024,
+      "relative_difference": 0.007303034372862117,
+      "tested": 23579609.465452533,
+      "unit": "spm_units",
+      "variable": "snap"
+    },
+    {
+      "baseline": 56097079462.83588,
+      "difference": -1202924066.385376,
+      "id": "ssi_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": -0.0214436130704863,
+      "tested": 54894155396.4505,
+      "unit": "usd",
+      "variable": "ssi"
+    },
+    {
+      "baseline": 72205082.32033254,
+      "difference": -689513.2631776482,
+      "id": "medicaid_enrollment",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": -0.009549372994530679,
+      "tested": 71515569.0571549,
+      "unit": "people",
+      "variable": "medicaid_enrolled"
+    },
+    {
+      "baseline": 880018889424.9663,
+      "difference": -11744.547729492188,
+      "id": "medicaid_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": -1.33457904945273e-08,
+      "tested": 880018877680.4186,
+      "unit": "usd",
+      "variable": "medicaid"
+    },
+    {
+      "baseline": 536193091301.84143,
+      "difference": -21184989397.958496,
+      "id": "state_income_tax_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": -0.039510000672561336,
+      "tested": 515008101903.88293,
+      "unit": "usd",
+      "variable": "state_income_tax"
+    },
+    {
+      "baseline": 0.0,
+      "difference": 3337771767.6691303,
+      "id": "medicare_part_d_irmaa_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": null,
+      "tested": 3337771767.6691303,
+      "unit": "usd",
+      "variable": "income_adjusted_part_d_premium_surcharge"
+    },
+    {
+      "baseline": 516731354249.5509,
+      "difference": 292722636900.4938,
+      "id": "medicare_cost_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": 0.5664890169585605,
+      "tested": 809453991150.0447,
+      "unit": "usd",
+      "variable": "medicare_cost"
+    },
+    {
+      "baseline": 16683143509971.34,
+      "difference": 112195124816.89453,
+      "id": "adjusted_gross_income_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": 0.0067250590243881,
+      "tested": 16795338634788.234,
+      "unit": "usd",
+      "variable": "adjusted_gross_income"
+    },
+    {
+      "baseline": 11517240776.317844,
+      "difference": -206105198.341671,
+      "id": "wic_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": -0.017895362469583145,
+      "tested": 11311135577.976173,
+      "unit": "usd",
+      "variable": "wic"
+    },
+    {
+      "baseline": 5067662649.422696,
+      "difference": -6895669.429064751,
+      "id": "tanf_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": -0.0013607199030602993,
+      "tested": 5060766979.993631,
+      "unit": "usd",
+      "variable": "tanf"
+    },
+    {
+      "baseline": 37495465911.91746,
+      "difference": -263516297.41147614,
+      "id": "refundable_ctc_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": -0.007027951006943504,
+      "tested": 37231949614.50598,
+      "unit": "usd",
+      "variable": "refundable_ctc"
+    },
+    {
+      "baseline": 757468167357.2365,
+      "difference": 2388462841.294922,
+      "id": "employee_payroll_tax_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": 0.0031532187677643713,
+      "tested": 759856630198.5314,
+      "unit": "usd",
+      "variable": "employee_payroll_tax"
+    },
+    {
+      "baseline": 60058977058.32765,
+      "difference": 65420712.963630676,
+      "id": "premium_tax_credit_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": 0.0010892745126194184,
+      "tested": 60124397771.29128,
+      "unit": "usd",
+      "variable": "premium_tax_credit"
+    },
+    {
+      "baseline": 15184280201525.043,
+      "difference": 86453831484.38281,
+      "id": "household_net_income_total",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": 0.005693640418707484,
+      "tested": 15270734033009.426,
+      "unit": "usd",
+      "variable": "household_net_income"
+    },
+    {
+      "baseline": 44271756.15920584,
+      "difference": -2726116.021880001,
+      "id": "people_in_spm_poverty",
+      "kind": "sum",
+      "period": 2024,
+      "relative_difference": -0.06157686657101661,
+      "tested": 41545640.13732584,
+      "unit": "people",
+      "variable": "person_in_poverty"
+    },
+    {
+      "baseline": 2610604484904.08,
+      "difference": -15581090308.876953,
+      "id": "income_tax_net",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": -0.005968384103748845,
+      "tested": 2595023394595.203,
+      "unit": "usd",
+      "variable": "income_tax"
+    },
+    {
+      "baseline": 157468351520.51172,
+      "difference": 1395516507.8667603,
+      "id": "ctc_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 0.008862203067420702,
+      "tested": 158863868028.37848,
+      "unit": "usd",
+      "variable": "ctc"
+    },
+    {
+      "baseline": 68266669758.05227,
+      "difference": 1731935629.133522,
+      "id": "eitc_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 0.02537014966852451,
+      "tested": 69998605387.18579,
+      "unit": "usd",
+      "variable": "eitc"
+    },
+    {
+      "baseline": 1705545725120.4775,
+      "difference": -27671832664.496582,
+      "id": "social_security_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": -0.0162246208101761,
+      "tested": 1677873892455.981,
+      "unit": "usd",
+      "variable": "social_security"
+    },
+    {
+      "baseline": 100265316841.38287,
+      "difference": -5167626701.041748,
+      "id": "snap_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": -0.05153952397334763,
+      "tested": 95097690140.34113,
+      "unit": "usd",
+      "variable": "snap"
+    },
+    {
+      "baseline": 22196344.055778008,
+      "difference": 397495.40105594695,
+      "id": "snap_units",
+      "kind": "count_positive",
+      "period": 2026,
+      "relative_difference": 0.017908147398376335,
+      "tested": 22593839.456833955,
+      "unit": "spm_units",
+      "variable": "snap"
+    },
+    {
+      "baseline": 57855559925.80327,
+      "difference": -1164658053.8515015,
+      "id": "ssi_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": -0.020130443043764757,
+      "tested": 56690901871.95177,
+      "unit": "usd",
+      "variable": "ssi"
+    },
+    {
+      "baseline": 70168488.6210724,
+      "difference": 674467.2778615206,
+      "id": "medicaid_enrollment",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 0.009612110665569764,
+      "tested": 70842955.89893392,
+      "unit": "people",
+      "variable": "medicaid_enrolled"
+    },
+    {
+      "baseline": 880018869437.1897,
+      "difference": 14505.8310546875,
+      "id": "medicaid_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 1.6483545476660755e-08,
+      "tested": 880018883943.0208,
+      "unit": "usd",
+      "variable": "medicaid"
+    },
+    {
+      "baseline": 613774075360.7506,
+      "difference": -37136029589.581055,
+      "id": "state_income_tax_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": -0.06050439580354393,
+      "tested": 576638045771.1696,
+      "unit": "usd",
+      "variable": "state_income_tax"
+    },
+    {
+      "baseline": 3951296764.934417,
+      "difference": 56375304.82054615,
+      "id": "medicare_part_d_irmaa_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 0.01426754510591205,
+      "tested": 4007672069.754963,
+      "unit": "usd",
+      "variable": "income_adjusted_part_d_premium_surcharge"
+    },
+    {
+      "baseline": 684158696683.1964,
+      "difference": 243918581952.7865,
+      "id": "medicare_cost_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 0.3565233960122185,
+      "tested": 928077278635.9829,
+      "unit": "usd",
+      "variable": "medicare_cost"
+    },
+    {
+      "baseline": 19158610569490.254,
+      "difference": -171632800967.96094,
+      "id": "adjusted_gross_income_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": -0.008958520261447514,
+      "tested": 18986977768522.293,
+      "unit": "usd",
+      "variable": "adjusted_gross_income"
+    },
+    {
+      "baseline": 11766039532.482082,
+      "difference": 26466677.732990265,
+      "id": "wic_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 0.0022494126133032837,
+      "tested": 11792506210.215073,
+      "unit": "usd",
+      "variable": "wic"
+    },
+    {
+      "baseline": 5045530740.344602,
+      "difference": 136553015.48995876,
+      "id": "tanf_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 0.02706415291419519,
+      "tested": 5182083755.83456,
+      "unit": "usd",
+      "variable": "tanf"
+    },
+    {
+      "baseline": 40622851533.42457,
+      "difference": -2522467.130569458,
+      "id": "refundable_ctc_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": -6.209478250176422e-05,
+      "tested": 40620329066.294,
+      "unit": "usd",
+      "variable": "refundable_ctc"
+    },
+    {
+      "baseline": 852126740432.294,
+      "difference": -11607249124.346191,
+      "id": "employee_payroll_tax_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": -0.013621505550286683,
+      "tested": 840519491307.9478,
+      "unit": "usd",
+      "variable": "employee_payroll_tax"
+    },
+    {
+      "baseline": 46441464750.96096,
+      "difference": 794232078.6279602,
+      "id": "premium_tax_credit_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 0.017101787871829043,
+      "tested": 47235696829.58892,
+      "unit": "usd",
+      "variable": "premium_tax_credit"
+    },
+    {
+      "baseline": 17426291581224.53,
+      "difference": -180334102116.46875,
+      "id": "household_net_income_total",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": -0.01034839232867908,
+      "tested": 17245957479108.06,
+      "unit": "usd",
+      "variable": "household_net_income"
+    },
+    {
+      "baseline": 47132500.90618125,
+      "difference": 466700.9457804188,
+      "id": "people_in_spm_poverty",
+      "kind": "sum",
+      "period": 2026,
+      "relative_difference": 0.009901892257094567,
+      "tested": 47599201.85196167,
+      "unit": "people",
+      "variable": "person_in_poverty"
+    }
+  ],
+  "tested": {
+    "code_sha256": {
+      ".github/workflows/measure.yml": "9c65e6a33ef7b957455440e718adcd6bb24215d83398b6d58670db8a8df8f8f0",
+      "envs/head.lock.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
+      "envs/head.txt": "984a9f33eae7154be83c07c0ec181f8023cc8c0e5153b03a95ec5b6212c772a7",
+      "envs/pinned.lock.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
+      "envs/pinned.txt": "4dab09cbeb389d03a3e459d8c8b940c176ff37093509a7dd6cfc6aa0b850b0b7",
+      "scripts/measure.py": "33c630b536efbdf7208ce698c82a3b405b66387204a43afde250266c8d4e27d0",
+      "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
+    },
+    "dataset": {
+      "bytes": 826917837,
+      "file": "populace_us_2024.h5",
+      "repo": "policyengine/populace-us",
+      "revision": "populace-us-2024-spm-20260915",
+      "sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84"
+    },
+    "label": "head",
+    "packages": {
+      "h5py": "3.16.0",
+      "huggingface-hub": "2.4.0",
+      "microdf-python": "1.5.12",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "policyengine-core": "3.36.1",
+      "policyengine-us": "2.144.4",
+      "spm-calculator": "1.1.0",
+      "tables": "3.11.1"
+    },
+    "platform": "Linux-7.0.0-1020-azure-x86_64-with-glibc2.43",
+    "python": "3.13.16",
+    "release_default_dataset": "hf://datasets/policyengine/populace-us/populace_us_2024.h5@populace-us-2024-spm-20260909",
+    "release_default_dataset_sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84",
+    "run": {
+      "github_event_name": "pull_request",
+      "github_ref": "refs/pull/1/merge",
+      "github_repository": "PolicyEngine/us-model-version-drift",
+      "github_run_attempt": "1",
+      "github_run_id": "44907751024",
+      "github_sha": "f2e8bc4d89658cb2a6bcb5e329242f8a3e2d23c8"
+    }
+  },
+  "wic": {
+    "baseline": {
+      "period": 2024,
+      "person_ids_in_simulation": 166321,
+      "person_ids_stored": 166321,
+      "person_ids_unique_and_identical_sets": true,
+      "stored_draw_rows": 166321,
+      "stored_draw_share_true_unweighted": 0.04491314987283626,
+      "stored_draw_true_rows_applied": 7470,
+      "take_up_share_as_loaded": 1.0,
+      "take_up_share_with_stored_draw": 0.03799470686325908,
+      "takes_up_wic_if_eligible_is_a_variable": true,
+      "wic_as_loaded": 11517240776.317844,
+      "wic_with_stored_draw": 6633045181.377785,
+      "would_claim_wic_is_a_variable": false
+    },
+    "tested": {
+      "period": 2024,
+      "person_ids_in_simulation": 166321,
+      "person_ids_stored": 166321,
+      "person_ids_unique_and_identical_sets": true,
+      "stored_draw_rows": 166321,
+      "stored_draw_share_true_unweighted": 0.04491314987283626,
+      "stored_draw_true_rows_applied": 7470,
+      "take_up_share_as_loaded": 1.0,
+      "take_up_share_with_stored_draw": 0.03799470686325908,
+      "takes_up_wic_if_eligible_is_a_variable": true,
+      "wic_as_loaded": 11311135577.976173,
+      "wic_with_stored_draw": 6470050705.670418,
+      "would_claim_wic_is_a_variable": false
+    }
+  },
+  "wic_as_loaded_against_stored_draw": {
+    "baseline": {
+      "baseline": 6633045181.377785,
+      "difference": 4884195594.94006,
+      "relative_difference": 0.7363428804393486,
+      "tested": 11517240776.317844
+    },
+    "tested": {
+      "baseline": 6470050705.670418,
+      "difference": 4841084872.305756,
+      "relative_difference": 0.7482298195998649,
+      "tested": 11311135577.976173
+    }
+  }
+}
