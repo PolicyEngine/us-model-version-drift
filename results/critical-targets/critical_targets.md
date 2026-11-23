@@ -9,9 +9,9 @@
 
 ## The 18 exact requirements
 
-21 scored target rows serve the 18 requirements: a requirement can name more than one publication. Within tolerance: 21 under the baseline, 21 under the tested release.
+21 scored target rows serve the 18 requirements: a requirement can select rows from more than one publication. Within tolerance: 21 under the baseline, 21 under the tested release.
 
-| Requirement | Source | Target | Build estimate | Baseline | Tested | Tolerance | Baseline | Tested |
+| Requirement | Source | Target | Build estimate | Baseline | Tested | Tolerance | Baseline within | Tested within |
 |---|---|---|---|---|---|---|---|---|
 | federal_income_tax_amount | `irs_soi ty2022 historic_table_2` | $2,358.7bn | $2,361.5bn (+0.1%) | $2,366.4bn (+0.3%) | $2,407.8bn (+2.1%) | ±5% | in | in |
 | income_tax_liability_returns | `irs_soi ty2022 historic_table_2` | 113.56m | 113.20m (-0.3%) | 113.27m (-0.3%) | 113.19m (-0.3%) | ±15% | in | in |
@@ -47,7 +47,7 @@ Critical target rows the scorer did not score (1): itemized_deduction_amount (`i
 
 9 scored rows, tolerance ±25%. Within tolerance: 9 under the baseline, 9 under the tested release. 8 of the 9 rows have the same estimate under both releases, to nine significant figures.
 
-| Row | Target | Baseline | Tested | Baseline | Tested |
+| Row | Target | Baseline | Tested | Baseline within | Tested within |
 |---|---|---|---|---|---|
 | wages_salaries_amount | $10,773.4bn | $10,736.3bn (-0.3%) | $10,736.3bn (-0.3%) | in | in |
 | net_capital_gains_amount | $1,270.9bn | $1,235.4bn (-2.8%) | $1,235.4bn (-2.8%) | in | in |
@@ -61,17 +61,17 @@ Critical target rows the scorer did not score (1): itemized_deduction_amount (`i
 
 ## What each engine does with the stored columns
 
-- Baseline: Microcosm's stored-input check failed; columns it refused: `medicare_part_b_premiums`, `would_claim_wic`. Stored columns this engine ignores: `medicare_part_b_premiums`, `would_claim_wic`.
-- Tested: Microcosm's stored-input check failed; columns it refused: `first_home_mortgage_interest`, `medicare_part_b_premiums`, `second_home_mortgage_interest`, `would_claim_wic`. Stored columns this engine ignores: `first_home_mortgage_interest`, `medicare_part_b_premiums`, `second_home_mortgage_interest`, `would_claim_wic`.
+- Baseline: Microcosm's stored-input check failed. It refuses the model-named stored columns that this engine does not define and that Microcosm's register of stored non-variable columns does not list: `medicare_part_b_premiums`, `would_claim_wic`.
+- Tested: Microcosm's stored-input check failed. It refuses the model-named stored columns that this engine does not define and that Microcosm's register of stored non-variable columns does not list: `first_home_mortgage_interest`, `medicare_part_b_premiums`, `second_home_mortgage_interest`, `would_claim_wic`.
 
 People whose tax-unit role in the engine differs from the stored role:
 
 - Baseline: 27,382 of 166,321 people (63.1m weighted), in 14,412 tax units (33.3m weighted)
 - Tested: 0 of 166,321 people (0.0m weighted), in 0 tax units (0.0m weighted)
 
-## Programme totals the scorer also reports
+## Programme and income totals the scorer also reports
 
-The last column is the part of the change that comes from the stored columns the tested engine newly reads.
+Row labels are Microcosm's. Its Medicare benefit cost is `medicare_cost`, which each release defines as the value of Medicare coverage net of premiums. The last column is the part of the change that comes from the stored columns the tested engine newly reads.
 
 | Row | Baseline | Tested | Relative | From newly read columns |
 |---|---|---|---|---|

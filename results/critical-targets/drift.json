@@ -146,27 +146,27 @@
   "rows": [
     {
       "baseline": 2262598220378.4546,
-      "difference": 41222547277.558105,
+      "difference": 41222547277.55762,
       "label": "federal income tax, net of refundable credits",
       "metric_id": "income_tax_net",
-      "newly_read_inputs_effect": -1458937493.3510742,
+      "newly_read_inputs_effect": -1458937493.3515625,
       "other_engine_changes_effect": 42681484770.90918,
-      "relative_difference": 0.018219119464640523,
+      "relative_difference": 0.018219119464640304,
       "requirement_id": null,
-      "tested": 2303820767656.0127,
+      "tested": 2303820767656.012,
       "unit": "usd",
       "without_newly_read_inputs": 2305279705149.364
     },
     {
       "baseline": 147539081163.67752,
-      "difference": 1121041401.6135254,
+      "difference": 1121041401.613556,
       "label": "Child Tax Credit, total",
       "metric_id": "ctc_total",
-      "newly_read_inputs_effect": 1051165920.8918457,
+      "newly_read_inputs_effect": 1051165920.8918762,
       "other_engine_changes_effect": 69875480.72167969,
-      "relative_difference": 0.007598267474431807,
+      "relative_difference": 0.007598267474432014,
       "requirement_id": null,
-      "tested": 148660122565.29105,
+      "tested": 148660122565.29108,
       "unit": "usd",
       "without_newly_read_inputs": 147608956644.3992
     },
@@ -250,14 +250,14 @@
     },
     {
       "baseline": 880018891104.8517,
-      "difference": -11768.247680664062,
+      "difference": -11768.247802734375,
       "label": "Medicaid benefit value",
       "metric_id": "medicaid_total",
-      "newly_read_inputs_effect": 5706.63330078125,
+      "newly_read_inputs_effect": 5706.6331787109375,
       "other_engine_changes_effect": -17474.880981445312,
-      "relative_difference": -1.33727216536104e-08,
+      "relative_difference": -1.3372721792323687e-08,
       "requirement_id": null,
-      "tested": 880018879336.604,
+      "tested": 880018879336.6039,
       "unit": "usd",
       "without_newly_read_inputs": 880018873629.9707
     },
@@ -315,14 +315,14 @@
     },
     {
       "baseline": 16683143554555.41,
-      "difference": 112195125413.86914,
+      "difference": 112195125413.86719,
       "label": "adjusted gross income",
       "metric_id": "adjusted_gross_income_total",
-      "newly_read_inputs_effect": -35840430579.95508,
+      "newly_read_inputs_effect": -35840430579.95703,
       "other_engine_changes_effect": 148035555993.82422,
-      "relative_difference": 0.0067250590421991385,
+      "relative_difference": 0.006725059042199021,
       "requirement_id": null,
-      "tested": 16795338679969.28,
+      "tested": 16795338679969.277,
       "unit": "usd",
       "without_newly_read_inputs": 16831179110549.234
     },
@@ -521,19 +521,19 @@
     {
       "baseline": 98753202081.19997,
       "build_estimate": 99136084640.40742,
-      "difference": 357717093.828598,
+      "difference": 357717093.82858276,
       "label": "irs_soi.ty2022.historic_table_2.us.all.medical_dental_expense_amount@2024",
       "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.medical_dental_expense_amount@2024",
-      "newly_read_inputs_effect": 1835888112.653473,
+      "newly_read_inputs_effect": 1835888112.6534576,
       "other_engine_changes_effect": -1478171018.8248749,
-      "relative_difference": 0.0036223341247655404,
+      "relative_difference": 0.003622334124765386,
       "requirement_id": "medical_expense_deduction_amount",
       "target": 89891939590.30547,
       "target_relative_error": {
         "baseline": 0.09857683048425575,
-        "tested": 0.10255624282599564
+        "tested": 0.10255624282599547
       },
-      "tested": 99110919175.02856,
+      "tested": 99110919175.02855,
       "tolerance": 0.25,
       "unit": "usd",
       "within_tolerance": {
@@ -641,19 +641,19 @@
     {
       "baseline": 17641859.26380883,
       "build_estimate": 17691267.271204203,
-      "difference": -71537.6709209457,
+      "difference": -71537.67092094943,
       "label": "irs_soi.ty2022.historic_table_2.us.all.actc_claims@2024",
       "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.actc_claims@2024",
-      "newly_read_inputs_effect": -42781.45112519711,
+      "newly_read_inputs_effect": -42781.45112520084,
       "other_engine_changes_effect": -28756.21979574859,
-      "relative_difference": -0.00405499612320912,
+      "relative_difference": -0.004054996123209331,
       "requirement_id": "actc_claims",
       "target": 17691450.0,
       "target_relative_error": {
         "baseline": -0.002803090543238029,
-        "tested": -0.006846720145161314
+        "tested": -0.006846720145161525
       },
-      "tested": 17570321.592887886,
+      "tested": 17570321.592887882,
       "tolerance": 0.15,
       "unit": "count",
       "within_tolerance": {
@@ -761,19 +761,19 @@
     {
       "baseline": 485127965393.2851,
       "build_estimate": 485127965393.28516,
-      "difference": -6.103515625e-05,
+      "difference": 0.0,
       "label": "irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024",
       "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024",
-      "newly_read_inputs_effect": 0.0,
+      "newly_read_inputs_effect": 6.103515625e-05,
       "other_engine_changes_effect": -6.103515625e-05,
-      "relative_difference": -1.2581248784641765e-16,
+      "relative_difference": 0.0,
       "requirement_id": "soi_table_1_4_national_dollar_rows",
       "target": 476360339775.7405,
       "target_relative_error": {
         "baseline": 0.018405448324418053,
-        "tested": 0.018405448324417924
+        "tested": 0.018405448324418053
       },
-      "tested": 485127965393.28503,
+      "tested": 485127965393.2851,
       "tolerance": 0.25,
       "unit": "usd",
       "within_tolerance": {
@@ -1952,22 +1952,22 @@
       "metric_definitions_sha256": "27392beed3a1f53d6ade13687a8d0fa8218bdef52f91936dcea4bda50b5ce47e",
       "metrics": {
         "adjusted_gross_income_total": {
-          "value": 16795338679969.28
+          "value": 16795338679969.277
         },
         "ctc_total": {
-          "value": 148660122565.29105
+          "value": 148660122565.29108
         },
         "eitc_total": {
           "value": 67126845443.927704
         },
         "income_tax_net": {
-          "value": 2303820767656.0127
+          "value": 2303820767656.012
         },
         "medicaid_enrollment": {
           "value": 71515569.20106377
         },
         "medicaid_total": {
-          "value": 880018879336.604
+          "value": 880018879336.6039
         },
         "medicare_cost_total": {
           "value": 809453992873.4786
@@ -1997,7 +1997,7 @@
           "value": 37231949699.27246
         },
         "target:irs_soi.ty2022.historic_table_2.us.all.actc_claims@2024": {
-          "value": 17570321.592887886
+          "value": 17570321.592887882
         },
         "target:irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024": {
           "value": 89662326687.5224
@@ -2018,7 +2018,7 @@
           "value": 131802838997.04749
         },
         "target:irs_soi.ty2022.historic_table_2.us.all.medical_dental_expense_amount@2024": {
-          "value": 99110919175.02856
+          "value": 99110919175.02855
         },
         "target:irs_soi.ty2022.historic_table_2.us.all.premium_tax_credit_amount@2024": {
           "value": 60124397933.5013
@@ -2048,7 +2048,7 @@
           "value": 1235406391063.714
         },
         "target:irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024": {
-          "value": 485127965393.28503
+          "value": 485127965393.2851
         },
         "target:irs_soi.ty2023.table_1_4.all.taxable_pension_income_amount@2024": {
           "value": 1001719886130.0988

@@ -1,8 +1,8 @@
 {
   "code_sha256": {
-    ".github/workflows/score.yml": "5526cbf06b4997907da1688999d06774d996a25b64ffae855322dcbba6a90604",
+    ".github/workflows/score.yml": "df7fefe59c4bcb95155ac1a874205a48691fc8395a26fc54220eef2fdf5d2b3a",
     "envs/score.constraints.txt": "ee06574b35b095b5f35073cbbd4939537320244fbf3888c1b200c1e4290e2181",
-    "scripts/critical_targets.py": "d5a9dde8d5db739c8d6dfd114a72e7356f9320286f1aafad6c519824860a5588",
+    "scripts/critical_targets.py": "088c6a89d738f7b6d16ab2d9e01fe97f7882b8d9cadbce7bf5b9b06c155828e1",
     "scripts/fetch_wheels.py": "222b0b7e0cc8d5a8876ec6d04eeaf0b0a6ed77fe448e49b1064f3abc15cc6fe3",
     "scripts/prepare_scoring.py": "6791de32ee7c969243ce9a90c93caee3c4d30851f74a8f4f6f443c5d07bb9d36",
     "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
@@ -43,7 +43,7 @@
     "github_ref": "refs/pull/2/merge",
     "github_repository": "PolicyEngine/us-model-version-drift",
     "github_run_attempt": "1",
-    "github_run_id": "45199019867",
-    "github_sha": "55b7ed35912d38a40187504f0838d72e4bf83a2d"
+    "github_run_id": "45207756243",
+    "github_sha": "025a9b85e8ef130e4a925e5541bc00298cfeb71a"
   }
 }

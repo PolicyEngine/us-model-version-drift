@@ -318,3 +318,22 @@ def test_scope_of_the_critical_rows():
     top = [row["id"] for row in moves[:5]]
     assert top == ["medicare_cost_total", "people_in_spm_poverty", "state_income_tax_total", "snap_total", "ssi_total"]
     quoted("None covers Medicare, poverty, state income tax, SNAP or SSI, the five panel rows that moved most in 2024, or WIC.")
+
+
+def test_earlier_scoring_runs():
+    now = {row["metric_id"]: row for row in scored("drift.json")["rows"]}
+    runs = [json.loads(path.read_text()) for path in sorted((SCORED / "earlier").glob("run-*-rows.json"))]
+    worst = 0.0
+    for run in runs:
+        for row in run["rows"]:
+            for key in ("baseline", "tested", "without_newly_read_inputs"):
+                a, b = now[row["metric_id"]][key], row[key]
+                if a != b:
+                    worst = max(worst, abs(a - b) / max(abs(a), abs(b)))
+    assert 0 < worst < 1e-15
+    dates = sorted(run["date"][:10] for run in runs)
+    quoted(
+        f"{('Two', 'Three', 'Four', 'Five')[len(runs) - 2]} earlier scoring runs, from {dates[0]} to {dates[-1]}, "
+        "gave the same verdict for every row",
+        f"Every estimate agrees with this run's to within {math.ceil(worst * 1e16)} parts in 10¹⁶",
+    )
