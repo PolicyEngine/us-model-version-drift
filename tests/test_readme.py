@@ -304,7 +304,14 @@ def test_newly_read_column_and_roles():
     within = [abs(without[row["metric_id"]] / row["target"] - 1) <= row["tolerance"] for row in rows]
     assert all(within)
     quoted(f"With it withheld, 2.144.4 still keeps all {len(within)} scored rows within tolerance.")
-    quoted("No other movement is attributed to a cause.")
+    quoted(
+        "- The panel measures how far each total moved between the releases, not why. The README names causes of "
+        "those movements in three places, all above. Scoring 2.144.4 without the stored column it newly reads, "
+        "`tax_unit_role_input`, measures that column's effect on every scored total. The releases' source shows why "
+        "both Medicare surcharges are zero under 2.2.2 in 2024. And it shows which Medicare definitions and rules "
+        "changed, though the panel cannot split the Medicare rise among them. No other movement between the releases "
+        "is attributed to a cause."
+    )
 
 
 def test_refused_columns():
