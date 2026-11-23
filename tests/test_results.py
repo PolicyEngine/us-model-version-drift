@@ -6,6 +6,9 @@
   each run stamped into its files equal the files' hashes. A change to that
   code fails here until someone measures again. Both environments' files
   name the one recorded run.
+- Every committed result file is, byte for byte, the file the recorded run
+  uploaded: recording took each file's hash from the run's artifacts, and
+  the committed files still have those hashes, with none missing or extra.
 - Each run installed exactly its lock file, and the lock agrees with the
   releases its environment file pins. The two locks differ in the engine
   packages only.
@@ -70,9 +73,9 @@ def test_results_come_from_this_measurement_code():
     assert record["started"] < record["completed"]
 
 
-def test_each_result_file_names_the_recorded_run_and_code():
-    """The run stamped its files itself. Both environments' files name the
-    recorded run and carry the hashes of the measurement code in this tree."""
+def test_both_environments_name_the_recorded_run_and_code():
+    """The run stamped its environment files itself. Both name the recorded
+    run and carry the hashes of the measurement code in this tree."""
     record = load("provenance.json")
     stamps = provenance.stamps("measure")
     assert len(stamps) == len(RUNS)
@@ -81,6 +84,15 @@ def test_each_result_file_names_the_recorded_run_and_code():
     assert record["checked_out"] == sorted({stamp["run"]["github_sha"] for stamp in stamps})
     for stamp in stamps:
         assert stamp["run"]["github_event_name"] == record["event"]
+
+
+def test_every_result_file_is_the_recorded_runs_artifact():
+    record = load("provenance.json")
+    assert provenance.files_differ_from_record("measure") == []
+    assert set(record["files"]) == set(provenance.committed("measure"))
+    assert {name.split("/")[1] for name in record["files"]} == set(RUNS)
+    for run in RUNS:
+        assert f"results/{run}/environment.json" in record["files"]
 
 
 def pins(path: Path) -> dict[str, str]:

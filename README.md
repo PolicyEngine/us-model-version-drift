@@ -21,7 +21,7 @@ The dataset stores each person's WIC take-up draw as `would_claim_wic`. Neither 
 |---|---|---|
 | As the release loads the dataset | $11.52bn | $11.31bn |
 | With the stored draw applied | $6.63bn | $6.47bn |
-| Difference | $4.88bn (+74%) | $4.84bn (+75%) |
+| Difference, relative to the total with the stored draw | $4.88bn (+74%) | $4.84bn (+75%) |
 
 - "With the stored draw applied" means this repository copied `would_claim_wic` into `takes_up_wic_if_eligible` for each month of 2024, matching people on `person_id`. The ids are unique in the stored table and in the simulation, and both hold the same 166,321 ids. The measurement stops if they do not.
 - As loaded, the take-up input is true for every person. With the stored draw applied it is true for 3.80% of people, weighted by person weight (the January 2024 input). The stored draw is true for 4.49% of stored person rows, unweighted.
@@ -52,9 +52,11 @@ The dataset stores 377 distinct columns across six tables. This table classes ea
 
 ### Aggregate panel
 
-Each row is a weighted total in dollars, except three counts: SPM units that receive SNAP, people enrolled in Medicaid, and people in poverty. The change is `head` relative to `pinned`.
+Each row is a weighted total in dollars, except three counts: SPM units that receive SNAP, people enrolled in Medicaid, and people in poverty. The change is `head` relative to `pinned`. The table shows ten of the 20 rows; [`results/comparison.md`](results/comparison.md) lists them all.
 
-In 2024, 16 of the 19 rows with a ratio moved less than 2.5%. In 2026, 15 of 20 did.
+Two rows cannot move between these releases. Medicaid spending is each state's spending total, a parameter with the same values in both releases, shared among the people the model enrolls. So it stays at $880.02bn in both years while enrollment moves by about 1%. Social Security in 2024 is the stored value under both releases. Leaving those out, 14 of the 17 rows with a ratio moved less than 2.5% in 2024, and 14 of 19 did in 2026. The Earned Income Tax Credit in 2026, shown as +2.5%, moved 2.54% and is among those that moved more.
+
+One 2024 row has no ratio. Medicare's income-related surcharge on Part D premiums (`medicare_part_d_irmaa`) is $0 under 2.2.2 and $3.34bn under 2.144.4. The surcharge depends on income from two years earlier. 2.2.2 reads it from 2022, a year this 2024 file has no inputs for, so every surcharge is zero; its own documentation says the value may be zero. 2.144.4 takes the earliest year the file holds and deflates it back. In 2026, when the year two years earlier is 2024, 2.2.2 gives $3.95bn and 2.144.4 $4.01bn.
 
 | Row | 2024 | 2026 |
 |---|---|---|
@@ -71,12 +73,14 @@ In 2024, 16 of the 19 rows with a ratio moved less than 2.5%. In 2026, 15 of 20 
 
 In dollars and people for 2024: federal income tax rose $41bn, state income tax fell $21bn, and the count of people in poverty fell from 44.3 million to 41.5 million.
 
-The Medicare row compares two definitions. `medicare_cost` is each release's estimate of the value of Medicare coverage, net of premiums, and it rose $293bn in 2024.
+The Medicare row compares two definitions, and other rules changed with them. `medicare_cost` is each release's estimate of the value of Medicare coverage, net of premiums, and it rose $293bn (+56.6%) in 2024.
 
 - 2.2.2 values spending per enrollee at $11,080 in 2024, a 2021 figure for Parts A and B, and subtracts the Part A and Part B premiums.
-- 2.144.4 uses the Centers for Medicare & Medicaid Services' figure for all Medicare spending per enrollee, $16,779 in 2024. It also subtracts Part D premiums.
+- 2.144.4 uses the Centers for Medicare & Medicaid Services' figure for all Medicare spending per enrollee, $16,779 in 2024, 51% more. It also subtracts the average Part D premium and each person's income-related surcharge on Part D.
+- 2.144.4 adds conditions on immigration status to Medicare eligibility (`is_medicare_eligible`), and charges the Part B premium only to people enrolled in Part B rather than to everyone enrolled in Medicare (`gross_medicare_part_b_premium_if_enrolled`).
+- The income-related surcharges on Part B and Part D premiums are zero under 2.2.2 in 2024, for the reason above, and positive under 2.144.4.
 
-The rise reflects that change of definition. It does not show a change in policy or in the data.
+The panel has no enrollment row, so it cannot split the rise among these changes. Each is a change in the model, not in policy or in the data.
 
 ### Run time
 
@@ -98,9 +102,9 @@ Times vary a lot between runs. Across this run and the two earlier complete runs
 
 `scripts/measure.py` runs inside an environment that holds one release. It builds `policyengine_us.Microsimulation()` on the release's default dataset and writes JSON, one part for each process: the column contract, one panel year, WIC as loaded, and WIC with the stored draw applied. `scripts/compare.py` joins two runs. `scripts/rules.py` holds the classification and comparison rules.
 
-Each run writes its workflow run id and the hashes of its measurement code into `environment.json`. `scripts/provenance.py` records a run only if both environments' files name that run and carry the same hashes.
+Each run writes its workflow run id and the hashes of its measurement code into `environment.json`. `scripts/provenance.py` records a run only if both environments' files name that run and carry the same hashes, and only if every file in `results/pinned` and `results/head` is the file that run uploaded, byte for byte, with none missing or extra. It records each file's hash.
 
-Every total comes from a real microsimulation run. Each run downloads the dataset from the Hugging Face dataset `policyengine/populace-us` at revision `populace-us-2024-spm-20260915` and checks its hash. It also checks that the release certifies that same hash for its own default dataset, which each release verifies when it loads the file. This repository stores aggregates and column names, and no records.
+Every total comes from a real microsimulation run. Each run downloads the dataset from the Hugging Face dataset `policyengine/populace-us` at revision `populace-us-2024-spm-20260915` and checks its hash. It also checks that the release certifies that same hash for its own default dataset. Each release loads its default from the tag `populace-us-2024-spm-20260909` and verifies the file against that hash, so both copies are the same bytes. This repository stores aggregates and column names, and no records.
 
 A run fails if it cannot measure everything. A panel row with no finite value fails its part. So does a stored draw whose ids do not line up, an environment that differs from its lock file, or a release with another default dataset. A part never replaces an existing file, and `scripts/compare.py` refuses two runs that are incomplete or that disagree on what a row measures.
 
@@ -108,6 +112,8 @@ The tests in `tests/` check the rules with property-based tests, and check the c
 
 - The comparison regenerates byte for byte from the two runs' files.
 - The measurement code still matches the hashes the run wrote into its files, and both environments' files name the run in `results/provenance.json`.
+- Every result file still has the hash recorded from that run's artifacts.
+- The figures this README quotes recompute from `results/` (`tests/test_readme.py`).
 - Each run installed exactly its lock file.
 - Each run measured exactly the panel the code defines.
 - The column classes follow from the recorded definitions.
@@ -115,13 +121,13 @@ The tests in `tests/` check the rules with property-based tests, and check the c
 
 ## Measure again
 
-The `Measure` workflow builds both environments on GitHub-hosted runners and uploads the results. A measurement has taken 33 to 47 minutes. It starts on a pull request whenever the measurement code no longer matches the committed results, and by hand:
+The `Measure` workflow builds both environments on GitHub-hosted runners and uploads the results. The recorded run took 34 minutes, from its start to the end of its last job (`results/provenance.json`). It starts on a pull request whenever the measurement code no longer matches the committed results, and by hand:
 
 ```bash
 gh workflow run measure.yml --ref <branch>
 ```
 
-Then replace `results/pinned` and `results/head` with the run's `results-pinned` and `results-head` artifacts, record the run and rebuild the comparison. Recording fails if the files come from another run:
+Then replace `results/pinned` and `results/head` with the run's `results-pinned` and `results-head` artifacts, record the run and rebuild the comparison. Recording downloads the run's artifacts and fails unless the committed files are exactly theirs:
 
 ```bash
 python scripts/provenance.py record measure --run <run id>
@@ -131,7 +137,7 @@ python scripts/provenance.py record measure --run <run id>
 python scripts/compare.py results/pinned results/head --out results
 ```
 
-`results/provenance.json` records the run's commit and its start and finish times, read from GitHub.
+`results/provenance.json` records the run's commit, its start time and the time its last job finished, read from GitHub, and the hash of each result file.
 
 ## Run one environment yourself
 

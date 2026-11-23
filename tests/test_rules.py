@@ -13,6 +13,9 @@
   refuses repeated or unmatched ids.
 - The comparison refuses runs that are incomplete or not alike.
 - Results are stale exactly when a measurement file differs from the record.
+- Recording accepts committed results only when they are exactly the run's
+  artifacts, byte for byte; afterwards any change to a committed file, or a
+  file added or removed, shows against the record.
 - Result files count as one run's only when each names that run and
   repository and all carry the same code hashes.
 """
@@ -22,6 +25,7 @@ import math
 import string
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -288,6 +292,60 @@ def test_results_are_stale_exactly_when_the_code_differs(tmp_path):
         assert provenance.is_stale("measure", tmp_path), path
         (tmp_path / path).write_text(original)
     assert not provenance.is_stale("measure", tmp_path)
+
+
+file_sets = st.dictionaries(
+    st.tuples(st.sampled_from(("results-pinned", "results-head")), st.text(string.ascii_lowercase, min_size=1, max_size=6)),
+    st.binary(max_size=8),
+    min_size=1,
+    max_size=6,
+)
+
+
+def lay_out(base: Path, files: dict) -> dict[str, Path]:
+    """Write each (artifact, name) file under base/<artifact>; return the folders."""
+    folders = {artifact: base / artifact for artifact in provenance.KINDS["measure"]["artifacts"]}
+    for folder in folders.values():
+        folder.mkdir(parents=True, exist_ok=True)
+    for (artifact, name), content in files.items():
+        (folders[artifact] / f"{name}.json").write_bytes(content)
+    return folders
+
+
+def commit(root: Path, files: dict) -> None:
+    for (artifact, name), content in files.items():
+        folder, _ = provenance.KINDS["measure"]["artifacts"][artifact]
+        (root / folder).mkdir(parents=True, exist_ok=True)
+        (root / folder / f"{name}.json").write_bytes(content)
+
+
+@settings(deadline=None, max_examples=40)
+@given(file_sets, st.data())
+def test_recording_takes_exactly_the_artifacts_files(files, data):
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        downloaded = lay_out(tmp / "artifacts", files)
+        root = tmp / "repo"
+        commit(root, files)
+        recorded = provenance.match_artifacts("measure", downloaded, root)
+        assert len(recorded) == len(files)
+        (root / "results").mkdir(exist_ok=True)
+        (root / provenance.KINDS["measure"]["record"]).write_text(json.dumps({"files": recorded}))
+        assert provenance.files_differ_from_record("measure", root) == []
+
+        artifact, name = data.draw(st.sampled_from(sorted(files)))
+        folder, _ = provenance.KINDS["measure"]["artifacts"][artifact]
+        path = root / folder / f"{name}.json"
+        change = data.draw(st.sampled_from(("edit", "remove", "add")))
+        if change == "edit":
+            path.write_bytes(files[(artifact, name)] + b"x")
+        elif change == "remove":
+            path.unlink()
+        else:
+            (root / folder / "extra-file.txt").write_bytes(b"")
+        with pytest.raises(ValueError):
+            provenance.match_artifacts("measure", downloaded, root)
+        assert provenance.files_differ_from_record("measure", root) != []
 
 
 def stamp(run="7", repository="o/r", code=None):
