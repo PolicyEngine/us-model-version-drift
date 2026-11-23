@@ -9,10 +9,14 @@ record the run::
 
 ``record`` downloads the run's artifacts from GitHub (through ``gh``) and
 refuses the committed results unless they are exactly those artifacts' files,
-byte for byte, with none missing and none extra. It also refuses stamps that
-name another run or other code. It writes each file's hash, the code hashes
+byte for byte, with none missing and none extra, at any depth of each result
+folder. Only a folder a kind names as kept outside the record, such as the
+earlier scoring runs, is not compared. It also refuses stamps that name another
+repository or run, or that disagree on the code; ``check`` and the tests
+compare that code with the tree. It writes each file's hash, the code hashes
 from the stamps, and the run's commit, event and times from GitHub, so nobody
-types them. A test checks the committed files against the recorded hashes.
+types them. Afterwards a test checks the committed files against the recorded
+hashes; it does not download the artifacts again.
 
 Ask whether the committed results still match the code::
 
@@ -47,7 +51,9 @@ REPOSITORY = "PolicyEngine/us-model-version-drift"
 # For each kind of result: the files that decide what a run produces, where
 # its record lives, the artifacts it comes from, and the result files that
 # carry the run's stamp. Each artifact maps to the folder that holds its
-# committed copy and the pattern its files match there. The comparison is not
+# committed copy and the pattern its files match there, at any depth. A kind's
+# "outside" folders hold files kept beside the results but outside the record,
+# with tests of their own. The comparison is not
 # among them: it is a pure function of the two environments' files, and a test
 # rebuilds it byte for byte with the compare.py in the tree.
 KINDS = {
@@ -55,15 +61,16 @@ KINDS = {
         "code": measure.MEASUREMENT_CODE,
         "record": "results/provenance.json",
         "artifacts": {
-            "results-pinned": ("results/pinned", "*"),
-            "results-head": ("results/head", "*"),
+            "results-pinned": ("results/pinned", "**/*"),
+            "results-head": ("results/head", "**/*"),
         },
         "stamped": ("results/pinned/environment.json", "results/head/environment.json"),
     },
     "score": {
         "code": prepare_scoring.SCORING_CODE,
         "record": "results/critical-targets/provenance.json",
-        "artifacts": {"results-critical-targets": ("results/critical-targets", "*")},
+        "artifacts": {"results-critical-targets": ("results/critical-targets", "**/*")},
+        "outside": ("results/critical-targets/earlier",),
         "stamped": (
             *(f"results/critical-targets/scoring_inputs-{name}.json" for name in prepare_scoring.SCORING_JOBS),
             "results/critical-targets/combine.json",
@@ -116,21 +123,27 @@ def sha256_of(path: Path) -> str:
 
 def committed(kind: str = "measure", root: Path = ROOT) -> dict[str, str]:
     """The committed result files that copy the kind's artifacts, each with the
-    artifact it belongs to."""
+    artifact it belongs to: every file under the artifact's folder, at any
+    depth, except the record and the kind's "outside" folders."""
+    outside = [root / folder for folder in KINDS[kind].get("outside", ())]
     out = {}
     for artifact, (folder, pattern) in KINDS[kind]["artifacts"].items():
         for path in sorted((root / folder).glob(pattern)):
             name = path.relative_to(root).as_posix()
-            if path.is_file() and name != KINDS[kind]["record"]:
-                out[name] = artifact
+            if not path.is_file() or name == KINDS[kind]["record"]:
+                continue
+            if any(path.is_relative_to(folder_) for folder_ in outside):
+                continue
+            out[name] = artifact
     return out
 
 
 def match_artifacts(kind: str, downloaded: dict[str, Path], root: Path = ROOT) -> dict[str, str]:
     """Each result file's hash, taken from the artifacts' bytes.
 
-    Raises ``ValueError`` unless the committed files are exactly the
-    artifacts' files: none missing, none extra, every byte the same.
+    Raises ``ValueError`` unless the committed files (``committed``: at any
+    depth, outside the kind's "outside" folders) are exactly the artifacts'
+    files: none missing, none extra, every byte the same.
     """
     expected = {}
     for artifact, (folder, _) in KINDS[kind]["artifacts"].items():

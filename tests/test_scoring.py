@@ -10,10 +10,13 @@
   measured releases and dataset.
 - Microcosm's batched scorer and this repository's whole-file panel give the
   same 2024 totals, for exactly the 13 totals both compute.
-- Every committed score file is, byte for byte, the file the recorded run
-  uploaded, and the estimates are named for the build that made them.
-- Two earlier runs, whose installs differed in five packages, agree with the
-  committed scores to within rounding.
+- Every committed score file still has the hash the record holds. Recording
+  took those hashes from the run's artifact, so the committed files are the
+  ones the recorded run uploaded; the tests do not download it again. The
+  estimates are named for the build that made them.
+- Four earlier runs agree with the committed scores to within rounding. The
+  first two, whose installs were not constrained, differed in five packages;
+  the other two ran under the constraints and earlier scoring code.
 """
 
 import copy
@@ -363,16 +366,17 @@ def test_each_scoring_environment_was_the_constrained_one(name, run):
     assert len(others) == len(editable) + len(wheels)
 
 
-EARLIER_RUNS = (44345993218, 44903905024, 44910821596)
+EARLIER_RUNS = (44345993218, 44903905024, 44910821596, 45199019867)
 # The two earlier runs whose installs were not constrained.
 UNCONSTRAINED_RUNS = EARLIER_RUNS[:2]
 
 
 @pytest.mark.parametrize("run", EARLIER_RUNS)
 def test_an_earlier_scoring_run_gave_the_same_rows(run):
-    """Earlier runs, under installs that were not constrained, agree with the
-    committed scores: every estimate to within 1 part in 10^15, and every
-    target, tolerance and verdict exactly."""
+    """Earlier runs, the first two under installs that were not constrained
+    and the others under earlier scoring code, agree with the committed scores:
+    every estimate to within 1 part in 10^15, and every target, tolerance and
+    verdict exactly."""
     earlier = json.loads((SCORED / "earlier" / f"run-{run}-rows.json").read_text())
     record = json.loads((SCORED / "provenance.json").read_text())
     assert earlier["workflow_run"] == run != record["workflow_run"]

@@ -8,6 +8,7 @@ checked here.
 """
 
 import json
+import math
 from datetime import datetime
 from pathlib import Path
 
@@ -195,3 +196,125 @@ def test_earlier_row_count():
 @pytest.mark.parametrize("figure", ("16 of the 19", "15 of 20", "33 to 47 minutes"))
 def test_superseded_figures_are_gone(figure):
     assert figure not in README
+
+
+SCORED = RESULTS / "critical-targets"
+
+
+def scored(name: str) -> dict:
+    return json.loads((SCORED / name).read_text())
+
+
+def test_scoring_run_and_counts():
+    record = scored("provenance.json")
+    quoted(f"Scored on {record['started'][:10]}: [workflow run {record['workflow_run']}]")
+    result = scored("critical_targets.json")
+    exact, table = result["exact"]["tally"], result["table_1_4"]["tally"]
+    assert exact["rows"] == exact["baseline_within"] == exact["tested_within"]
+    assert table["rows"] == table["baseline_within"] == table["tested_within"]
+    tolerances = {row["tolerance"] for row in result["table_1_4"]["rows"]}
+    assert len(tolerances) == 1
+    quoted(
+        f"Both releases keep all {exact['rows']} scored target rows of Microcosm's "
+        f"{len(result['exact_requirement_ids'])} exact critical requirements within tolerance",
+        f"Both also keep within ±{tolerances.pop() * 100:.0f}% all {table['rows']} national dollar rows of SOI Table 1.4",
+    )
+
+
+def closest(rows: list[dict], side: str) -> dict:
+    return min(rows, key=lambda row: row["tolerance"] - abs(row[f"{side}_error"]))
+
+
+def test_rows_closest_to_their_tolerance():
+    result = scored("critical_targets.json")
+    rows = result["exact"]["rows"]
+    tested, baseline = closest(rows, "tested"), closest(rows, "baseline")
+    assert f"target:{tested['label']}" == result["exact"]["tally"]["smallest_tested_margin"]["metric_id"]
+    assert tested["label"].endswith("historic_table_2.us.all.income_tax_liability_amount@2024")
+    assert baseline["requirement_id"] == "social_security_benefits"
+    margin = tested["tolerance"] - abs(tested["tested_error"])
+    quoted(
+        f"Under 2.144.4 the row closest to its tolerance is federal income tax liability against SOI historic table 2: "
+        f"{pct(tested['tested_error'])} against ±{tested['tolerance'] * 100:.0f}%, {margin * 100:.1f} points inside it. "
+        f"Under 2.2.2 that row's error is {pct(tested['baseline_error'])}, and the row closest to its tolerance is "
+        f"Social Security benefits, at {pct(baseline['baseline_error'])} against ±{baseline['tolerance'] * 100:.0f}%."
+    )
+
+
+def test_table_1_4_movement():
+    table = scored("critical_targets.json")["table_1_4"]
+    moved = [row for row in table["rows"] if not math.isclose(row["baseline"], row["tested"], rel_tol=1e-9)]
+    assert len(moved) == table["tally"]["rows"] - table["tally"]["same_under_both"] == 1
+    (row,) = moved
+    assert row["label"].endswith("taxable_social_security_amount@2024")
+    quoted(
+        f"{table['tally']['same_under_both']} of the {table['tally']['rows']} Table 1.4 rows have the same estimate "
+        "under both releases, to nine significant figures",
+        f"Only taxable Social Security moves, from {pct(row['baseline_error'])} to {pct(row['tested_error'])}.",
+    )
+
+
+def test_programme_totals():
+    headline = {row["metric_id"]: row for row in scored("critical_targets.json")["headline"]}
+    panel_ids = set(panel(2024))
+    shared = sorted(set(headline) & panel_ids)
+    (alone,) = set(headline) - panel_ids
+    part_b = headline[alone]
+    assert alone == "medicare_part_b_irmaa_total" and part_b["baseline"] == 0
+    quoted(
+        f"{len(shared)} of the scorer's {len(headline)} programme and income totals are also rows",
+        f"and a test checks all {len(shared)}",
+        f"It is $0 under 2.2.2 and {bn(part_b['tested'])} under 2.144.4",
+    )
+
+
+def test_newly_read_column_and_roles():
+    result = scored("critical_targets.json")
+    assert result["newly_read_columns"] == ["tax_unit_role_input"]
+    roles = result["tax_unit_roles"]
+    assert roles["tested"]["persons_differing"] == 0 == roles["tested"]["weighted_persons_differing"]
+    agi = {row["metric_id"]: row for row in result["headline"]}["adjusted_gross_income_total"]
+    assert agi["newly_read_inputs_effect"] < 0 < agi["difference"]
+    quoted(
+        "2.144.4 reads one stored column that 2.2.2 does not define, `tax_unit_role_input`",
+        f"differ from the stored ones for {roles['baseline']['persons_differing']:,} people "
+        f"({roles['baseline']['weighted_persons_differing'] / 1e6:.1f} million weighted); under 2.144.4, for none",
+        f"lowers adjusted gross income under 2.144.4 by {bn(agi['newly_read_inputs_effect'], 1)}: "
+        f"the rise between the releases is {bn(agi['difference'], 1)} with it and "
+        f"{bn(agi['difference'] - agi['newly_read_inputs_effect'], 1)} without it",
+    )
+
+
+def test_refused_columns():
+    verdict = scored("critical_targets.json")["stored_input_verdict"]
+    assert not verdict["baseline"]["passed"] and not verdict["tested"]["passed"]
+    both = sorted(set(verdict["baseline"]["refused"]) & set(verdict["tested"]["refused"]))
+    only_tested = sorted(set(verdict["tested"]["refused"]) - set(verdict["baseline"]["refused"]))
+    assert set(verdict["baseline"]["refused"]) <= set(verdict["tested"]["refused"])
+    assert both == ["medicare_part_b_premiums", "would_claim_wic"]
+    assert only_tested == ["first_home_mortgage_interest", "second_home_mortgage_interest"]
+    quoted("`would_claim_wic` and `medicare_part_b_premiums` under both, and under 2.144.4 also the two mortgage-interest columns")
+
+
+def test_scope_of_the_critical_rows():
+    result = scored("critical_targets.json")
+    names = [row["label"] for part in ("exact", "table_1_4") for row in result[part]["rows"]]
+    names += [row["target_name"] for row in result["unscored_critical_rows"]]
+    assert all(name.endswith("@2024") and name.split(".")[0] in ("irs_soi", "ssa_supplement") for name in names)
+    years = {name: name.split(".")[1] for name in names}
+    current = sorted(name for name, year in years.items() if year in ("ty2024", "cy2024"))
+    assert len(current) == 3
+    assert sum(".filing_season_" in name and "earned_income_credit" in name for name in current) == 2
+    assert sum(name.startswith("ssa_supplement.") and "social_security_benefits" in name for name in current) == 1
+    assert {year for name, year in years.items() if name not in current} == {"ty2022", "ty2023"}
+    quoted(
+        "Only three are 2024 data: Social Security benefits and the two EITC rows from SOI's filing-season "
+        "statistics for tax year 2024. The other SOI rows come from tax-year 2022 and 2023 publications."
+    )
+    moves = sorted(
+        (row for row in panel(2024).values() if row["relative_difference"] is not None),
+        key=lambda row: -abs(row["relative_difference"]),
+    )
+    top = [row["id"] for row in moves[:5]]
+    assert top == ["medicare_cost_total", "people_in_spm_poverty", "state_income_tax_total", "snap_total", "ssi_total"]
+    quoted("None covers Medicare, poverty, state income tax, SNAP or SSI, the five panel rows that moved most in 2024, or WIC.")

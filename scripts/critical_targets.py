@@ -149,6 +149,14 @@ def verdict(value) -> str:
     return {True: "in", False: "OUT", None: "n/a"}[value]
 
 
+def one_tolerance(rows) -> str:
+    """The single tolerance a table's rows share, as a percentage."""
+    tolerances = {row["tolerance"] for row in rows}
+    if len(tolerances) != 1:
+        raise ValueError(f"the rows have more than one tolerance: {sorted(tolerances)}")
+    return f"±{tolerances.pop() * 100:.0f}%"
+
+
 def names(columns) -> str:
     return ", ".join(f"`{c}`" for c in columns) or "none"
 
@@ -181,10 +189,10 @@ def markdown(result: dict) -> str:
         f"## The {requirements} exact requirements",
         "",
         f"{exact['tally']['rows_with_a_tolerance']} scored target rows serve the {requirements} requirements: "
-        "a requirement can name more than one publication. Within tolerance: "
+        "a requirement can select rows from more than one publication. Within tolerance: "
         f"{exact['tally']['baseline_within']} under the baseline, {exact['tally']['tested_within']} under the tested release.",
         "",
-        "| Requirement | Source | Target | Build estimate | Baseline | Tested | Tolerance | Baseline | Tested |",
+        "| Requirement | Source | Target | Build estimate | Baseline | Tested | Tolerance | Baseline within | Tested within |",
         "|---|---|---|---|---|---|---|---|---|",
     ]
     for row in exact["rows"]:
@@ -224,12 +232,12 @@ def markdown(result: dict) -> str:
         "",
         "## SOI Table 1.4 national dollar rows",
         "",
-        f"{table['tally']['rows_with_a_tolerance']} scored rows, tolerance ±25%. Within tolerance: "
+        f"{table['tally']['rows_with_a_tolerance']} scored rows, tolerance {one_tolerance(table['rows'])}. Within tolerance: "
         f"{table['tally']['baseline_within']} under the baseline, {table['tally']['tested_within']} under the tested release. "
         f"{table['tally']['same_under_both']} of the {table['tally']['rows']} rows have the same estimate under both releases, "
         "to nine significant figures.",
         "",
-        "| Row | Target | Baseline | Tested | Baseline | Tested |",
+        "| Row | Target | Baseline | Tested | Baseline within | Tested within |",
         "|---|---|---|---|---|---|",
     ]
     for row in table["rows"]:
@@ -243,11 +251,17 @@ def markdown(result: dict) -> str:
     for side in ("baseline", "tested"):
         verdict_ = result["stored_input_verdict"][side]
         changes = result["column_changes"][side]
-        lines.append(
+        refused = sorted(verdict_["refused"])
+        ignored = sorted(item["column"] for item in changes["ignored"])
+        line = (
             f"- {side.capitalize()}: Microcosm's stored-input check "
-            f"{'passed' if verdict_['passed'] else 'failed'}; columns it refused: {names(verdict_['refused'])}. "
-            f"Stored columns this engine ignores: {names(item['column'] for item in changes['ignored'])}."
+            f"{'passed' if verdict_['passed'] else 'failed'}. It refuses the model-named stored columns that this "
+            f"engine does not define and that Microcosm's register of stored non-variable columns does not list: "
+            f"{names(refused)}."
         )
+        if ignored != refused:
+            line += f" Microcosm's list of the columns this engine ignores differs: {names(ignored)}."
+        lines.append(line)
     roles = result["tax_unit_roles"]
     if roles:
         lines += ["", "People whose tax-unit role in the engine differs from the stored role:", ""]
@@ -261,9 +275,11 @@ def markdown(result: dict) -> str:
                 )
     lines += [
         "",
-        "## Programme totals the scorer also reports",
+        "## Programme and income totals the scorer also reports",
         "",
-        "The last column is the part of the change that comes from the stored columns the tested engine newly reads.",
+        "Row labels are Microcosm's. Its Medicare benefit cost is `medicare_cost`, which each release defines as the "
+        "value of Medicare coverage net of premiums. The last column is the part of the change that comes from the "
+        "stored columns the tested engine newly reads.",
         "",
         "| Row | Baseline | Tested | Relative | From newly read columns |",
         "|---|---|---|---|---|",

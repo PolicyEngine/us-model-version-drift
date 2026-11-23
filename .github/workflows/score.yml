@@ -2,9 +2,11 @@ name: Score
 
 # Scores the default US dataset against Microcosm's critical calibration
 # targets under each measured release, with Microcosm's own scorer. It starts
-# by hand, and on any pull request whose scoring code no longer matches the
-# committed scores (the files listed in scripts/provenance.py). A pull request
-# that leaves that code alone runs the first job only.
+# by hand and on every pull request. Its first job asks scripts/provenance.py
+# whether the committed scores are stale: whether the scoring code
+# (SCORING_CODE in scripts/prepare_scoring.py) no longer matches them, or the
+# committed measurement (results/pinned and results/head) ran other releases
+# or another dataset than they scored. Only then do the scoring jobs run.
 on:
   workflow_dispatch:
   pull_request:

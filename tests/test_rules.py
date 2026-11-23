@@ -12,10 +12,13 @@
 - Aligning stored values by id puts each value on the row with its id, and
   refuses repeated or unmatched ids.
 - The comparison refuses runs that are incomplete or not alike.
-- Results are stale exactly when a measurement file differs from the record.
+- Measured results are stale exactly when there is no record or a
+  measurement code file's hash differs from the one in the record.
 - Recording accepts committed results only when they are exactly the run's
-  artifacts, byte for byte; afterwards any change to a committed file, or a
-  file added or removed, shows against the record.
+  artifacts, byte for byte, at any depth of each result folder; afterwards any
+  change to a committed file, or a file added or removed, shows against the
+  record. Only a kind's "outside" folder, such as the earlier scoring runs, is
+  left out, and a file anywhere else is not.
 - Result files count as one run's only when each names that run and
   repository and all carry the same code hashes.
 """
@@ -336,16 +339,30 @@ def test_recording_takes_exactly_the_artifacts_files(files, data):
         artifact, name = data.draw(st.sampled_from(sorted(files)))
         folder, _ = provenance.KINDS["measure"]["artifacts"][artifact]
         path = root / folder / f"{name}.json"
-        change = data.draw(st.sampled_from(("edit", "remove", "add")))
+        change = data.draw(st.sampled_from(("edit", "remove", "add", "add-nested")))
         if change == "edit":
             path.write_bytes(files[(artifact, name)] + b"x")
         elif change == "remove":
             path.unlink()
-        else:
+        elif change == "add":
             (root / folder / "extra-file.txt").write_bytes(b"")
+        else:
+            (root / folder / "sub").mkdir()
+            (root / folder / "sub" / "extra-file.json").write_bytes(b"{}")
         with pytest.raises(ValueError):
             provenance.match_artifacts("measure", downloaded, root)
         assert provenance.files_differ_from_record("measure", root) != []
+
+
+def test_only_the_outside_folder_is_left_out_of_the_score_record():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        folder, _ = provenance.KINDS["score"]["artifacts"]["results-critical-targets"]
+        (outside,) = provenance.KINDS["score"]["outside"]
+        for name in (f"{folder}/drift.json", f"{outside}/run-1-rows.json", f"{folder}/sub/extra.json", provenance.KINDS["score"]["record"]):
+            (root / name).parent.mkdir(parents=True, exist_ok=True)
+            (root / name).write_text("{}")
+        assert sorted(provenance.committed("score", root)) == [f"{folder}/drift.json", f"{folder}/sub/extra.json"]
 
 
 def stamp(run="7", repository="o/r", code=None):
