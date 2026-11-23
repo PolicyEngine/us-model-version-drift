@@ -124,18 +124,25 @@ def sha256_of(path: Path) -> str:
 def committed(kind: str = "measure", root: Path = ROOT) -> dict[str, str]:
     """The committed result files that copy the kind's artifacts, each with the
     artifact it belongs to: every file under the artifact's folder, at any
-    depth, except the record and the kind's "outside" folders."""
+    depth, except the record and the kind's "outside" folders. A symbolic link
+    counts as an entry, even a dangling one, so the checks can refuse it."""
     outside = [root / folder for folder in KINDS[kind].get("outside", ())]
     out = {}
     for artifact, (folder, pattern) in KINDS[kind]["artifacts"].items():
         for path in sorted((root / folder).glob(pattern)):
             name = path.relative_to(root).as_posix()
-            if not path.is_file() or name == KINDS[kind]["record"]:
+            if name == KINDS[kind]["record"] or (path.is_dir() and not path.is_symlink()):
                 continue
             if any(path.is_relative_to(folder_) for folder_ in outside):
                 continue
             out[name] = artifact
     return out
+
+
+def links_among(names, root: Path = ROOT) -> list[str]:
+    """The names that are symbolic links. A result is a regular file; a link,
+    even to identical bytes, is refused."""
+    return sorted(name for name in names if (root / name).is_symlink())
 
 
 def match_artifacts(kind: str, downloaded: dict[str, Path], root: Path = ROOT) -> dict[str, str]:
@@ -151,11 +158,13 @@ def match_artifacts(kind: str, downloaded: dict[str, Path], root: Path = ROOT) -
         for path in sorted(p for p in base.rglob("*") if p.is_file()):
             expected[f"{folder}/{path.relative_to(base).as_posix()}"] = sha256_of(path)
     have = committed(kind, root)
-    found = [f"missing from results: {name}" for name in sorted(set(expected) - set(have))]
-    found += [f"not in the run's artifacts: {name}" for name in sorted(set(have) - set(expected))]
+    links = links_among(have, root)
+    found = [f"a symbolic link, not a file: {name}" for name in links]
+    found += [f"missing from results: {name}" for name in sorted(set(expected) - set(have))]
+    found += [f"not in the run's artifacts: {name}" for name in sorted(set(have) - set(expected) - set(links))]
     found += [
         f"differs from the run's artifact: {name}"
-        for name in sorted(set(expected) & set(have))
+        for name in sorted(set(expected) & set(have) - set(links))
         if sha256_of(root / name) != expected[name]
     ]
     if found:
@@ -167,11 +176,13 @@ def files_differ_from_record(kind: str = "measure", root: Path = ROOT) -> list[s
     """How the committed result files differ from the recorded ones."""
     files = (recorded(kind, root) or {}).get("files", {})
     have = committed(kind, root)
-    found = [f"recorded but not committed: {name}" for name in sorted(set(files) - set(have))]
-    found += [f"committed but not recorded: {name}" for name in sorted(set(have) - set(files))]
+    links = links_among(have, root)
+    found = [f"a symbolic link, not a file: {name}" for name in links]
+    found += [f"recorded but not committed: {name}" for name in sorted(set(files) - set(have))]
+    found += [f"committed but not recorded: {name}" for name in sorted(set(have) - set(files) - set(links))]
     found += [
         f"changed since recording: {name}"
-        for name in sorted(set(files) & set(have))
+        for name in sorted(set(files) & set(have) - set(links))
         if sha256_of(root / name) != files[name]
     ]
     return found

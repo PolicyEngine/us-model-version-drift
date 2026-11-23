@@ -366,13 +366,19 @@ def test_each_scoring_environment_was_the_constrained_one(name, run):
     assert len(others) == len(editable) + len(wheels)
 
 
-EARLIER_RUNS = (44345993218, 44903905024, 44910821596, 45199019867)
+# Each earlier run, with the date its rows file records (GitHub's start time).
+EARLIER_RUNS = {
+    44345993218: "2026-11-18",
+    44903905024: "2026-11-21",
+    44910821596: "2026-11-21",
+    45199019867: "2026-11-23T14:53:13Z",
+}
 # The two earlier runs whose installs were not constrained.
-UNCONSTRAINED_RUNS = EARLIER_RUNS[:2]
+UNCONSTRAINED_RUNS = tuple(EARLIER_RUNS)[:2]
 
 
-@pytest.mark.parametrize("run", EARLIER_RUNS)
-def test_an_earlier_scoring_run_gave_the_same_rows(run):
+@pytest.mark.parametrize("run, date", EARLIER_RUNS.items())
+def test_an_earlier_scoring_run_gave_the_same_rows(run, date):
     """Earlier runs, the first two under installs that were not constrained
     and the others under earlier scoring code, agree with the committed scores:
     every estimate to within 1 part in 10^15, and every target, tolerance and
@@ -380,7 +386,7 @@ def test_an_earlier_scoring_run_gave_the_same_rows(run):
     earlier = json.loads((SCORED / "earlier" / f"run-{run}-rows.json").read_text())
     record = json.loads((SCORED / "provenance.json").read_text())
     assert earlier["workflow_run"] == run != record["workflow_run"]
-    assert earlier["date"] < record["started"]
+    assert earlier["date"] == date < record["started"]
     now = {row["metric_id"]: row for row in json.loads((SCORED / "drift.json").read_text())["rows"]}
     assert set(now) == {row["metric_id"] for row in earlier["rows"]}
     for row in earlier["rows"]:

@@ -193,7 +193,10 @@ def test_earlier_row_count():
     quoted(f"{total} in all")
 
 
-@pytest.mark.parametrize("figure", ("16 of the 19", "15 of 20", "33 to 47 minutes"))
+@pytest.mark.parametrize(
+    "figure",
+    ("16 of the 19", "15 of 20", "33 to 47 minutes", "Nothing here attributes a row's movement to a particular change."),
+)
 def test_superseded_figures_are_gone(figure):
     assert figure not in README
 
@@ -283,6 +286,18 @@ def test_newly_read_column_and_roles():
         f"the rise between the releases is {bn(agi['difference'], 1)} with it and "
         f"{bn(agi['difference'] - agi['newly_read_inputs_effect'], 1)} without it",
     )
+    ctc = {row["metric_id"]: row for row in result["headline"]}["ctc_total"]
+    assert 0 < ctc["newly_read_inputs_effect"] < ctc["difference"]
+    quoted(
+        f"Reading it also accounts for {bn(ctc['newly_read_inputs_effect'])} of the {bn(ctc['difference'])} "
+        "rise in the Child Tax Credit"
+    )
+    rows = [row for part in ("exact", "table_1_4") for row in result[part]["rows"]]
+    without = {row["metric_id"]: row["without_newly_read_inputs"] for row in scored("drift.json")["rows"]}
+    within = [abs(without[row["metric_id"]] / row["target"] - 1) <= row["tolerance"] for row in rows]
+    assert all(within)
+    quoted(f"With it withheld, 2.144.4 still keeps all {len(within)} scored rows within tolerance.")
+    quoted("Nothing here attributes any other movement to a particular change.")
 
 
 def test_refused_columns():
@@ -317,7 +332,12 @@ def test_scope_of_the_critical_rows():
     )
     top = [row["id"] for row in moves[:5]]
     assert top == ["medicare_cost_total", "people_in_spm_poverty", "state_income_tax_total", "snap_total", "ssi_total"]
-    quoted("None covers Medicare, poverty, state income tax, SNAP or SSI, the five panel rows that moved most in 2024, or WIC.")
+    part_d = panel(2024)["medicare_part_d_irmaa_total"]
+    assert part_d["baseline"] == 0 and part_d["relative_difference"] is None
+    quoted(
+        "None covers Medicare, poverty, state income tax, SNAP or SSI (the five panel rows with a ratio that moved "
+        f"most in 2024), Medicare's Part D surcharge (which went from $0 to {bn(part_d['tested'])} and so has no ratio), or WIC."
+    )
 
 
 def test_earlier_scoring_runs():

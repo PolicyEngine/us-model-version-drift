@@ -18,7 +18,8 @@
   artifacts, byte for byte, at any depth of each result folder; afterwards any
   change to a committed file, or a file added or removed, shows against the
   record. Only a kind's "outside" folder, such as the earlier scoring runs, is
-  left out, and a file anywhere else is not.
+  left out, and a file anywhere else is not. A symbolic link, dangling or not,
+  is refused.
 - Result files count as one run's only when each names that run and
   repository and all carry the same code hashes.
 """
@@ -339,16 +340,25 @@ def test_recording_takes_exactly_the_artifacts_files(files, data):
         artifact, name = data.draw(st.sampled_from(sorted(files)))
         folder, _ = provenance.KINDS["measure"]["artifacts"][artifact]
         path = root / folder / f"{name}.json"
-        change = data.draw(st.sampled_from(("edit", "remove", "add", "add-nested")))
+        change = data.draw(st.sampled_from(("edit", "remove", "add", "add-nested", "add-link", "replace-with-link")))
         if change == "edit":
             path.write_bytes(files[(artifact, name)] + b"x")
         elif change == "remove":
             path.unlink()
         elif change == "add":
             (root / folder / "extra-file.txt").write_bytes(b"")
-        else:
+        elif change == "add-nested":
             (root / folder / "sub").mkdir()
             (root / folder / "sub" / "extra-file.json").write_bytes(b"{}")
+        elif change == "add-link":
+            (root / folder / "sub").mkdir()
+            (root / folder / "sub" / "dangling.json").symlink_to(root / "nowhere.json")
+        else:
+            # A link to identical bytes is still not the file the run uploaded.
+            twin = root / "twin.json"
+            twin.write_bytes(files[(artifact, name)])
+            path.unlink()
+            path.symlink_to(twin)
         with pytest.raises(ValueError):
             provenance.match_artifacts("measure", downloaded, root)
         assert provenance.files_differ_from_record("measure", root) != []
