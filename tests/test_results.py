@@ -18,7 +18,9 @@
   finite value.
 - The contract's classes follow from the recorded definitions under the
   classification rule, table by table.
-- The stored WIC draw was applied to every person, matched on a unique id.
+- The stored WIC draw was applied to every person, matched on a unique id,
+  with no missing draw, and the matched people's stored age equals the
+  simulation's.
 - Two separate processes agree on WIC as loaded, and three earlier runs
   gave exactly this run's value for every row they measured.
 """
@@ -182,7 +184,11 @@ def wic(run: str) -> dict:
 @pytest.mark.parametrize("run", RUNS)
 def test_stored_draw_was_applied_to_every_person(run):
     values = wic(run)
-    assert values["person_ids_unique_and_identical_sets"] is True
+    join = values["join"]
+    assert join["stored_ids_unique"] and join["simulation_ids_unique"] and join["same_id_sets"]
+    assert join["check_column"] == measure.CHECK_COLUMN
+    assert join["check_column_rows_that_differ"] == 0
+    assert values["stored_draw_missing"] == 0
     assert values["person_ids_in_simulation"] == values["person_ids_stored"] == values["stored_draw_rows"]
     true_rows = values["stored_draw_true_rows_applied"]
     assert true_rows / values["stored_draw_rows"] == pytest.approx(values["stored_draw_share_true_unweighted"], abs=1e-12)
@@ -197,29 +203,43 @@ def test_two_processes_agree_on_wic_as_loaded(run):
     assert math.isclose(in_panel[0], wic(run)["wic_as_loaded"], rel_tol=1e-12, abs_tol=0.0)
 
 
+COMPLETE = {run: len(measure.PANEL) * len(measure.PERIODS) for run in RUNS}
 EARLIER = {
     # The first run printed these rows before its runners shut down.
-    "run-44133383190-panel-rows.json": 2 * len(measure.PANEL) + 4,
+    "run-44133383190-panel-rows.json": {"pinned": len(measure.PANEL), "head": len(measure.PANEL) + 4},
     # The first complete run.
-    "run-44141335692-panel-rows.json": 2 * len(measure.PANEL) * len(measure.PERIODS),
+    "run-44141335692-panel-rows.json": COMPLETE,
     # A complete run four days later, under the lock files.
-    "run-44904663719-panel-rows.json": 2 * len(measure.PANEL) * len(measure.PERIODS),
+    "run-44904663719-panel-rows.json": COMPLETE,
+    # The run recorded before this one (results/ at commit 2a03f3e).
+    "run-44907751024-panel-rows.json": COMPLETE,
 }
+# The policyengine-us release each environment held in every earlier run.
+EARLIER_RELEASES = {"pinned": "2.2.2", "head": "2.144.4"}
 
 
 @pytest.mark.parametrize("name", sorted(EARLIER))
 def test_an_earlier_run_gave_the_same_rows(name):
-    """Every row an earlier run measured equals this run's exactly, under
-    code that has changed since. If a later run differs in a last digit, this
-    fails, and the README's claim of equal digits has to change with it."""
+    """Every row an earlier run measured under the release this run measured
+    equals this run's exactly, under code that has changed since. If a later
+    run differs in a last digit, this fails, and the README's claim of equal
+    digits has to change with it. Rows of another release are kept, not
+    compared."""
     earlier = load("earlier", name)
     assert earlier["workflow_run"] != load("provenance.json")["workflow_run"]
+    assert {run: len(rows) for run, rows in earlier["rows"].items()} == EARLIER[name]
     definitions = {metric_id: (variable, kind) for metric_id, variable, kind, _ in measure.PANEL}
-    compared = 0
     for run in RUNS:
-        now = {(row["period"], row["id"]): row["value"] for row in panel(run)}
         for row in earlier["rows"][run]:
             assert (row["variable"], row["kind"]) == definitions[row["id"]], row
+    same_release = [
+        run for run in RUNS if load(run, "environment.json")["packages"]["policyengine-us"] == EARLIER_RELEASES[run]
+    ]
+    assert same_release, "no environment holds the release the earlier runs measured"
+    compared = 0
+    for run in same_release:
+        now = {(row["period"], row["id"]): row["value"] for row in panel(run)}
+        for row in earlier["rows"][run]:
             assert now[(row["period"], row["id"])] == row["value"], row
             compared += 1
-    assert compared == EARLIER[name]
+    assert compared == sum(EARLIER[name][run] for run in same_release)

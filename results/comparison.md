@@ -1,7 +1,7 @@
 # Comparison
 
 - Baseline (`pinned`): policyengine-us 2.2.2, policyengine-core 3.34.10, spm-calculator 1.1.0
-- Tested (`head`): policyengine-us 2.144.4, policyengine-core 3.36.1, spm-calculator 1.1.0
+- Tested (`head`): policyengine-us 2.154.0, policyengine-core 3.37.2, spm-calculator 1.1.0
 - Dataset: `populace_us_2024.h5` at `populace-us-2024-spm-20260915`, sha256 `6496cc4393d4…`, the same bytes in both runs
 
 ## Column contract
@@ -59,12 +59,12 @@ The stored draw is matched to the simulation's people on `person_id`. The measur
 | ctc_total | `ctc` | dollars | $147.54bn | $148.66bn | $1.12bn | +0.76% |
 | eitc_total | `eitc` | dollars | $66.61bn | $67.13bn | $0.51bn | +0.77% |
 | social_security_total | `social_security` | dollars | $1,464.84bn | $1,464.84bn | $0.00bn | +0.00% |
-| snap_total | `snap` | dollars | $101.95bn | $99.54bn | −$2.41bn | −2.36% |
-| snap_units | `snap` | SPM units | 23.41m | 23.58m | 0.17m | +0.73% |
+| snap_total | `snap` | dollars | $101.95bn | $99.36bn | −$2.59bn | −2.54% |
+| snap_units | `snap` | SPM units | 23.41m | 23.55m | 0.14m | +0.60% |
 | ssi_total | `ssi` | dollars | $56.10bn | $54.89bn | −$1.20bn | −2.14% |
-| medicaid_enrollment | `medicaid_enrolled` | people | 72.21m | 71.52m | −0.69m | −0.95% |
-| medicaid_total | `medicaid` | dollars | $880.02bn | $880.02bn | −$0.00bn | −0.00% |
-| state_income_tax_total | `state_income_tax` | dollars | $536.19bn | $515.01bn | −$21.18bn | −3.95% |
+| medicaid_enrollment | `medicaid_enrolled` | people | 72.21m | 70.97m | −1.24m | −1.71% |
+| medicaid_total | `medicaid` | dollars | $880.02bn | $918.69bn | $38.67bn | +4.39% |
+| state_income_tax_total | `state_income_tax` | dollars | $536.19bn | $514.94bn | −$21.25bn | −3.96% |
 | medicare_part_d_irmaa_total | `income_adjusted_part_d_premium_surcharge` | dollars | $0.00bn | $3.34bn | $3.34bn | n/a |
 | medicare_cost_total | `medicare_cost` | dollars | $516.73bn | $809.45bn | $292.72bn | +56.65% |
 | adjusted_gross_income_total | `adjusted_gross_income` | dollars | $16,683.14bn | $16,795.34bn | $112.20bn | +0.67% |
@@ -73,23 +73,23 @@ The stored draw is matched to the simulation's people on `person_id`. The measur
 | refundable_ctc_total | `refundable_ctc` | dollars | $37.50bn | $37.23bn | −$0.26bn | −0.70% |
 | employee_payroll_tax_total | `employee_payroll_tax` | dollars | $757.47bn | $759.86bn | $2.39bn | +0.32% |
 | premium_tax_credit_total | `premium_tax_credit` | dollars | $60.06bn | $60.12bn | $0.07bn | +0.11% |
-| household_net_income_total | `household_net_income` | dollars | $15,184.28bn | $15,270.73bn | $86.45bn | +0.57% |
-| people_in_spm_poverty | `person_in_poverty` | people | 44.27m | 41.55m | −2.73m | −6.16% |
+| household_net_income_total | `household_net_income` | dollars | $15,184.28bn | $15,270.60bn | $86.32bn | +0.57% |
+| people_in_spm_poverty | `person_in_poverty` | people | 44.27m | 41.64m | −2.63m | −5.95% |
 
 ## Panel, 2026
 
 | Row | Variable | Unit | Baseline | Tested | Difference | Relative |
 |---|---|---|---|---|---|---|
-| income_tax_net | `income_tax` | dollars | $2,610.60bn | $2,595.02bn | −$15.58bn | −0.60% |
+| income_tax_net | `income_tax` | dollars | $2,610.60bn | $2,595.03bn | −$15.57bn | −0.60% |
 | ctc_total | `ctc` | dollars | $157.47bn | $158.86bn | $1.40bn | +0.89% |
 | eitc_total | `eitc` | dollars | $68.27bn | $70.00bn | $1.73bn | +2.54% |
 | social_security_total | `social_security` | dollars | $1,705.55bn | $1,677.87bn | −$27.67bn | −1.62% |
-| snap_total | `snap` | dollars | $100.27bn | $95.10bn | −$5.17bn | −5.15% |
-| snap_units | `snap` | SPM units | 22.20m | 22.59m | 0.40m | +1.79% |
+| snap_total | `snap` | dollars | $100.27bn | $94.84bn | −$5.42bn | −5.41% |
+| snap_units | `snap` | SPM units | 22.20m | 22.60m | 0.40m | +1.81% |
 | ssi_total | `ssi` | dollars | $57.86bn | $56.69bn | −$1.16bn | −2.01% |
-| medicaid_enrollment | `medicaid_enrolled` | people | 70.17m | 70.84m | 0.67m | +0.96% |
-| medicaid_total | `medicaid` | dollars | $880.02bn | $880.02bn | $0.00bn | +0.00% |
-| state_income_tax_total | `state_income_tax` | dollars | $613.77bn | $576.64bn | −$37.14bn | −6.05% |
+| medicaid_enrollment | `medicaid_enrolled` | people | 70.17m | 70.30m | 0.13m | +0.19% |
+| medicaid_total | `medicaid` | dollars | $880.02bn | $918.69bn | $38.67bn | +4.39% |
+| state_income_tax_total | `state_income_tax` | dollars | $613.77bn | $576.42bn | −$37.36bn | −6.09% |
 | medicare_part_d_irmaa_total | `income_adjusted_part_d_premium_surcharge` | dollars | $3.95bn | $4.01bn | $0.06bn | +1.43% |
 | medicare_cost_total | `medicare_cost` | dollars | $684.16bn | $928.08bn | $243.92bn | +35.65% |
 | adjusted_gross_income_total | `adjusted_gross_income` | dollars | $19,158.61bn | $18,986.98bn | −$171.63bn | −0.90% |
@@ -98,6 +98,6 @@ The stored draw is matched to the simulation's people on `person_id`. The measur
 | refundable_ctc_total | `refundable_ctc` | dollars | $40.62bn | $40.62bn | −$0.00bn | −0.01% |
 | employee_payroll_tax_total | `employee_payroll_tax` | dollars | $852.13bn | $840.52bn | −$11.61bn | −1.36% |
 | premium_tax_credit_total | `premium_tax_credit` | dollars | $46.44bn | $47.24bn | $0.79bn | +1.71% |
-| household_net_income_total | `household_net_income` | dollars | $17,426.29bn | $17,245.96bn | −$180.33bn | −1.03% |
-| people_in_spm_poverty | `person_in_poverty` | people | 47.13m | 47.60m | 0.47m | +0.99% |
+| household_net_income_total | `household_net_income` | dollars | $17,426.29bn | $17,245.92bn | −$180.37bn | −1.04% |
+| people_in_spm_poverty | `person_in_poverty` | people | 47.13m | 47.57m | 0.44m | +0.93% |
 

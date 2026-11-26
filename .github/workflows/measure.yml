@@ -1,9 +1,10 @@
 name: Measure
 
-# A measurement takes about 50 minutes. It starts by hand, and on any pull
-# request whose measurement code no longer matches the committed results (the
-# files listed in scripts/provenance.py). A pull request that leaves that code
-# alone runs the first job only, which takes seconds.
+# A measurement takes about 35 minutes (the recorded run took 34). It starts
+# by hand, and on any pull request whose measurement code no longer matches
+# the committed results (the files listed in scripts/provenance.py). A pull
+# request that leaves that code alone runs the first job only, which takes
+# seconds.
 on:
   workflow_dispatch:
   pull_request:
@@ -25,7 +26,10 @@ jobs:
       stale: ${{ steps.check.outputs.stale }}
     steps:
       - uses: actions/checkout@v6
+      # The explicit shell adds pipefail, so a check that fails fails the step
+      # rather than leaving an empty answer that skips the measurement.
       - id: check
+        shell: bash
         run: python3 scripts/provenance.py check measure | tee -a "$GITHUB_OUTPUT"
 
   measure:

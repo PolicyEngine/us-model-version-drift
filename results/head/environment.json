@@ -1,11 +1,11 @@
 {
   "code_sha256": {
-    ".github/workflows/measure.yml": "9c65e6a33ef7b957455440e718adcd6bb24215d83398b6d58670db8a8df8f8f0",
-    "envs/head.lock.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
-    "envs/head.txt": "984a9f33eae7154be83c07c0ec181f8023cc8c0e5153b03a95ec5b6212c772a7",
+    ".github/workflows/measure.yml": "6be6c3bf073512eb559832d7a30a0c5bc2956dfeef38580c5d2e6e12a1d38e0f",
+    "envs/head.lock.txt": "d59f0b927f6c54183e3ebb7615f38150b2ebb665747a4065000077e213e951fa",
+    "envs/head.txt": "e1593576a4764b1cb4de671f7380053e51f0c3b8c38911a032a8ca286c6ee364",
     "envs/pinned.lock.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
     "envs/pinned.txt": "4dab09cbeb389d03a3e459d8c8b940c176ff37093509a7dd6cfc6aa0b850b0b7",
-    "scripts/measure.py": "33c630b536efbdf7208ce698c82a3b405b66387204a43afde250266c8d4e27d0",
+    "scripts/measure.py": "00bf238d1d6dde3cdf2793577a60cf4469dc2598ebc1b92f388d11337d606192",
     "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
   },
   "dataset": {
@@ -22,8 +22,8 @@
     "microdf-python": "1.5.12",
     "numpy": "2.5.5",
     "pandas": "3.1.1",
-    "policyengine-core": "3.36.1",
-    "policyengine-us": "2.144.4",
+    "policyengine-core": "3.37.2",
+    "policyengine-us": "2.154.0",
     "spm-calculator": "1.1.0",
     "tables": "3.11.1"
   },
@@ -33,10 +33,10 @@
   "release_default_dataset_sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84",
   "run": {
     "github_event_name": "pull_request",
-    "github_ref": "refs/pull/1/merge",
+    "github_ref": "refs/pull/5/merge",
     "github_repository": "PolicyEngine/us-model-version-drift",
     "github_run_attempt": "1",
-    "github_run_id": "44907751024",
-    "github_sha": "f2e8bc4d89658cb2a6bcb5e329242f8a3e2d23c8"
+    "github_run_id": "45800841504",
+    "github_sha": "31a78902ce2016cde7500f72bbc4a34c40b7c951"
   }
 }

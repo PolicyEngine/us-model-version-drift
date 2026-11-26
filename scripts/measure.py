@@ -66,6 +66,8 @@ DATASET_FILE = "populace_us_2024.h5"
 DATASET_REVISION = "populace-us-2024-spm-20260915"
 DATASET_SHA256 = "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84"
 ENTITY_TABLES = ("person", "household", "tax_unit", "spm_unit", "family", "marital_unit")
+# A stored person input that the join of the WIC draw is checked against.
+CHECK_COLUMN = "age"
 PERIODS = (2024, 2026)
 
 # (id, variable, kind, unit). ``sum`` is a weighted total; ``count_positive``
@@ -347,12 +349,44 @@ def measure_wic_as_loaded(sim, dataset: Path) -> dict:
     return out
 
 
+def join_checks(simulation_ids, stored_ids) -> dict:
+    """What can be said about matching stored rows to the simulation's people.
+
+    Each value is computed from the two id arrays, never set by hand:
+
+    - ``stored_ids_unique`` and ``simulation_ids_unique``: no id repeats.
+    - ``same_id_sets``: both sides hold the same ids.
+    - ``same_row_order``: the stored table lists people in the simulation's
+      order, id for id, as policyengine's ``_check_order`` requires. When ids
+      are 0 to N-1 on both sides, a match on id is only right if this holds or
+      the simulation read the stored ids, so the measurement records it.
+    """
+    import numpy as np
+
+    simulation_ids = np.asarray(simulation_ids).astype("int64")
+    stored_ids = np.asarray(stored_ids).astype("int64")
+    stored_unique = len(np.unique(stored_ids)) == len(stored_ids)
+    simulation_unique = len(np.unique(simulation_ids)) == len(simulation_ids)
+    same_sets = (
+        stored_unique
+        and simulation_unique
+        and len(stored_ids) == len(simulation_ids)
+        and np.array_equal(np.sort(stored_ids), np.sort(simulation_ids))
+    )
+    return {
+        "stored_ids_unique": bool(stored_unique),
+        "simulation_ids_unique": bool(simulation_unique),
+        "same_id_sets": bool(same_sets),
+        "same_row_order": bool(same_sets and np.array_equal(stored_ids, simulation_ids)),
+    }
+
+
 def align_by_id(simulation_ids, stored_ids, stored_values):
     """Stored values in the simulation's row order, matched on a unique id.
 
     Raises ``ValueError`` unless each side's ids are unique and the two sides
     hold the same ids: a repeated or missing id would make the match
-    ambiguous.
+    ambiguous. :func:`join_checks` reports the same conditions as values.
     """
     import numpy as np
 
@@ -361,16 +395,36 @@ def align_by_id(simulation_ids, stored_ids, stored_values):
     stored_values = np.asarray(stored_values)
     if len(stored_ids) != len(stored_values):
         raise ValueError("stored ids and stored values differ in length")
-    if len(np.unique(stored_ids)) != len(stored_ids):
+    checks = join_checks(simulation_ids, stored_ids)
+    if not checks["stored_ids_unique"]:
         raise ValueError("stored ids repeat")
-    if len(np.unique(simulation_ids)) != len(simulation_ids):
+    if not checks["simulation_ids_unique"]:
         raise ValueError("the simulation's ids repeat")
+    if not checks["same_id_sets"]:
+        raise ValueError("the stored ids and the simulation's ids are not the same set")
     order = np.argsort(stored_ids, kind="stable")
     position = np.searchsorted(stored_ids[order], simulation_ids)
-    position = np.clip(position, 0, max(len(stored_ids) - 1, 0))
-    if len(stored_ids) != len(simulation_ids) or not np.array_equal(stored_ids[order][position], simulation_ids):
-        raise ValueError("the stored ids and the simulation's ids are not the same set")
     return stored_values[order][position]
+
+
+def boolean_draw(values) -> "np.ndarray":
+    """A stored true/false draw as booleans, refusing any missing value.
+
+    ``astype(bool)`` would turn a missing value into ``True``. ACS-based
+    files do store missing WIC draws, so a measurement refuses them rather
+    than read them as take-up.
+    """
+    import numpy as np
+    import pandas as pd
+
+    series = pd.Series(values)
+    missing = int(series.isna().sum())
+    if missing:
+        raise ValueError(f"the stored draw has {missing} missing values")
+    unique = set(pd.unique(series).tolist())
+    if not unique <= {True, False, 0, 1}:
+        raise ValueError(f"the stored draw holds values other than true and false: {sorted(map(str, unique))[:5]}")
+    return series.to_numpy().astype(bool)
 
 
 def measure_wic_with_stored_draw(dataset: Path) -> dict:
@@ -381,7 +435,8 @@ def measure_wic_with_stored_draw(dataset: Path) -> dict:
     the stored draw to ``takes_up_wic_if_eligible`` for each month of 2024 on
     a fresh simulation, before any benefit is calculated. It matches people on
     ``person_id``, which must be unique on both sides and cover the same
-    people.
+    people, and refuses a missing draw. The stored ``age`` of each matched
+    person must equal the simulation's, so a join on the wrong rows fails.
     """
     import pandas as pd
 
@@ -391,16 +446,31 @@ def measure_wic_with_stored_draw(dataset: Path) -> dict:
     if "takes_up_wic_if_eligible" not in fresh.tax_benefit_system.variables:
         raise SystemExit("this release has no takes_up_wic_if_eligible input")
     with pd.HDFStore(str(dataset), "r") as store:
-        person = store.select("person", columns=["person_id", "would_claim_wic"])
+        person = store.select("person", columns=["person_id", "would_claim_wic", CHECK_COLUMN])
     ids = fresh.calculate("person_id", period).values
+    stored_ids = person["person_id"].to_numpy()
+    checks = join_checks(ids, stored_ids)
     try:
-        values = align_by_id(ids, person["person_id"].to_numpy(), person["would_claim_wic"].to_numpy()).astype(bool)
+        values = boolean_draw(align_by_id(ids, stored_ids, person["would_claim_wic"].to_numpy()))
+        stored_check = align_by_id(ids, stored_ids, person[CHECK_COLUMN].to_numpy())
     except ValueError as exc:
         raise SystemExit(f"cannot apply the stored draw: {exc}")
+    # An independent stored input, matched the same way, must equal what the
+    # simulation holds for every person. A join on the wrong rows would fail
+    # this even when the ids agree as sets.
+    simulated_check = fresh.calculate(CHECK_COLUMN, period).values
+    checks["check_column"] = CHECK_COLUMN
+    checks["check_column_rows_that_differ"] = int((stored_check != simulated_check).sum())
+    if checks["check_column_rows_that_differ"]:
+        raise SystemExit(
+            f"cannot apply the stored draw: stored {CHECK_COLUMN} differs from the simulation's "
+            f"for {checks['check_column_rows_that_differ']} people after the join"
+        )
     out: dict = {
         "person_ids_in_simulation": int(len(ids)),
         "person_ids_stored": int(len(person)),
-        "person_ids_unique_and_identical_sets": True,
+        "join": checks,
+        "stored_draw_missing": 0,
         "stored_draw_true_rows_applied": int(values.sum()),
     }
     for month in months:

@@ -22,4 +22,4 @@ jobs:
       - uses: astral-sh/setup-uv@v8.1.0
         with:
           version: "0.13.4"
-      - run: uv run --no-project --python 3.13 --with pytest --with hypothesis --with numpy pytest tests -q
+      - run: uv run --no-project --python 3.13 --with pytest --with hypothesis --with numpy --with pandas pytest tests -q

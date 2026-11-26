@@ -257,6 +257,37 @@ def test_alignment_refuses_ambiguous_or_unmatched_ids():
         measure.align_by_id([1, 2, 3], [1, 2, 3], [True, False])
 
 
+@given(st.lists(st.integers(min_value=0, max_value=50), min_size=1, max_size=30, unique=True), st.randoms())
+def test_join_checks_follow_the_ids(ids, random):
+    shuffled = list(ids)
+    random.shuffle(shuffled)
+    checks = measure.join_checks(ids, shuffled)
+    assert checks["stored_ids_unique"] and checks["simulation_ids_unique"] and checks["same_id_sets"]
+    assert checks["same_row_order"] == (shuffled == ids)
+    assert measure.join_checks(ids, ids)["same_row_order"]
+
+
+def test_join_checks_report_repeats_and_other_sets():
+    assert measure.join_checks([1, 2, 3], [1, 2, 2]) == {
+        "stored_ids_unique": False,
+        "simulation_ids_unique": True,
+        "same_id_sets": False,
+        "same_row_order": False,
+    }
+    assert not measure.join_checks([1, 2, 4], [1, 2, 3])["same_id_sets"]
+    assert not measure.join_checks([1, 2], [1, 2, 3])["same_id_sets"]
+
+
+def test_a_missing_or_non_boolean_draw_is_refused():
+    import numpy as np
+
+    assert measure.boolean_draw(np.array([True, False, True])).tolist() == [True, False, True]
+    assert measure.boolean_draw(np.array([1, 0])).tolist() == [True, False]
+    for bad in (np.array([True, None, False], dtype=object), np.array([1.0, np.nan]), np.array([0, 2])):
+        with pytest.raises(ValueError):
+            measure.boolean_draw(bad)
+
+
 def test_the_panel_is_well_formed():
     ids = [row[0] for row in measure.PANEL]
     assert len(set(ids)) == len(ids)

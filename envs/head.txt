@@ -1,5 +1,8 @@
-# The newest policyengine-us on PyPI on 2026-11-17 (uploaded 10:57 UTC), with
-# the newest policyengine-core that day.
-policyengine-us==2.144.4
-policyengine-core==3.36.1
+# The newest policyengine-us on PyPI on 2026-11-26 (2.154.0, uploaded
+# 2026-11-25 22:59 UTC), with policyengine-core 3.37.2: its floor, and the
+# newest core that day. head.lock.txt holds every other package at its
+# pinned.lock.txt version (2.154.0 resolves with them), so the two
+# environments differ in the engine only.
+policyengine-us==2.154.0
+policyengine-core==3.37.2
 tables

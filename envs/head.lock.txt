@@ -47,8 +47,8 @@ parso==0.8.7
 pexpect==4.9.0
 plotly==5.24.1
 pluggy==1.7.0
-policyengine-core==3.36.1
-policyengine-us==2.144.4
+policyengine-core==3.37.2
+policyengine-us==2.154.0
 prompt-toolkit==3.0.53
 psutil==6.1.1
 ptyprocess==0.7.0

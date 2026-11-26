@@ -6,9 +6,9 @@
       "id": "income_tax_net",
       "kind": "sum",
       "period": 2024,
-      "seconds": 316.4,
+      "seconds": 307.8,
       "unit": "usd",
-      "value": 2303820760367.078,
+      "value": 2303823168683.392,
       "variable": "income_tax"
     },
     {
@@ -46,9 +46,9 @@
       "id": "snap_total",
       "kind": "sum",
       "period": 2024,
-      "seconds": 56.3,
+      "seconds": 93.9,
       "unit": "usd",
-      "value": 99538245497.72182,
+      "value": 99355097506.03998,
       "variable": "snap"
     },
     {
@@ -58,7 +58,7 @@
       "period": 2024,
       "seconds": 0.0,
       "unit": "spm_units",
-      "value": 23579609.465452533,
+      "value": 23548753.183614694,
       "variable": "snap"
     },
     {
@@ -78,7 +78,7 @@
       "period": 2024,
       "seconds": 0.0,
       "unit": "people",
-      "value": 71515569.0571549,
+      "value": 70967214.57445104,
       "variable": "medicaid_enrolled"
     },
     {
@@ -86,9 +86,9 @@
       "id": "medicaid_total",
       "kind": "sum",
       "period": 2024,
-      "seconds": 0.6,
+      "seconds": 0.8,
       "unit": "usd",
-      "value": 880018877680.4186,
+      "value": 918687292587.7148,
       "variable": "medicaid"
     },
     {
@@ -96,9 +96,9 @@
       "id": "state_income_tax_total",
       "kind": "sum",
       "period": 2024,
-      "seconds": 23.6,
+      "seconds": 15.2,
       "unit": "usd",
-      "value": 515008101903.88293,
+      "value": 514941765229.51434,
       "variable": "state_income_tax"
     },
     {
@@ -138,7 +138,7 @@
       "period": 2024,
       "seconds": 0.0,
       "unit": "usd",
-      "value": 11311135577.976173,
+      "value": 11311130407.099503,
       "variable": "wic"
     },
     {
@@ -158,7 +158,7 @@
       "period": 2024,
       "seconds": 0.0,
       "unit": "usd",
-      "value": 37231949614.50598,
+      "value": 37231949605.437744,
       "variable": "refundable_ctc"
     },
     {
@@ -176,7 +176,7 @@
       "id": "premium_tax_credit_total",
       "kind": "sum",
       "period": 2024,
-      "seconds": 0.1,
+      "seconds": 0.0,
       "unit": "usd",
       "value": 60124397771.29128,
       "variable": "premium_tax_credit"
@@ -186,9 +186,9 @@
       "id": "household_net_income_total",
       "kind": "sum",
       "period": 2024,
-      "seconds": 21.5,
+      "seconds": 3.9,
       "unit": "usd",
-      "value": 15270734033009.426,
+      "value": 15270604075257.84,
       "variable": "household_net_income"
     },
     {
@@ -196,11 +196,11 @@
       "id": "people_in_spm_poverty",
       "kind": "sum",
       "period": 2024,
-      "seconds": 110.3,
+      "seconds": 140.9,
       "unit": "people",
-      "value": 41545640.13732584,
+      "value": 41639369.27790974,
       "variable": "person_in_poverty"
     }
   ],
-  "seconds": 553.6
+  "seconds": 593.3
 }

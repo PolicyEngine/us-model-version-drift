@@ -1,12 +1,12 @@
 {
   "baseline": {
     "code_sha256": {
-      ".github/workflows/measure.yml": "9c65e6a33ef7b957455440e718adcd6bb24215d83398b6d58670db8a8df8f8f0",
-      "envs/head.lock.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
-      "envs/head.txt": "984a9f33eae7154be83c07c0ec181f8023cc8c0e5153b03a95ec5b6212c772a7",
+      ".github/workflows/measure.yml": "6be6c3bf073512eb559832d7a30a0c5bc2956dfeef38580c5d2e6e12a1d38e0f",
+      "envs/head.lock.txt": "d59f0b927f6c54183e3ebb7615f38150b2ebb665747a4065000077e213e951fa",
+      "envs/head.txt": "e1593576a4764b1cb4de671f7380053e51f0c3b8c38911a032a8ca286c6ee364",
       "envs/pinned.lock.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
       "envs/pinned.txt": "4dab09cbeb389d03a3e459d8c8b940c176ff37093509a7dd6cfc6aa0b850b0b7",
-      "scripts/measure.py": "33c630b536efbdf7208ce698c82a3b405b66387204a43afde250266c8d4e27d0",
+      "scripts/measure.py": "00bf238d1d6dde3cdf2793577a60cf4469dc2598ebc1b92f388d11337d606192",
       "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
     },
     "dataset": {
@@ -34,11 +34,11 @@
     "release_default_dataset_sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84",
     "run": {
       "github_event_name": "pull_request",
-      "github_ref": "refs/pull/1/merge",
+      "github_ref": "refs/pull/5/merge",
       "github_repository": "PolicyEngine/us-model-version-drift",
       "github_run_attempt": "1",
-      "github_run_id": "44907751024",
-      "github_sha": "f2e8bc4d89658cb2a6bcb5e329242f8a3e2d23c8"
+      "github_run_id": "45800841504",
+      "github_sha": "31a78902ce2016cde7500f72bbc4a34c40b7c951"
     }
   },
   "contract": {
@@ -114,12 +114,12 @@
   "panel": [
     {
       "baseline": 2262598213311.9766,
-      "difference": 41222547055.10156,
+      "difference": 41224955371.41553,
       "id": "income_tax_net",
       "kind": "sum",
       "period": 2024,
-      "relative_difference": 0.018219119423222855,
-      "tested": 2303820760367.078,
+      "relative_difference": 0.01822018382621752,
+      "tested": 2303823168683.392,
       "unit": "usd",
       "variable": "income_tax"
     },
@@ -158,23 +158,23 @@
     },
     {
       "baseline": 101948658856.76624,
-      "difference": -2410413359.0444183,
+      "difference": -2593561350.7262573,
       "id": "snap_total",
       "kind": "sum",
       "period": 2024,
-      "relative_difference": -0.02364340429853964,
-      "tested": 99538245497.72182,
+      "relative_difference": -0.025439877089213175,
+      "tested": 99355097506.03998,
       "unit": "usd",
       "variable": "snap"
     },
     {
       "baseline": 23408655.251528144,
-      "difference": 170954.21392438933,
+      "difference": 140097.9320865497,
       "id": "snap_units",
       "kind": "count_positive",
       "period": 2024,
-      "relative_difference": 0.007303034372862117,
-      "tested": 23579609.465452533,
+      "relative_difference": 0.005984877413127093,
+      "tested": 23548753.183614694,
       "unit": "spm_units",
       "variable": "snap"
     },
@@ -191,34 +191,34 @@
     },
     {
       "baseline": 72205082.32033254,
-      "difference": -689513.2631776482,
+      "difference": -1237867.7458814979,
       "id": "medicaid_enrollment",
       "kind": "sum",
       "period": 2024,
-      "relative_difference": -0.009549372994530679,
-      "tested": 71515569.0571549,
+      "relative_difference": -0.01714377584101059,
+      "tested": 70967214.57445104,
       "unit": "people",
       "variable": "medicaid_enrolled"
     },
     {
       "baseline": 880018889424.9663,
-      "difference": -11744.547729492188,
+      "difference": 38668403162.748535,
       "id": "medicaid_total",
       "kind": "sum",
       "period": 2024,
-      "relative_difference": -1.33457904945273e-08,
-      "tested": 880018877680.4186,
+      "relative_difference": 0.043940424037961,
+      "tested": 918687292587.7148,
       "unit": "usd",
       "variable": "medicaid"
     },
     {
       "baseline": 536193091301.84143,
-      "difference": -21184989397.958496,
+      "difference": -21251326072.327087,
       "id": "state_income_tax_total",
       "kind": "sum",
       "period": 2024,
-      "relative_difference": -0.039510000672561336,
-      "tested": 515008101903.88293,
+      "relative_difference": -0.039633718555996816,
+      "tested": 514941765229.51434,
       "unit": "usd",
       "variable": "state_income_tax"
     },
@@ -257,12 +257,12 @@
     },
     {
       "baseline": 11517240776.317844,
-      "difference": -206105198.341671,
+      "difference": -206110369.21834183,
       "id": "wic_total",
       "kind": "sum",
       "period": 2024,
-      "relative_difference": -0.017895362469583145,
-      "tested": 11311135577.976173,
+      "relative_difference": -0.017895811437940345,
+      "tested": 11311130407.099503,
       "unit": "usd",
       "variable": "wic"
     },
@@ -279,12 +279,12 @@
     },
     {
       "baseline": 37495465911.91746,
-      "difference": -263516297.41147614,
+      "difference": -263516306.47971344,
       "id": "refundable_ctc_total",
       "kind": "sum",
       "period": 2024,
-      "relative_difference": -0.007027951006943504,
-      "tested": 37231949614.50598,
+      "relative_difference": -0.007027951248792408,
+      "tested": 37231949605.437744,
       "unit": "usd",
       "variable": "refundable_ctc"
     },
@@ -312,34 +312,34 @@
     },
     {
       "baseline": 15184280201525.043,
-      "difference": 86453831484.38281,
+      "difference": 86323873732.79688,
       "id": "household_net_income_total",
       "kind": "sum",
       "period": 2024,
-      "relative_difference": 0.005693640418707484,
-      "tested": 15270734033009.426,
+      "relative_difference": 0.00568508171524172,
+      "tested": 15270604075257.84,
       "unit": "usd",
       "variable": "household_net_income"
     },
     {
       "baseline": 44271756.15920584,
-      "difference": -2726116.021880001,
+      "difference": -2632386.881296098,
       "id": "people_in_spm_poverty",
       "kind": "sum",
       "period": 2024,
-      "relative_difference": -0.06157686657101661,
-      "tested": 41545640.13732584,
+      "relative_difference": -0.059459734821220134,
+      "tested": 41639369.27790974,
       "unit": "people",
       "variable": "person_in_poverty"
     },
     {
       "baseline": 2610604484904.08,
-      "difference": -15581090308.876953,
+      "difference": -15570305396.717285,
       "id": "income_tax_net",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": -0.005968384103748845,
-      "tested": 2595023394595.203,
+      "relative_difference": -0.005964252910294596,
+      "tested": 2595034179507.363,
       "unit": "usd",
       "variable": "income_tax"
     },
@@ -378,23 +378,23 @@
     },
     {
       "baseline": 100265316841.38287,
-      "difference": -5167626701.041748,
+      "difference": -5424549623.562347,
       "id": "snap_total",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": -0.05153952397334763,
-      "tested": 95097690140.34113,
+      "relative_difference": -0.05410195463845034,
+      "tested": 94840767217.82053,
       "unit": "usd",
       "variable": "snap"
     },
     {
       "baseline": 22196344.055778008,
-      "difference": 397495.40105594695,
+      "difference": 401342.17512536794,
       "id": "snap_units",
       "kind": "count_positive",
       "period": 2026,
-      "relative_difference": 0.017908147398376335,
-      "tested": 22593839.456833955,
+      "relative_difference": 0.018081454050127375,
+      "tested": 22597686.230903376,
       "unit": "spm_units",
       "variable": "snap"
     },
@@ -411,34 +411,34 @@
     },
     {
       "baseline": 70168488.6210724,
-      "difference": 674467.2778615206,
+      "difference": 132507.64354074,
       "id": "medicaid_enrollment",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": 0.009612110665569764,
-      "tested": 70842955.89893392,
+      "relative_difference": 0.0018884209442833354,
+      "tested": 70300996.26461314,
       "unit": "people",
       "variable": "medicaid_enrolled"
     },
     {
       "baseline": 880018869437.1897,
-      "difference": 14505.8310546875,
+      "difference": 38668428954.96533,
       "id": "medicaid_total",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": 1.6483545476660755e-08,
-      "tested": 880018883943.0208,
+      "relative_difference": 0.04394045434468408,
+      "tested": 918687298392.155,
       "unit": "usd",
       "variable": "medicaid"
     },
     {
       "baseline": 613774075360.7506,
-      "difference": -37136029589.581055,
+      "difference": -37358354082.76355,
       "id": "state_income_tax_total",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": -0.06050439580354393,
-      "tested": 576638045771.1696,
+      "relative_difference": -0.06086662109475034,
+      "tested": 576415721277.987,
       "unit": "usd",
       "variable": "state_income_tax"
     },
@@ -477,12 +477,12 @@
     },
     {
       "baseline": 11766039532.482082,
-      "difference": 26466677.732990265,
+      "difference": 26461229.785720825,
       "id": "wic_total",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": 0.0022494126133032837,
-      "tested": 11792506210.215073,
+      "relative_difference": 0.0022489495902737926,
+      "tested": 11792500762.267803,
       "unit": "usd",
       "variable": "wic"
     },
@@ -499,12 +499,12 @@
     },
     {
       "baseline": 40622851533.42457,
-      "difference": -2522467.130569458,
+      "difference": -2520723.7465438843,
       "id": "refundable_ctc_total",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": -6.209478250176422e-05,
-      "tested": 40620329066.294,
+      "relative_difference": -6.205186616379767e-05,
+      "tested": 40620330809.678024,
       "unit": "usd",
       "variable": "refundable_ctc"
     },
@@ -521,46 +521,46 @@
     },
     {
       "baseline": 46441464750.96096,
-      "difference": 794232078.6279602,
+      "difference": 794784399.3558578,
       "id": "premium_tax_credit_total",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": 0.017101787871829043,
-      "tested": 47235696829.58892,
+      "relative_difference": 0.01711368070791549,
+      "tested": 47236249150.31682,
       "unit": "usd",
       "variable": "premium_tax_credit"
     },
     {
       "baseline": 17426291581224.53,
-      "difference": -180334102116.46875,
+      "difference": -180374597866.80664,
       "id": "household_net_income_total",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": -0.01034839232867908,
-      "tested": 17245957479108.06,
+      "relative_difference": -0.01035071615932022,
+      "tested": 17245916983357.723,
       "unit": "usd",
       "variable": "household_net_income"
     },
     {
       "baseline": 47132500.90618125,
-      "difference": 466700.9457804188,
+      "difference": 438055.92788084596,
       "id": "people_in_spm_poverty",
       "kind": "sum",
       "period": 2026,
-      "relative_difference": 0.009901892257094567,
-      "tested": 47599201.85196167,
+      "relative_difference": 0.009294137155013486,
+      "tested": 47570556.8340621,
       "unit": "people",
       "variable": "person_in_poverty"
     }
   ],
   "tested": {
     "code_sha256": {
-      ".github/workflows/measure.yml": "9c65e6a33ef7b957455440e718adcd6bb24215d83398b6d58670db8a8df8f8f0",
-      "envs/head.lock.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
-      "envs/head.txt": "984a9f33eae7154be83c07c0ec181f8023cc8c0e5153b03a95ec5b6212c772a7",
+      ".github/workflows/measure.yml": "6be6c3bf073512eb559832d7a30a0c5bc2956dfeef38580c5d2e6e12a1d38e0f",
+      "envs/head.lock.txt": "d59f0b927f6c54183e3ebb7615f38150b2ebb665747a4065000077e213e951fa",
+      "envs/head.txt": "e1593576a4764b1cb4de671f7380053e51f0c3b8c38911a032a8ca286c6ee364",
       "envs/pinned.lock.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
       "envs/pinned.txt": "4dab09cbeb389d03a3e459d8c8b940c176ff37093509a7dd6cfc6aa0b850b0b7",
-      "scripts/measure.py": "33c630b536efbdf7208ce698c82a3b405b66387204a43afde250266c8d4e27d0",
+      "scripts/measure.py": "00bf238d1d6dde3cdf2793577a60cf4469dc2598ebc1b92f388d11337d606192",
       "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
     },
     "dataset": {
@@ -577,8 +577,8 @@
       "microdf-python": "1.5.12",
       "numpy": "2.5.5",
       "pandas": "3.1.1",
-      "policyengine-core": "3.36.1",
-      "policyengine-us": "2.144.4",
+      "policyengine-core": "3.37.2",
+      "policyengine-us": "2.154.0",
       "spm-calculator": "1.1.0",
       "tables": "3.11.1"
     },
@@ -588,19 +588,27 @@
     "release_default_dataset_sha256": "6496cc4393d4d3c6574f76eca231de5898c803b9067645591fd5c4d3e65aee84",
     "run": {
       "github_event_name": "pull_request",
-      "github_ref": "refs/pull/1/merge",
+      "github_ref": "refs/pull/5/merge",
       "github_repository": "PolicyEngine/us-model-version-drift",
       "github_run_attempt": "1",
-      "github_run_id": "44907751024",
-      "github_sha": "f2e8bc4d89658cb2a6bcb5e329242f8a3e2d23c8"
+      "github_run_id": "45800841504",
+      "github_sha": "31a78902ce2016cde7500f72bbc4a34c40b7c951"
     }
   },
   "wic": {
     "baseline": {
+      "join": {
+        "check_column": "age",
+        "check_column_rows_that_differ": 0,
+        "same_id_sets": true,
+        "same_row_order": true,
+        "simulation_ids_unique": true,
+        "stored_ids_unique": true
+      },
       "period": 2024,
       "person_ids_in_simulation": 166321,
       "person_ids_stored": 166321,
-      "person_ids_unique_and_identical_sets": true,
+      "stored_draw_missing": 0,
       "stored_draw_rows": 166321,
       "stored_draw_share_true_unweighted": 0.04491314987283626,
       "stored_draw_true_rows_applied": 7470,
@@ -612,18 +620,26 @@
       "would_claim_wic_is_a_variable": false
     },
     "tested": {
+      "join": {
+        "check_column": "age",
+        "check_column_rows_that_differ": 0,
+        "same_id_sets": true,
+        "same_row_order": true,
+        "simulation_ids_unique": true,
+        "stored_ids_unique": true
+      },
       "period": 2024,
       "person_ids_in_simulation": 166321,
       "person_ids_stored": 166321,
-      "person_ids_unique_and_identical_sets": true,
+      "stored_draw_missing": 0,
       "stored_draw_rows": 166321,
       "stored_draw_share_true_unweighted": 0.04491314987283626,
       "stored_draw_true_rows_applied": 7470,
       "take_up_share_as_loaded": 1.0,
       "take_up_share_with_stored_draw": 0.03799470686325908,
       "takes_up_wic_if_eligible_is_a_variable": true,
-      "wic_as_loaded": 11311135577.976173,
-      "wic_with_stored_draw": 6470050705.670418,
+      "wic_as_loaded": 11311130407.099503,
+      "wic_with_stored_draw": 6470045555.866802,
       "would_claim_wic_is_a_variable": false
     }
   },
@@ -635,10 +651,10 @@
       "tested": 11517240776.317844
     },
     "tested": {
-      "baseline": 6470050705.670418,
-      "difference": 4841084872.305756,
-      "relative_difference": 0.7482298195998649,
-      "tested": 11311135577.976173
+      "baseline": 6470045555.866802,
+      "difference": 4841084851.2327,
+      "relative_difference": 0.7482304118930013,
+      "tested": 11311130407.099503
     }
   }
 }
