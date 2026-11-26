@@ -18,7 +18,9 @@
   finite value.
 - The contract's classes follow from the recorded definitions under the
   classification rule, table by table.
-- The stored WIC draw was applied to every person, matched on a unique id.
+- The stored WIC draw was applied to every person, matched on a unique id,
+  with no missing draw, and the matched people's stored age equals the
+  simulation's.
 - Two separate processes agree on WIC as loaded, and three earlier runs
   gave exactly this run's value for every row they measured.
 """
@@ -182,7 +184,11 @@ def wic(run: str) -> dict:
 @pytest.mark.parametrize("run", RUNS)
 def test_stored_draw_was_applied_to_every_person(run):
     values = wic(run)
-    assert values["person_ids_unique_and_identical_sets"] is True
+    join = values["join"]
+    assert join["stored_ids_unique"] and join["simulation_ids_unique"] and join["same_id_sets"]
+    assert join["check_column"] == measure.CHECK_COLUMN
+    assert join["check_column_rows_that_differ"] == 0
+    assert values["stored_draw_missing"] == 0
     assert values["person_ids_in_simulation"] == values["person_ids_stored"] == values["stored_draw_rows"]
     true_rows = values["stored_draw_true_rows_applied"]
     assert true_rows / values["stored_draw_rows"] == pytest.approx(values["stored_draw_share_true_unweighted"], abs=1e-12)
