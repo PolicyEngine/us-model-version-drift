@@ -1,7 +1,7 @@
 # Critical targets
 
 - Baseline: policyengine-us 2.2.2, policyengine-core 3.34.10, spm-calculator 1.1.0
-- Tested: policyengine-us 2.144.4, policyengine-core 3.36.1, spm-calculator 1.1.0
+- Tested: policyengine-us 2.154.0, policyengine-core 3.37.2, spm-calculator 1.1.0
 - Dataset sha256 `6496cc4393d4…`, 57,240 households, period 2024
 - Targets and tolerances: the dataset's published calibration diagnostics and Microcosm's critical-target requirements at commit `85d513bb550f`
 - Build estimates: Microcosm build `populace-us-2024-buildp-sparse-rmloss100-cae8640-20260728T011454Z`, made with policyengine-us 1.764.6 and policyengine-core 3.26.11. The dataset carries that build's calibration diagnostics unchanged.
@@ -26,9 +26,9 @@
 | premium_tax_credit_returns | `irs_soi ty2022 historic_table_2` | 7.84m | 8.01m (+2.1%) | 7.97m (+1.6%) | 7.93m (+1.1%) | ±15% | in | in |
 | taxable_social_security_amount | `irs_soi ty2022 historic_table_2` | $510.8bn | $509.8bn (-0.2%) | $510.8bn (+0.0%) | $513.1bn (+0.5%) | ±15% | in | in |
 | taxable_social_security_returns | `irs_soi ty2022 historic_table_2` | 24.48m | 24.47m (-0.0%) | 24.49m (+0.1%) | 24.59m (+0.5%) | ±15% | in | in |
-| itemized_deduction_amount | `irs_soi ty2022 historic_table_2` | $728.8bn | $724.6bn (-0.6%) | $720.5bn (-1.1%) | $722.1bn (-0.9%) | ±15% | in | in |
-| itemized_deduction_amount | `irs_soi ty2023 table_1_2` | $751.1bn | $724.6bn (-3.5%) | $720.5bn (-4.1%) | $722.1bn (-3.9%) | ±15% | in | in |
-| itemized_deduction_amount | `irs_soi ty2023 table_2_1` | $751.1bn | $724.6bn (-3.5%) | $720.5bn (-4.1%) | $722.1bn (-3.9%) | ±15% | in | in |
+| itemized_deduction_amount | `irs_soi ty2022 historic_table_2` | $728.8bn | $724.6bn (-0.6%) | $720.5bn (-1.1%) | $722.0bn (-0.9%) | ±15% | in | in |
+| itemized_deduction_amount | `irs_soi ty2023 table_1_2` | $751.1bn | $724.6bn (-3.5%) | $720.5bn (-4.1%) | $722.0bn (-3.9%) | ±15% | in | in |
+| itemized_deduction_amount | `irs_soi ty2023 table_2_1` | $751.1bn | $724.6bn (-3.5%) | $720.5bn (-4.1%) | $722.0bn (-3.9%) | ±15% | in | in |
 | salt_deduction_amount | `irs_soi ty2022 historic_table_2` | $137.4bn | $132.4bn (-3.7%) | $131.7bn (-4.1%) | $131.8bn (-4.1%) | ±10% | in | in |
 | salt_deduction_amount | `irs_soi ty2023 table_2_1` | $131.6bn | $132.4bn (+0.6%) | $131.7bn (+0.1%) | $131.8bn (+0.1%) | ±10% | in | in |
 | medical_expense_deduction_amount | `irs_soi ty2022 historic_table_2` | $89.9bn | $99.1bn (+10.3%) | $98.8bn (+9.9%) | $99.1bn (+10.3%) | ±25% | in | in |
@@ -79,12 +79,12 @@ Row labels are Microcosm's. Its Medicare benefit cost is `medicare_cost`, which 
 | Child Tax Credit, total | $147.5bn | $148.7bn | +0.8% | $1.1bn |
 | Earned Income Tax Credit, total | $66.6bn | $67.1bn | +0.8% | -$0.4bn |
 | Social Security benefits | $1,464.8bn | $1,464.8bn | +0.0% | $0.0bn |
-| SNAP benefits | $101.9bn | $99.5bn | -2.4% | -$0.0bn |
-| SPM units receiving SNAP | 23.41m | 23.58m | +0.7% | 0.00m |
+| SNAP benefits | $101.9bn | $99.4bn | -2.5% | -$0.0bn |
+| SPM units receiving SNAP | 23.41m | 23.55m | +0.6% | 0.00m |
 | SSI payments | $56.1bn | $54.9bn | -2.1% | $0.0bn |
-| people enrolled in Medicaid | 72.21m | 71.52m | -1.0% | 0.01m |
-| Medicaid benefit value | $880.0bn | $880.0bn | -0.0% | $0.0bn |
-| state income tax | $536.2bn | $515.0bn | -4.0% | -$0.6bn |
+| people enrolled in Medicaid | 72.21m | 70.97m | -1.7% | 0.02m |
+| Medicaid benefit value | $880.0bn | $918.7bn | +4.4% | $0.0bn |
+| state income tax | $536.2bn | $514.9bn | -4.0% | -$0.6bn |
 | Medicare Part B income-related premium (IRMAA) | $0.0bn | $17.4bn | n/a | $0.0bn |
 | Medicare Part D income-related surcharge | $0.0bn | $3.3bn | n/a | $0.0bn |
 | Medicare benefit cost | $516.7bn | $809.5bn | +56.6% | -$0.0bn |

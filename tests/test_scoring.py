@@ -625,29 +625,44 @@ EARLIER_RUNS = {
     44903905024: "2026-11-21",
     44910821596: "2026-11-21",
     45199019867: "2026-11-23T14:53:13Z",
+    # The run recorded before this one, at commit 2a03f3e.
+    45207756243: "2026-11-23T15:39:56Z",
 }
 # The two earlier runs whose installs were not constrained.
 UNCONSTRAINED_RUNS = tuple(EARLIER_RUNS)[:2]
+# Every earlier run scored policyengine-us 2.2.2 as the baseline and 2.144.4
+# as the tested release.
+EARLIER_RELEASES = {"baseline": "2.2.2", "tested": "2.144.4"}
 
 
 @pytest.mark.parametrize("run, date", EARLIER_RUNS.items())
 def test_an_earlier_scoring_run_gave_the_same_rows(run, date):
     """Earlier runs, the first two under installs that were not constrained
-    and the others under earlier scoring code, agree with the committed scores:
-    every estimate to within 1 part in 10^15, and every target, tolerance and
-    verdict exactly."""
+    and the others under earlier scoring code, agree with the committed scores
+    for each side that scored the same release: every estimate to within 1
+    part in 10^15, and every target, tolerance and verdict exactly. A side
+    that now scores another release is kept, not compared."""
     earlier = json.loads((SCORED / "earlier" / f"run-{run}-rows.json").read_text())
     record = json.loads((SCORED / "provenance.json").read_text())
     assert earlier["workflow_run"] == run != record["workflow_run"]
     assert earlier["date"] == date < record["started"]
     now = {row["metric_id"]: row for row in json.loads((SCORED / "drift.json").read_text())["rows"]}
     assert set(now) == {row["metric_id"] for row in earlier["rows"]}
+    result = json.loads((SCORED / "critical_targets.json").read_text())
+    same = [side for side in EARLIER_RELEASES if result[side]["versions"]["policyengine-us"] == EARLIER_RELEASES[side]]
+    assert "baseline" in same, "the baseline no longer scores the release the earlier runs scored"
+    estimates = ["baseline"] + (["tested", "without_newly_read_inputs"] if "tested" in same else [])
     for row in earlier["rows"]:
         current = now[row["metric_id"]]
-        for key in ("baseline", "tested", "without_newly_read_inputs"):
+        for key in estimates:
             assert math.isclose(current[key], row[key], rel_tol=1e-15, abs_tol=0.0), (row["metric_id"], key)
-        for key in ("requirement_id", "target", "tolerance", "within_tolerance"):
+        for key in ("requirement_id", "target", "tolerance"):
             assert current.get(key) == row[key], (row["metric_id"], key)
+        if row["within_tolerance"] is None:
+            assert current.get("within_tolerance") is None, row["metric_id"]
+        else:
+            for side in same:
+                assert current["within_tolerance"][side] == row["within_tolerance"][side], (row["metric_id"], side)
 
 
 def exact_pins(path: Path) -> dict[str, str]:

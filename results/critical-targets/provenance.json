@@ -3,34 +3,34 @@
     "results-critical-targets"
   ],
   "checked_out": [
-    "025a9b85e8ef130e4a925e5541bc00298cfeb71a"
+    "7d38d4b398cd9ed8fd846f04cd5fd52dabffa33e"
   ],
   "code_sha256": {
-    ".github/workflows/score.yml": "df7fefe59c4bcb95155ac1a874205a48691fc8395a26fc54220eef2fdf5d2b3a",
+    ".github/workflows/score.yml": "e07d0aae702754a01a49c259189313e33cf92dd25fac38c71cf20ffd42e21001",
     "envs/score.constraints.txt": "ee06574b35b095b5f35073cbbd4939537320244fbf3888c1b200c1e4290e2181",
-    "scripts/critical_targets.py": "088c6a89d738f7b6d16ab2d9e01fe97f7882b8d9cadbce7bf5b9b06c155828e1",
+    "scripts/critical_targets.py": "218777014249ecfaebd33856e2aa9ea6ec192e7bf60c930b21beceec4c57d139",
     "scripts/fetch_wheels.py": "222b0b7e0cc8d5a8876ec6d04eeaf0b0a6ed77fe448e49b1064f3abc15cc6fe3",
-    "scripts/prepare_scoring.py": "6791de32ee7c969243ce9a90c93caee3c4d30851f74a8f4f6f443c5d07bb9d36",
+    "scripts/prepare_scoring.py": "5a1cc059feba71d2e387be1e587bb4e73f2cf878dbc48e00dd84a3c20063e07d",
     "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
   },
-  "completed": "2026-11-23T15:54:32Z",
+  "completed": "2026-11-26T11:14:17Z",
   "event": "pull_request",
   "files": {
-    "results/critical-targets/combine.json": "6c6f2d386f8bba7a7db82198bd058e207d89ec5d3f0e93396a54c6392ce4ec9c",
-    "results/critical-targets/critical_targets.csv": "28598676282a3b5f5e47f863409936b4979106ff2762932eb958887a5507a793",
-    "results/critical-targets/critical_targets.json": "9ffb6f90110b9cc0595626ff9dbc9babd07d70b5412cd543311b304ea3621d01",
-    "results/critical-targets/critical_targets.md": "ff0d41298da71b303fc80e7283163bb4cd5e697314b9593a0cf8661e0ad67a49",
-    "results/critical-targets/drift.json": "03d8498a7c2ecf5c7b0bfea777ad4d9f67cb261d78c037205b06dce8bfa484cf",
-    "results/critical-targets/freeze-head-without-newly-read.txt": "ad9992d37161fa0046119467249d7ec9f80f835a53fdc062ecc4231297153b6a",
-    "results/critical-targets/freeze-head.txt": "ad9992d37161fa0046119467249d7ec9f80f835a53fdc062ecc4231297153b6a",
+    "results/critical-targets/combine.json": "d1413dc35f2939ed82a076f3c75067be095c898bbe6cc7a89ea0912fc8483bf3",
+    "results/critical-targets/critical_targets.csv": "db78ec70226380435dc776b2dcbad7e102deee8534954fb8c2d512cc42a3fbcf",
+    "results/critical-targets/critical_targets.json": "79a83800d07dbbce314bf8fce5a0877664dcbce79270b47086f3dedb5133277d",
+    "results/critical-targets/critical_targets.md": "f4997f59fd9f631beefc35fff81533228c6dd3a98d31aa7d9d32ddc6cfded9b2",
+    "results/critical-targets/drift.json": "0aaeaf308dd876728d622ef4c7820c86d1337d5b234e205c5072e20116c20f46",
+    "results/critical-targets/freeze-head-without-newly-read.txt": "6b579761760309661cc9c578f2213594d4e591570d9159fb21761782b9fb04f0",
+    "results/critical-targets/freeze-head.txt": "6b579761760309661cc9c578f2213594d4e591570d9159fb21761782b9fb04f0",
     "results/critical-targets/freeze-pinned.txt": "2b3acf7b6c0ec7f48af8d934b7d89b9d0f33c6f4fee61033880c4e91aa8522ec",
-    "results/critical-targets/scoring_inputs-head-without-newly-read.json": "97495da325ab4d2614f2db0f30d750c5adae2e78b14750f558e8ed70f0a3b70e",
-    "results/critical-targets/scoring_inputs-head.json": "97495da325ab4d2614f2db0f30d750c5adae2e78b14750f558e8ed70f0a3b70e",
-    "results/critical-targets/scoring_inputs-pinned.json": "97495da325ab4d2614f2db0f30d750c5adae2e78b14750f558e8ed70f0a3b70e"
+    "results/critical-targets/scoring_inputs-head-without-newly-read.json": "8b188288d5d202cd5570351406e961781919f1cd941e6e81f3b3ba8ee674840a",
+    "results/critical-targets/scoring_inputs-head.json": "8b188288d5d202cd5570351406e961781919f1cd941e6e81f3b3ba8ee674840a",
+    "results/critical-targets/scoring_inputs-pinned.json": "8b188288d5d202cd5570351406e961781919f1cd941e6e81f3b3ba8ee674840a"
   },
-  "head_sha": "8d622c0f3f205d403431cc214f88acdf7363d819",
-  "started": "2026-11-23T15:39:56Z",
-  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/45207756243",
+  "head_sha": "686bffe39da4ca56abbe9cdaf1cef3892a2b4e4f",
+  "started": "2026-11-26T11:02:06Z",
+  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/45806827463",
   "workflow": "Score",
-  "workflow_run": 45207756243
+  "workflow_run": 45806827463
 }

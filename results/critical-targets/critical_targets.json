@@ -72,13 +72,13 @@
         "build_estimate": 2361525893008.1304,
         "label": "irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_amount@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_amount@2024",
-        "newly_read_inputs_effect": -1891576385.2739258,
-        "other_engine_changes_effect": 43328237242.1416,
+        "newly_read_inputs_effect": -1891576383.0566406,
+        "other_engine_changes_effect": 43330645547.174805,
         "requirement_id": "federal_income_tax_amount",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 2358715520045.6733,
-        "tested": 2407844854573.51,
-        "tested_error": 0.0208288511735765,
+        "tested": 2407847262880.7603,
+        "tested_error": 0.02082987219846484,
         "tested_within": true,
         "tolerance": 0.05,
         "unit": "usd"
@@ -130,12 +130,12 @@
         "label": "irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.ctc_amount@2024",
         "newly_read_inputs_effect": 370714020.84028625,
-        "other_engine_changes_effect": -24932904.145614624,
+        "other_engine_changes_effect": -24932895.077407837,
         "requirement_id": "ctc_amount",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 92834932737.99818,
-        "tested": 89662326687.5224,
-        "tested_error": -0.03417470080394864,
+        "tested": 89662326696.5906,
+        "tested_error": -0.034174700706267665,
         "tested_within": true,
         "tolerance": 0.15,
         "unit": "usd"
@@ -167,13 +167,13 @@
         "build_estimate": 37631046408.09286,
         "label": "irs_soi.ty2022.historic_table_2.us.all.actc_amount@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.actc_amount@2024",
-        "newly_read_inputs_effect": -48028054.06894684,
-        "other_engine_changes_effect": -215488243.42861176,
+        "newly_read_inputs_effect": -48028054.06893921,
+        "other_engine_changes_effect": -215488252.49684143,
         "requirement_id": "actc_amount",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 37932659450.069534,
-        "tested": 37231949699.27246,
-        "tested_error": -0.01847246570516397,
+        "tested": 37231949690.20424,
+        "tested_error": -0.018472465944225035,
         "tested_within": true,
         "tolerance": 0.15,
         "unit": "usd"
@@ -186,13 +186,13 @@
         "build_estimate": 17691267.271204203,
         "label": "irs_soi.ty2022.historic_table_2.us.all.actc_claims@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.actc_claims@2024",
-        "newly_read_inputs_effect": -42781.45112520084,
+        "newly_read_inputs_effect": -42781.45112519711,
         "other_engine_changes_effect": -28756.21979574859,
         "requirement_id": "actc_claims",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 17691450.0,
-        "tested": 17570321.592887882,
-        "tested_error": -0.006846720145161525,
+        "tested": 17570321.592887886,
+        "tested_error": -0.006846720145161314,
         "tested_within": true,
         "tolerance": 0.15,
         "unit": "count"
@@ -319,13 +319,13 @@
         "build_estimate": 724582918227.1127,
         "label": "irs_soi.ty2022.historic_table_2.us.all.itemized_deductions_amount@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.itemized_deductions_amount@2024",
-        "newly_read_inputs_effect": 2341524932.1151123,
-        "other_engine_changes_effect": -833362092.4967041,
+        "newly_read_inputs_effect": 2341524947.7148438,
+        "other_engine_changes_effect": -887484280.4849854,
         "requirement_id": "itemized_deduction_amount",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 728802287524.4347,
-        "tested": 722052900716.4214,
-        "tested_error": -0.009260929779651683,
+        "tested": 721998778544.0328,
+        "tested_error": -0.009335191583319163,
         "tested_within": true,
         "tolerance": 0.15,
         "unit": "usd"
@@ -338,13 +338,13 @@
         "build_estimate": 724582918227.1127,
         "label": "irs_soi.ty2023.table_1_2.all_returns.all.total_itemized_deductions_amount@2024",
         "metric_id": "target:irs_soi.ty2023.table_1_2.all_returns.all.total_itemized_deductions_amount@2024",
-        "newly_read_inputs_effect": 2341524932.1151123,
-        "other_engine_changes_effect": -833362092.4967041,
+        "newly_read_inputs_effect": 2341524947.7148438,
+        "other_engine_changes_effect": -887484280.4849854,
         "requirement_id": "itemized_deduction_amount",
         "source": "irs_soi ty2023 table_1_2",
         "target": 751096520902.8955,
-        "tested": 722052900716.4214,
-        "tested_error": -0.03866829279352898,
+        "tested": 721998778544.0328,
+        "tested_error": -0.03874035033990596,
         "tested_within": true,
         "tolerance": 0.15,
         "unit": "usd"
@@ -357,13 +357,13 @@
         "build_estimate": 724582918227.1127,
         "label": "irs_soi.ty2023.table_2_1.itemized_all_returns.all.total_itemized_deductions_amount@2024",
         "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.total_itemized_deductions_amount@2024",
-        "newly_read_inputs_effect": 2341524932.1151123,
-        "other_engine_changes_effect": -833362092.4967041,
+        "newly_read_inputs_effect": 2341524947.7148438,
+        "other_engine_changes_effect": -887484280.4849854,
         "requirement_id": "itemized_deduction_amount",
         "source": "irs_soi ty2023 table_2_1",
         "target": 751096520902.8955,
-        "tested": 722052900716.4214,
-        "tested_error": -0.03866829279352898,
+        "tested": 721998778544.0328,
+        "tested_error": -0.03874035033990596,
         "tested_within": true,
         "tolerance": 0.15,
         "unit": "usd"
@@ -376,13 +376,13 @@
         "build_estimate": 132351672436.18303,
         "label": "irs_soi.ty2022.historic_table_2.us.all.limited_state_local_taxes_amount@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.limited_state_local_taxes_amount@2024",
-        "newly_read_inputs_effect": 209449388.56289673,
-        "other_engine_changes_effect": -121053489.13452148,
+        "newly_read_inputs_effect": 209449404.16233826,
+        "other_engine_changes_effect": -154947188.62060547,
         "requirement_id": "salt_deduction_amount",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 137379203044.0616,
-        "tested": 131802838997.04749,
-        "tested_error": -0.04059103505809106,
+        "tested": 131768945313.16084,
+        "tested_error": -0.040837751323258,
         "tested_within": true,
         "tolerance": 0.1,
         "unit": "usd"
@@ -395,13 +395,13 @@
         "build_estimate": 132351672436.18303,
         "label": "irs_soi.ty2023.table_2_1.itemized_all_returns.all.limited_state_local_taxes_amount@2024",
         "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.limited_state_local_taxes_amount@2024",
-        "newly_read_inputs_effect": 209449388.56289673,
-        "other_engine_changes_effect": -121053489.13452148,
+        "newly_read_inputs_effect": 209449404.16233826,
+        "other_engine_changes_effect": -154947188.62060547,
         "requirement_id": "salt_deduction_amount",
         "source": "irs_soi ty2023 table_2_1",
         "target": 131608046105.74428,
-        "tested": 131802838997.04749,
-        "tested_error": 0.00148009864949059,
+        "tested": 131768945313.16084,
+        "tested_error": 0.0012225636059309461,
         "tested_within": true,
         "tolerance": 0.1,
         "unit": "usd"
@@ -415,12 +415,12 @@
         "label": "irs_soi.ty2022.historic_table_2.us.all.medical_dental_expense_amount@2024",
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.medical_dental_expense_amount@2024",
         "newly_read_inputs_effect": 1835888112.6534576,
-        "other_engine_changes_effect": -1478171018.8248749,
+        "other_engine_changes_effect": -1478171129.6792297,
         "requirement_id": "medical_expense_deduction_amount",
         "source": "irs_soi ty2022 historic_table_2",
         "target": 89891939590.30547,
-        "tested": 99110919175.02855,
-        "tested_error": 0.10255624282599547,
+        "tested": 99110919064.1742,
+        "tested_error": 0.10255624159279976,
         "tested_within": true,
         "tolerance": 0.25,
         "unit": "usd"
@@ -433,13 +433,13 @@
         "build_estimate": 186302198766.89908,
         "label": "irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_amount@2024",
         "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_amount@2024",
-        "newly_read_inputs_effect": 77248148.81021118,
-        "other_engine_changes_effect": 596368528.3940735,
+        "newly_read_inputs_effect": 77248148.81015015,
+        "other_engine_changes_effect": 578709894.726593,
         "requirement_id": "home_mortgage_interest_amount",
         "source": "irs_soi ty2023 table_2_1",
         "target": 186310104604.25217,
-        "tested": 184338498738.63974,
-        "tested_error": -0.010582388270353795,
+        "tested": 184320840104.9722,
+        "tested_error": -0.010677169139620392,
         "tested_within": true,
         "tolerance": 0.2,
         "unit": "usd"
@@ -453,12 +453,12 @@
         "label": "irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_returns@2024",
         "metric_id": "target:irs_soi.ty2023.table_2_1.itemized_all_returns.all.home_mortgage_interest_returns@2024",
         "newly_read_inputs_effect": 10736.688106328249,
-        "other_engine_changes_effect": 38960.60951506905,
+        "other_engine_changes_effect": 36617.49037428014,
         "requirement_id": "home_mortgage_interest_returns",
         "source": "irs_soi ty2023 table_2_1",
         "target": 11644348.0,
-        "tested": 11619824.14451804,
-        "tested_error": -0.0021060737348248164,
+        "tested": 11617481.025377251,
+        "tested_error": -0.00230729746506621,
         "tested_within": true,
         "tolerance": 0.15,
         "unit": "count"
@@ -473,7 +473,7 @@
       "rows_with_a_tolerance": 21,
       "same_under_both": 1,
       "smallest_tested_margin": {
-        "margin": 0.029171148826423503,
+        "margin": 0.02917012780153516,
         "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_amount@2024"
       },
       "tested_outside": [],
@@ -503,22 +503,22 @@
   "headline": [
     {
       "baseline": 2262598220378.4546,
-      "difference": 41222547277.55762,
+      "difference": 41224955593.87598,
       "label": "federal income tax, net of refundable credits",
       "metric_id": "income_tax_net",
-      "newly_read_inputs_effect": -1458937493.3515625,
-      "relative_difference": 0.018219119464640304,
-      "tested": 2303820767656.012,
+      "newly_read_inputs_effect": -1458937491.1347656,
+      "relative_difference": 0.018220183867633584,
+      "tested": 2303823175972.3306,
       "unit": "usd"
     },
     {
       "baseline": 147539081163.67752,
-      "difference": 1121041401.613556,
+      "difference": 1121041401.6135254,
       "label": "Child Tax Credit, total",
       "metric_id": "ctc_total",
-      "newly_read_inputs_effect": 1051165920.8918762,
-      "relative_difference": 0.007598267474432014,
-      "tested": 148660122565.29108,
+      "newly_read_inputs_effect": 1051165920.8918457,
+      "relative_difference": 0.007598267474431807,
+      "tested": 148660122565.29105,
       "unit": "usd"
     },
     {
@@ -543,22 +543,22 @@
     },
     {
       "baseline": 101948659046.78394,
-      "difference": -2410413360.475876,
+      "difference": -2593561352.437317,
       "label": "SNAP benefits",
       "metric_id": "snap_total",
-      "newly_read_inputs_effect": -848012.1117553711,
-      "relative_difference": -0.023643404268512688,
-      "tested": 99538245686.30806,
+      "newly_read_inputs_effect": -848012.1117858887,
+      "relative_difference": -0.025439877058580432,
+      "tested": 99355097694.34662,
       "unit": "usd"
     },
     {
       "baseline": 23408655.29112474,
-      "difference": 170954.2138335742,
+      "difference": 140097.9319819808,
       "label": "SPM units receiving SNAP",
       "metric_id": "snap_units",
       "newly_read_inputs_effect": 0.0,
-      "relative_difference": 0.007303034356629214,
-      "tested": 23579609.504958313,
+      "relative_difference": 0.00598487739853635,
+      "tested": 23548753.22310672,
       "unit": "count"
     },
     {
@@ -573,32 +573,32 @@
     },
     {
       "baseline": 72205082.46722043,
-      "difference": -689513.2661566585,
+      "difference": -1237867.750379786,
       "label": "people enrolled in Medicaid",
       "metric_id": "medicaid_enrollment",
-      "newly_read_inputs_effect": 9351.250728294253,
-      "relative_difference": -0.009549373016361874,
-      "tested": 71515569.20106377,
+      "newly_read_inputs_effect": 18108.613369196653,
+      "relative_difference": -0.017143775868433523,
+      "tested": 70967214.71684064,
       "unit": "count"
     },
     {
       "baseline": 880018891104.8517,
-      "difference": -11768.247802734375,
+      "difference": 38668403193.0,
       "label": "Medicaid benefit value",
       "metric_id": "medicaid_total",
-      "newly_read_inputs_effect": 5706.6331787109375,
-      "relative_difference": -1.3372721792323687e-08,
-      "tested": 880018879336.6039,
+      "newly_read_inputs_effect": 452.1092529296875,
+      "relative_difference": 0.04394042398845819,
+      "tested": 918687294297.8517,
       "unit": "usd"
     },
     {
       "baseline": 536193092986.17456,
-      "difference": -21184989456.366577,
+      "difference": -21251326131.27063,
       "label": "state income tax",
       "metric_id": "state_income_tax_total",
-      "newly_read_inputs_effect": -576193592.614685,
-      "relative_difference": -0.03951000065738038,
-      "tested": 515008103529.808,
+      "newly_read_inputs_effect": -570476874.2357178,
+      "relative_difference": -0.03963371854142587,
+      "tested": 514941766854.90393,
       "unit": "usd"
     },
     {
@@ -633,23 +633,23 @@
     },
     {
       "baseline": 16683143554555.41,
-      "difference": 112195125413.86719,
+      "difference": 112195125413.86914,
       "label": "adjusted gross income",
       "metric_id": "adjusted_gross_income_total",
-      "newly_read_inputs_effect": -35840430579.95703,
-      "relative_difference": 0.006725059042199021,
-      "tested": 16795338679969.277,
+      "newly_read_inputs_effect": -35840430579.95508,
+      "relative_difference": 0.0067250590421991385,
+      "tested": 16795338679969.28,
       "unit": "usd"
     }
   ],
   "households": 57240,
   "inputs": {
     "code_sha256": {
-      ".github/workflows/score.yml": "df7fefe59c4bcb95155ac1a874205a48691fc8395a26fc54220eef2fdf5d2b3a",
+      ".github/workflows/score.yml": "e07d0aae702754a01a49c259189313e33cf92dd25fac38c71cf20ffd42e21001",
       "envs/score.constraints.txt": "ee06574b35b095b5f35073cbbd4939537320244fbf3888c1b200c1e4290e2181",
-      "scripts/critical_targets.py": "088c6a89d738f7b6d16ab2d9e01fe97f7882b8d9cadbce7bf5b9b06c155828e1",
+      "scripts/critical_targets.py": "218777014249ecfaebd33856e2aa9ea6ec192e7bf60c930b21beceec4c57d139",
       "scripts/fetch_wheels.py": "222b0b7e0cc8d5a8876ec6d04eeaf0b0a6ed77fe448e49b1064f3abc15cc6fe3",
-      "scripts/prepare_scoring.py": "6791de32ee7c969243ce9a90c93caee3c4d30851f74a8f4f6f443c5d07bb9d36",
+      "scripts/prepare_scoring.py": "5a1cc059feba71d2e387be1e587bb4e73f2cf878dbc48e00dd84a3c20063e07d",
       "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
     },
     "dataset": {
@@ -685,11 +685,11 @@
     },
     "run": {
       "github_event_name": "pull_request",
-      "github_ref": "refs/pull/2/merge",
+      "github_ref": "refs/pull/5/merge",
       "github_repository": "PolicyEngine/us-model-version-drift",
       "github_run_attempt": "1",
-      "github_run_id": "45207756243",
-      "github_sha": "025a9b85e8ef130e4a925e5541bc00298cfeb71a"
+      "github_run_id": "45806827463",
+      "github_sha": "7d38d4b398cd9ed8fd846f04cd5fd52dabffa33e"
     }
   },
   "microcosm_commit": "85d513bb550f49e3d934ade81350841b1b64cab1",
@@ -700,9 +700,9 @@
     "headline": {
       "ctc_total": {
         "baseline": 147539081163.67752,
-        "newly_read_inputs_effect": 1051165920.8918762,
-        "relative_difference": 0.007598267474432014,
-        "tested": 148660122565.29108
+        "newly_read_inputs_effect": 1051165920.8918457,
+        "relative_difference": 0.007598267474431807,
+        "tested": 148660122565.29105
       },
       "eitc_total": {
         "baseline": 66612638093.138626,
@@ -712,21 +712,21 @@
       },
       "income_tax_net": {
         "baseline": 2262598220378.4546,
-        "newly_read_inputs_effect": -1458937493.3515625,
-        "relative_difference": 0.018219119464640304,
-        "tested": 2303820767656.012
+        "newly_read_inputs_effect": -1458937491.1347656,
+        "relative_difference": 0.018220183867633584,
+        "tested": 2303823175972.3306
       },
       "medicaid_enrollment": {
         "baseline": 72205082.46722043,
-        "newly_read_inputs_effect": 9351.250728294253,
-        "relative_difference": -0.009549373016361874,
-        "tested": 71515569.20106377
+        "newly_read_inputs_effect": 18108.613369196653,
+        "relative_difference": -0.017143775868433523,
+        "tested": 70967214.71684064
       },
       "medicaid_total": {
         "baseline": 880018891104.8517,
-        "newly_read_inputs_effect": 5706.6331787109375,
-        "relative_difference": -1.3372721792323687e-08,
-        "tested": 880018879336.6039
+        "newly_read_inputs_effect": 452.1092529296875,
+        "relative_difference": 0.04394042398845819,
+        "tested": 918687294297.8517
       },
       "medicare_part_b_irmaa_total": {
         "baseline": 0.0,
@@ -742,9 +742,9 @@
       },
       "snap_total": {
         "baseline": 101948659046.78394,
-        "newly_read_inputs_effect": -848012.1117553711,
-        "relative_difference": -0.023643404268512688,
-        "tested": 99538245686.30806
+        "newly_read_inputs_effect": -848012.1117858887,
+        "relative_difference": -0.025439877058580432,
+        "tested": 99355097694.34662
       },
       "social_security_total": {
         "baseline": 1464840944351.0034,
@@ -755,7 +755,7 @@
     },
     "largest_exact_critical_move": {
       "metric_id": "target:irs_soi.ty2022.historic_table_2.us.all.income_tax_liability_amount@2024",
-      "relative_difference": 0.017510360624549703,
+      "relative_difference": 0.017511378330310225,
       "requirement_id": "federal_income_tax_amount"
     }
   },
@@ -885,13 +885,13 @@
         "build_estimate": 485127965393.28516,
         "label": "irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024",
         "metric_id": "target:irs_soi.ty2023.table_1_4.all.taxable_ira_distributions_amount@2024",
-        "newly_read_inputs_effect": 6.103515625e-05,
+        "newly_read_inputs_effect": 0.0,
         "other_engine_changes_effect": -6.103515625e-05,
         "requirement_id": "soi_table_1_4_national_dollar_rows",
         "source": "irs_soi ty2023 table_1_4",
         "target": 476360339775.7405,
-        "tested": 485127965393.2851,
-        "tested_error": 0.018405448324418053,
+        "tested": 485127965393.28503,
+        "tested_error": 0.018405448324417924,
         "tested_within": true,
         "tolerance": 0.25,
         "unit": "usd"
@@ -1045,8 +1045,8 @@
   },
   "tested": {
     "versions": {
-      "policyengine-core": "3.36.1",
-      "policyengine-us": "2.144.4",
+      "policyengine-core": "3.37.2",
+      "policyengine-us": "2.154.0",
       "spm-calculator": "1.1.0"
     }
   },
