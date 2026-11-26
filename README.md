@@ -163,11 +163,13 @@ python scripts/compare.py results/pinned results/head --out results
 
 ## Score again
 
-The `Score` workflow runs Microcosm's scorer three times on GitHub-hosted runners: each release as stored, and 2.144.4 without the stored column it newly reads. It takes about 15 minutes. It starts on a pull request whenever the scoring code no longer matches the committed scores, and by hand:
+The `Score` workflow runs Microcosm's scorer on GitHub-hosted runners: each release as stored, and the head release without the stored columns it newly reads. It takes about 15 minutes. It starts on a pull request whenever the scoring code no longer matches the committed scores, and by hand:
 
 ```bash
 gh workflow run score.yml --ref <branch>
 ```
+
+Before any download, each job checks that both committed measurements read the dataset `scripts/prepare_scoring.py` pins (its hash, file and repository, and a revision that names the pinned release folder), and then downloads from that folder. A measurement on another dataset stops the run before it scores anything. The counterfactual job scores only when the head release newly reads a stored column; otherwise it records its environment and inputs and scores nothing. The combining step refuses a counterfactual that would withhold a column the baseline also reads, and refuses an output folder that already exists.
 
 Then replace the files in `results/critical-targets` (keeping `earlier/`) with the run's `results-critical-targets` artifact, and record the run. Recording downloads the run's artifact and fails unless the committed files, at any depth except `earlier/`, are exactly its files. The scores also go stale when the measured releases or dataset change:
 

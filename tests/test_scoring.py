@@ -2,8 +2,15 @@
 
 - Deriving the scorer's diagnostics adds the SPM selection and changes nothing
   else: undoing it gives back the input, for any diagnostics.
-- A row counts as within tolerance exactly when its error's size does not
-  exceed the tolerance, and the tally's counts follow from the rows.
+- Scoring reads the dataset the committed measurement read, from the release
+  folder named for its revision, and refuses to start otherwise.
+- The tables carry Microcosm's verdicts unchanged, whatever the errors, and the
+  tally's counts follow from those verdicts. In the committed tables each
+  verdict says whether the error, recomputed from the target and the estimate,
+  is within the tolerance.
+- The counterfactual withholds only columns the baseline engine does not read,
+  and is needed exactly when the tested engine newly reads one.
+- Scoring writes a new output folder; rendering may rewrite an existing one.
 - The wheels fetched for scoring carry the versions the measured run recorded.
 - The committed tables rebuild byte for byte from the committed ``drift.json``,
   the scores came from the scoring code in this tree, and they used the
@@ -23,6 +30,7 @@ import copy
 import json
 import math
 import sys
+import types
 from pathlib import Path
 
 import pytest
@@ -75,6 +83,62 @@ def test_report_names_the_measured_dataset():
     assert report["filename"] == measured["file"]
 
 
+def measured_environments() -> dict[str, dict]:
+    return {run: json.loads((ROOT / "results" / run / "environment.json").read_text()) for run in ("pinned", "head")}
+
+
+def test_scoring_downloads_from_the_measured_release_folder(capsys):
+    environments = measured_environments()
+    assert prepare_scoring.measured_dataset_failures(environments) == []
+    folder = prepare_scoring.check_measured()
+    assert folder == (
+        f"https://huggingface.co/datasets/{prepare_scoring.REPOSITORY}/resolve/{prepare_scoring.REVISION}/"
+        f"{prepare_scoring.RELEASE_FOLDER}"
+    )
+    assert folder.endswith("/" + environments["pinned"]["dataset"]["revision"])
+    assert prepare_scoring.url("calibration_diagnostics.json") == f"{folder}/calibration_diagnostics.json"
+    assert prepare_scoring.main(["--check-measured"]) == 0
+    assert capsys.readouterr().out == f"folder_url={folder}\n"
+
+
+@pytest.mark.parametrize(
+    "field, value",
+    (
+        ("sha256", "0" * 64),
+        ("revision", "populace-us-2024-spm-20260909"),
+        # The folder ends in "-20260915", not in a part named "20260915".
+        ("revision", "20260915"),
+        ("revision", None),
+        ("repo", "policyengine/populace-uk"),
+        ("file", "populace_us_2025.h5"),
+    ),
+)
+@pytest.mark.parametrize("run", ("pinned", "head"))
+def test_a_measurement_on_another_dataset_stops_scoring(tmp_path, run, field, value):
+    environments = measured_environments()
+    environments[run]["dataset"][field] = value
+    found = prepare_scoring.measured_dataset_failures(environments)
+    assert len(found) == 1 and f"the {run} measurement" in found[0], found
+    for name, environment in environments.items():
+        (tmp_path / "results" / name).mkdir(parents=True)
+        (tmp_path / "results" / name / "environment.json").write_text(json.dumps(environment))
+    with pytest.raises(ValueError, match=f"the {run} measurement"):
+        prepare_scoring.check_measured(tmp_path)
+
+
+def test_the_score_workflow_checks_the_dataset_before_any_download():
+    """Both jobs that download from the release folder check the measured
+    dataset first and take the folder from that check, not from a constant."""
+    workflow = (ROOT / ".github" / "workflows" / "score.yml").read_text()
+    assert "HF_FOLDER" not in workflow and "huggingface.co" not in workflow
+    score, combine = workflow.split("\n  score:\n", 1)[1].split("\n  combine:\n", 1)
+    for job in (score, combine):
+        check = job.index("scripts/prepare_scoring.py --check-measured")
+        downloads = [job.index(step) for step in ("fetch_wheels.py", "download-artifact", "curl ") if step in job]
+        assert downloads and check < min(downloads)
+        assert job.count("${{ steps.dataset.outputs.folder_url }}") == 1
+
+
 @pytest.mark.parametrize("run", ("pinned", "head"))
 def test_wheels_carry_the_measured_versions(run):
     environment = json.loads((ROOT / "results" / run / "environment.json").read_text())
@@ -88,7 +152,10 @@ def test_pins_refuse_an_environment_without_a_version():
         fetch_wheels.pins({"packages": {"policyengine-us": "1", "policyengine-core": "2", "spm-calculator": None}})
 
 
-def drift_row(requirement, target, baseline, tested, tolerance):
+def drift_row(requirement, target, baseline, tested, tolerance, within, build_estimate=None):
+    """One row as Microcosm's ``combine_drift`` writes it. The verdicts
+    (``within``, baseline then tested) are given, not computed from the errors,
+    so a test of how the tables use them cannot pass by copying the relation."""
     row = {
         "metric_id": f"target:{requirement}",
         "label": requirement,
@@ -99,45 +166,67 @@ def drift_row(requirement, target, baseline, tested, tolerance):
         "difference": tested - baseline,
         "relative_difference": None if baseline == 0 else (tested - baseline) / abs(baseline),
         "target": target,
-        "build_estimate": target,
+        "build_estimate": target if build_estimate is None else build_estimate,
     }
     if target:
-        errors = {"baseline": (baseline - target) / abs(target), "tested": (tested - target) / abs(target)}
-        row["target_relative_error"] = errors
+        row["target_relative_error"] = {"baseline": (baseline - target) / abs(target), "tested": (tested - target) / abs(target)}
         row["tolerance"] = tolerance
-        row["within_tolerance"] = {side: abs(error) <= tolerance for side, error in errors.items()}
+        row["within_tolerance"] = dict(zip(("baseline", "tested"), within))
     return row
 
 
 amounts = st.floats(min_value=1.0, max_value=1e12, allow_nan=False)
 tolerances = st.sampled_from([0.05, 0.10, 0.15, 0.20, 0.25])
+verdicts = st.tuples(st.booleans(), st.booleans())
 
 
-@given(st.lists(st.tuples(amounts, amounts, amounts, tolerances), min_size=1, max_size=8))
-def test_tally_follows_from_the_rows(values):
+@given(st.lists(st.tuples(amounts, amounts, amounts, amounts, tolerances, verdicts), min_size=1, max_size=8))
+def test_tally_follows_from_the_verdicts(values):
+    """The verdicts are drawn apart from the errors, so they often disagree:
+    the tables must carry Microcosm's verdicts, not recompute them, and the
+    tally must count those verdicts. The renderer's own arithmetic (the build
+    estimate's error and the smallest margin) is checked against values the
+    test recomputes from the target, estimates and tolerance."""
     drift = {
-        "rows": [drift_row(f"r{i}", t, b, x, tol) for i, (t, b, x, tol) in enumerate(values)]
+        "rows": [drift_row(f"r{i}", t, b, x, tol, within, built) for i, (t, b, x, built, tol, within) in enumerate(values)]
         + [{"metric_id": "snap_total", "label": "SNAP", "unit": "usd", "requirement_id": None, "baseline": 1.0, "tested": 2.0}]
     }
     rows = critical_targets.requirement_rows(drift)
     assert len(rows) == len(values)
-    for row in rows:
-        assert row["baseline_within"] == (abs(row["baseline_error"]) <= row["tolerance"])
-        assert row["tested_within"] == (abs(row["tested_error"]) <= row["tolerance"])
-        assert row["build_error"] == 0
+    for row, (target, _, _, built, _, within) in zip(rows, values):
+        assert (row["baseline_within"], row["tested_within"]) == within
+        assert row["build_error"] == (built - target) / abs(target)
     tally = critical_targets.tally(rows)
+    ids = [f"target:r{i}" for i in range(len(values))]
+    drawn = {side: {id_: value[5][index] for id_, value in zip(ids, values)} for index, side in enumerate(("baseline", "tested"))}
     assert tally["rows"] == tally["rows_with_a_tolerance"] == len(values)
     for side in ("baseline", "tested"):
-        assert tally[f"{side}_within"] + len(tally[f"{side}_outside"]) == len(values)
-    assert set(tally["leaving_tolerance"]) <= set(tally["tested_outside"])
-    assert set(tally["entering_tolerance"]) <= set(tally["baseline_outside"])
-    assert not set(tally["leaving_tolerance"]) & set(tally["entering_tolerance"])
+        assert tally[f"{side}_within"] == sum(drawn[side].values())
+        assert tally[f"{side}_outside"] == sorted(id_ for id_ in ids if not drawn[side][id_])
+    assert tally["leaving_tolerance"] == sorted(id_ for id_ in ids if drawn["baseline"][id_] and not drawn["tested"][id_])
+    assert tally["entering_tolerance"] == sorted(id_ for id_ in ids if not drawn["baseline"][id_] and drawn["tested"][id_])
+    margins = [tol - abs((x - t) / abs(t)) for t, _, x, _, tol, _ in values]
+    assert tally["smallest_tested_margin"]["margin"] == min(margins)
     assert len(critical_targets.headline_rows(drift)) == 1
+
+
+def test_committed_verdicts_follow_from_target_estimate_and_tolerance():
+    """Microcosm's verdicts in the committed tables, recomputed here: a row is
+    within tolerance exactly when its estimate's relative error against the
+    target does not exceed the tolerance in size."""
+    result = json.loads((SCORED / "critical_targets.json").read_text())
+    rows = [row for part in ("exact", "table_1_4") for row in result[part]["rows"] if row["tolerance"] is not None]
+    assert len(rows) == 30
+    for row in rows:
+        for side in ("baseline", "tested"):
+            error = (row[side] - row["target"]) / abs(row["target"])
+            assert row[f"{side}_error"] == error, (row["metric_id"], side)
+            assert row[f"{side}_within"] is (abs(error) <= row["tolerance"]), (row["metric_id"], side)
 
 
 def test_known_tolerance_edges():
     rows = critical_targets.requirement_rows(
-        {"rows": [drift_row("a", 100.0, 105.0, 106.0, 0.05), drift_row("b", 100.0, 80.0, 90.0, 0.15)]}
+        {"rows": [drift_row("a", 100.0, 105.0, 106.0, 0.05, (True, False)), drift_row("b", 100.0, 80.0, 90.0, 0.15, (False, True))]}
     )
     tally = critical_targets.tally(rows)
     assert tally["leaving_tolerance"] == ["target:a"]
@@ -145,9 +234,142 @@ def test_known_tolerance_edges():
     assert tally["baseline_within"] == 1 and tally["tested_within"] == 1
 
 
-def test_newly_read_columns_come_from_the_tested_score():
-    tested = {"engine": {"column_changes": {"read": [{"column": "b"}, {"column": "a"}], "ignored": []}}}
-    assert critical_targets.newly_read_columns(tested) == ["a", "b"]
+def reading(*columns):
+    """A score document's engine, reading these stored columns."""
+    return {"engine": {"column_changes": {"read": [{"column": c, "tables": ["person"]} for c in columns], "ignored": []}}}
+
+
+def test_newly_read_columns_when_the_baseline_reads_none():
+    """Today's pair: the baseline reads no register column."""
+    assert critical_targets.newly_read_columns(reading("b", "a"), reading()) == ["a", "b"]
+
+
+def test_a_column_the_baseline_also_reads_is_refused():
+    """Microcosm's counterfactual would withhold it from the tested engine too,
+    and label its effect as the newly read columns' effect."""
+    with pytest.raises(SystemExit, match="already reads \\['a'\\]"):
+        critical_targets.newly_read_columns(reading("a", "b"), reading("a"))
+
+
+def test_an_engine_that_newly_reads_nothing_needs_no_counterfactual():
+    assert critical_targets.newly_read_columns(reading(), reading()) == []
+    # A column only the baseline reads is not one the tested engine newly reads.
+    assert critical_targets.newly_read_columns(reading(), reading("a")) == []
+
+
+def test_the_committed_counterfactual_withheld_what_the_tested_engine_newly_reads():
+    drift = json.loads((SCORED / "drift.json").read_text())
+    scores = drift["scores"]
+    newly_read = critical_targets.newly_read_columns(scores["tested"], scores["baseline"])
+    assert newly_read == drift["newly_read_columns"] == scores["counterfactual"]["variant"]["withheld_columns"]
+    assert newly_read == ["tax_unit_role_input"]
+
+
+def fake_microcosm(monkeypatch, read_columns):
+    """Stand-ins for the Microcosm modules the counting mode imports, which
+    record what it passes them."""
+    calls = {}
+    recert = types.ModuleType("microcosm.data.compatibility_recertification")
+    stored_inputs = types.ModuleType("microcosm.data.stored_inputs")
+    stored_inputs.US_STORED_NON_VARIABLE_COLUMNS = {"tax_unit_role_input": "reason"}
+    def h5_stored_tables(path):
+        calls["h5"] = path
+        return {"person": ("tax_unit_role_input",)}
+
+    def installed_us_engine():
+        print("loading the engine")
+        return types.SimpleNamespace(label="policyengine-us 9", variables=frozenset({"tax_unit_role_input"}))
+
+    def stored_column_changes(tables, *, engine_variables, stored_input_register):
+        calls["changes"] = (tables, engine_variables, stored_input_register)
+        return {"ignored": [], "read": [{"column": c, "tables": ["person"]} for c in read_columns]}
+
+    def combine_drift(**_):
+        raise AssertionError("the refusals come before Microcosm combines anything")
+
+    stored_inputs.h5_stored_tables = h5_stored_tables
+    stored_inputs.installed_us_engine = installed_us_engine
+    recert.stored_column_changes = stored_column_changes
+    recert.combine_drift = combine_drift
+    requirements = types.ModuleType("microcosm.data.us_critical_targets")
+    requirements.US_EXACT_CRITICAL_TARGET_FIT_REQUIREMENTS = ()
+    data = types.ModuleType("microcosm.data")
+    data.compatibility_recertification, data.stored_inputs, data.us_critical_targets = recert, stored_inputs, requirements
+    package = types.ModuleType("microcosm")
+    package.data = data
+    for module in (package, data, recert, stored_inputs, requirements):
+        monkeypatch.setitem(sys.modules, module.__name__, module)
+    return calls
+
+
+@pytest.mark.parametrize("columns", ([], ["tax_unit_role_input"], ["b", "a"]))
+def test_the_count_mode_prints_one_output_line(monkeypatch, capsys, columns):
+    """The Score workflow appends the mode's standard output to
+    $GITHUB_OUTPUT: one ``newly_read=<n>`` line, with what the engine prints
+    sent to standard error."""
+    calls = fake_microcosm(monkeypatch, columns)
+    assert critical_targets.main(["--count-newly-read", "data.h5"]) == 0
+    printed = capsys.readouterr()
+    assert printed.out == f"newly_read={len(columns)}\n"
+    assert "loading the engine" in printed.err
+    tables, variables, register = calls["changes"]
+    assert calls["h5"] == Path("data.h5") and tables == {"person": ("tax_unit_role_input",)}
+    assert variables == frozenset({"tax_unit_role_input"}) and register == {"tax_unit_role_input": "reason"}
+
+
+@pytest.mark.parametrize(
+    "tested, baseline, counterfactual, refusal",
+    (
+        ((), (), True, "nothing to withhold"),
+        (("a",), (), False, "pass its counterfactual"),
+        (("a",), ("a",), True, "already reads"),
+    ),
+)
+def test_combining_refuses_a_counterfactual_that_does_not_fit(monkeypatch, tmp_path, tested, baseline, counterfactual, refusal):
+    """The Score workflow passes the counterfactual whenever its job scored.
+    Combining needs one exactly when the tested engine newly reads a column
+    the baseline does not."""
+    fake_microcosm(monkeypatch, [])
+    (tmp_path / "diagnostics.json").write_text("{}")
+    sha256 = prepare_scoring.sha256_of(tmp_path / "diagnostics.json")
+    files = {
+        "baseline": reading(*baseline),
+        "tested": reading(*tested),
+        "inputs": {"derived_diagnostics": {"sha256": sha256}},
+        "counterfactual": reading(*tested),
+    }
+    for name, document in files.items():
+        (tmp_path / f"{name}.json").write_text(json.dumps(document))
+    argv = [f"--{name}={tmp_path / f'{name}.json'}" for name in ("baseline", "tested", "inputs", "diagnostics")]
+    if counterfactual:
+        argv.append(f"--counterfactual={tmp_path / 'counterfactual.json'}")
+    with pytest.raises(SystemExit, match=refusal):
+        critical_targets.main([*argv, f"--out={tmp_path / 'out'}"])
+    assert not (tmp_path / "out").exists()
+
+
+def test_scoring_refuses_an_existing_output_folder(tmp_path):
+    critical_targets.refuse_existing(tmp_path / "new")
+    (tmp_path / "file").write_text("")
+    (tmp_path / "dangling").symlink_to(tmp_path / "nowhere")
+    for existing in (tmp_path, tmp_path / "file", tmp_path / "dangling"):
+        with pytest.raises(SystemExit, match="exists"):
+            critical_targets.refuse_existing(existing)
+    # The refusal comes before Microcosm is imported or any input is read.
+    argv = ["--baseline", "b.json", "--tested", "t.json", "--diagnostics", "d.json", "--inputs", "i.json"]
+    with pytest.raises(SystemExit, match="exists"):
+        critical_targets.main([*argv, "--out", str(tmp_path)])
+
+
+def test_rendering_rewrites_an_existing_folder(tmp_path):
+    """The README renders the committed tables into their own folder."""
+    for name in ("drift.json", "critical_targets.json"):
+        (tmp_path / name).write_bytes((SCORED / name).read_bytes())
+    (tmp_path / "other.txt").write_text("kept")
+    assert critical_targets.main(["--render", str(tmp_path), "--out", str(tmp_path)]) == 0
+    for name in ("drift.json", "critical_targets.json", "critical_targets.csv", "critical_targets.md"):
+        assert (tmp_path / name).read_bytes() == (SCORED / name).read_bytes(), name
+    assert (tmp_path / "other.txt").read_text() == "kept"
 
 
 def score_document(version):
@@ -174,9 +396,9 @@ def test_result_and_markdown_render_from_a_drift_document():
         "newly_read_columns": ["tax_unit_role_input"],
         "unscored_critical_rows": [],
         "rows": [
-            drift_row("eitc_amount", 100.0, 105.0, 120.0, 0.15),
-            drift_row("ctc_amount", 200.0, 190.0, 195.0, 0.15),
-            drift_row(critical_targets.TABLE_1_4, 50.0, 80.0, 51.0, 0.25),
+            drift_row("eitc_amount", 100.0, 105.0, 120.0, 0.15, (True, False)),
+            drift_row("ctc_amount", 200.0, 190.0, 195.0, 0.15, (True, True)),
+            drift_row(critical_targets.TABLE_1_4, 50.0, 80.0, 51.0, 0.25, (False, True)),
             {
                 "metric_id": "snap_total",
                 "label": "SNAP benefits",
@@ -201,7 +423,38 @@ def test_result_and_markdown_render_from_a_drift_document():
     assert "| eitc_amount |" in text and "OUT" in text and "missing_one" in text
     assert "policyengine-us 2.0.0" in text and "SNAP benefits" in text
     assert "`build-x`, made with policyengine-us 0.9.0" in text
+    assert "eitc_amount (`eitc_amount`), 5.0 percentage points outside its tolerance." in text
     json.dumps(result)
+
+
+@pytest.mark.parametrize(
+    "tested, within, sentence",
+    (
+        (102.0, True, "3.0 percentage points inside its tolerance."),
+        # An error exactly at the tolerance is within it.
+        (105.0, True, "0.0 percentage points inside its tolerance."),
+        # An 8% error against ±5%: 3 points outside, not "-3.0 points inside".
+        (108.0, False, "3.0 percentage points outside its tolerance."),
+        (92.0, False, "3.0 percentage points outside its tolerance."),
+    ),
+)
+def test_the_smallest_margin_says_which_side_of_the_tolerance_it_is(tested, within, sentence):
+    drift = {
+        "dataset_sha256": "ab" * 32,
+        "newly_read_columns": [],
+        "unscored_critical_rows": [],
+        "rows": [
+            drift_row("eitc_amount", 100.0, 100.0, tested, 0.05, (True, within)),
+            drift_row(critical_targets.TABLE_1_4, 50.0, 50.0, 50.0, 0.25, (True, True)),
+        ],
+        "scores": {"baseline": score_document("1.0.0"), "tested": score_document("2.0.0")},
+    }
+    inputs = {"dataset": {}, "estimates_from": {"build_id": "b", "policyengine-us": "1", "policyengine-core": "2"}}
+    result = critical_targets.build_result(drift, {}, inputs, ["eitc_amount"])
+    assert (result["exact"]["tally"]["smallest_tested_margin"]["margin"] >= 0) is within
+    text = critical_targets.markdown(result)
+    assert f"Smallest margin under the tested release: eitc_amount (`eitc_amount`), {sentence}" in text
+    assert "-" not in text.split("Smallest margin", 1)[1].split("\n", 1)[0]
 
 
 def test_source_is_the_first_three_name_parts():

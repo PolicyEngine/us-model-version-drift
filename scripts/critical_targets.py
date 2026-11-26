@@ -10,15 +10,23 @@ The baseline here is the release the ``policyengine`` bundle pins. Microcosm's
 function calls its baseline "the parent's built-with engine" and checks that
 the baseline scores ran it; this script passes the baseline run's own
 versions for that check, which is the only use the function makes of them.
+
+Scoring refuses an ``--out`` that exists, so the folder the workflow uploads
+holds only what this run wrote; ``--render`` rebuilds the tables in place.
+``--count-newly-read`` tells the Score workflow whether the tested engine
+newly reads a stored column, and so whether its counterfactual job has
+anything to withhold; Microcosm's scorer refuses that variant when it has not.
 """
 
 from __future__ import annotations
 
 import argparse
+import contextlib
 import csv
 import hashlib
 import json
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -34,9 +42,53 @@ def versions(scores: dict) -> dict[str, str]:
     return {name: package["version"] for name, package in scores["runtime"]["packages"].items()}
 
 
-def newly_read_columns(tested: dict) -> list[str]:
-    """Stored columns the tested engine reads that no engine read before."""
-    return sorted(item["column"] for item in tested["engine"]["column_changes"]["read"])
+def read_columns(scores: dict) -> set[str]:
+    """The stored columns a score document's engine reads although Microcosm's
+    register of stored non-variable columns says engines ignore them."""
+    return {item["column"] for item in scores["engine"]["column_changes"]["read"]}
+
+
+def newly_read_columns(tested: dict, baseline: dict) -> list[str]:
+    """Stored columns the tested engine reads and the baseline engine does not.
+
+    Microcosm's ``column_changes.read`` is relative to its register, not to
+    the baseline, and its ``without_newly_read_inputs`` variant withholds every
+    column in the tested engine's list. A column the baseline reads too would
+    then be withheld, and its effect labelled as the effect of what the tested
+    engine newly reads, so this refuses that case. Otherwise the result is
+    exactly the list the counterfactual withheld, which ``combine_drift`` needs.
+    """
+    tested_reads, baseline_reads = read_columns(tested), read_columns(baseline)
+    shared = sorted(tested_reads & baseline_reads)
+    if shared:
+        raise SystemExit(
+            f"the baseline engine already reads {shared}, which Microcosm's counterfactual withholds from the "
+            "tested engine as newly read; its effect would be mislabelled"
+        )
+    return sorted(tested_reads - baseline_reads)
+
+
+def installed_engine_reads(h5: Path) -> list[str]:
+    """The stored columns of ``h5`` that the installed engine reads although
+    Microcosm's register says engines ignore them: the columns Microcosm's
+    scorer withholds in its ``without_newly_read_inputs`` variant, found the
+    way it finds them."""
+    from microcosm.data import compatibility_recertification as recert
+    from microcosm.data import stored_inputs
+
+    changes = recert.stored_column_changes(
+        stored_inputs.h5_stored_tables(h5),
+        engine_variables=stored_inputs.installed_us_engine().variables,
+        stored_input_register=stored_inputs.US_STORED_NON_VARIABLE_COLUMNS,
+    )
+    return sorted(item["column"] for item in changes["read"])
+
+
+def refuse_existing(out: Path) -> None:
+    """Scoring writes its tables into a new folder, so nothing already there
+    enters the uploaded artifact beside them."""
+    if os.path.lexists(out):
+        raise SystemExit(f"{out} exists; scoring writes its tables into a new folder")
 
 
 def source(name: str) -> str:
@@ -217,9 +269,10 @@ def markdown(result: dict) -> str:
     ]
     if margin is not None:
         closest = next(row for row in exact["rows"] if row["metric_id"] == margin["metric_id"])
+        side = "inside" if margin["margin"] >= 0 else "outside"
         lines += [
             f"Smallest margin under the tested release: {closest['requirement_id']} (`{closest['source']}`), "
-            f"{margin['margin'] * 100:.1f} percentage points inside its tolerance.",
+            f"{abs(margin['margin']) * 100:.1f} percentage points {side} its tolerance.",
             "",
         ]
     unscored = result["unscored_critical_rows"]
@@ -352,22 +405,42 @@ def render(directory: Path, out: Path) -> str:
     return write_outputs(out, drift, result)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--render", type=Path, help="rebuild the tables from the drift.json in this folder")
+    parser.add_argument(
+        "--count-newly-read",
+        type=Path,
+        metavar="H5",
+        help=(
+            "print newly_read=<n>, the number of the H5's stored columns that the installed engine reads although "
+            "Microcosm's register says engines ignore them"
+        ),
+    )
     parser.add_argument("--baseline", type=Path)
     parser.add_argument("--tested", type=Path)
     parser.add_argument("--counterfactual", type=Path, help="the tested engine without its newly read columns")
     parser.add_argument("--diagnostics", type=Path, help="the derived calibration_diagnostics.json")
     parser.add_argument("--inputs", type=Path, help="scoring_inputs.json from a scoring job")
-    parser.add_argument("--out", required=True, type=Path)
-    args = parser.parse_args()
+    parser.add_argument("--out", type=Path, help="the folder to write; scoring refuses one that exists")
+    args = parser.parse_args(argv)
+    if args.count_newly_read is not None:
+        # The workflow appends standard output to $GITHUB_OUTPUT, so anything
+        # the engine prints while it loads goes to standard error instead.
+        with contextlib.redirect_stdout(sys.stderr):
+            columns = installed_engine_reads(args.count_newly_read)
+            print(f"the installed engine reads {names(columns)}")
+        print(f"newly_read={len(columns)}")
+        return 0
+    if args.out is None:
+        parser.error("--render and scoring need --out")
     if args.render is not None:
         print(render(args.render, args.out))
         return 0
     missing = [name for name in ("baseline", "tested", "diagnostics", "inputs") if getattr(args, name) is None]
     if missing:
         parser.error(f"scoring needs --{', --'.join(missing)}")
+    refuse_existing(args.out)
 
     from microcosm.data import compatibility_recertification as recert
     from microcosm.data.us_critical_targets import US_EXACT_CRITICAL_TARGET_FIT_REQUIREMENTS
@@ -379,12 +452,14 @@ def main() -> int:
     diagnostics_sha256 = hashlib.sha256(args.diagnostics.read_bytes()).hexdigest()
     if diagnostics_sha256 != inputs["derived_diagnostics"]["sha256"]:
         raise SystemExit("the derived diagnostics here differ from the ones the scoring jobs read")
-    newly_read = newly_read_columns(tested)
+    newly_read = newly_read_columns(tested, baseline)
     counterfactual = None
     if newly_read:
         if args.counterfactual is None or not args.counterfactual.exists():
             raise SystemExit(f"the tested engine newly reads {newly_read}; pass its counterfactual scores")
         counterfactual = json.loads(args.counterfactual.read_text())
+    elif args.counterfactual is not None:
+        raise SystemExit("the tested engine newly reads no stored column, so a counterfactual has nothing to withhold")
     base_versions = versions(baseline)
     drift = recert.combine_drift(
         calibration_diagnostics=diagnostics,
@@ -403,6 +478,7 @@ def main() -> int:
     )
     exact_ids = [item.requirement_id for item in US_EXACT_CRITICAL_TARGET_FIT_REQUIREMENTS]
     result = build_result(drift, recert.drift_summary(drift), inputs, exact_ids)
+    args.out.mkdir(parents=True)
     print(write_outputs(args.out, drift, result))
     # The combining job's own stamp, beside the three scoring jobs' stamps.
     (args.out / "combine.json").write_text(json.dumps(stamp(), indent=2, sort_keys=True) + "\n")

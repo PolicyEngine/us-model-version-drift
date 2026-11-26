@@ -4,38 +4,38 @@
     "results-head"
   ],
   "checked_out": [
-    "f2e8bc4d89658cb2a6bcb5e329242f8a3e2d23c8"
+    "31a78902ce2016cde7500f72bbc4a34c40b7c951"
   ],
   "code_sha256": {
-    ".github/workflows/measure.yml": "9c65e6a33ef7b957455440e718adcd6bb24215d83398b6d58670db8a8df8f8f0",
-    "envs/head.lock.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
-    "envs/head.txt": "984a9f33eae7154be83c07c0ec181f8023cc8c0e5153b03a95ec5b6212c772a7",
+    ".github/workflows/measure.yml": "6be6c3bf073512eb559832d7a30a0c5bc2956dfeef38580c5d2e6e12a1d38e0f",
+    "envs/head.lock.txt": "d59f0b927f6c54183e3ebb7615f38150b2ebb665747a4065000077e213e951fa",
+    "envs/head.txt": "e1593576a4764b1cb4de671f7380053e51f0c3b8c38911a032a8ca286c6ee364",
     "envs/pinned.lock.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
     "envs/pinned.txt": "4dab09cbeb389d03a3e459d8c8b940c176ff37093509a7dd6cfc6aa0b850b0b7",
-    "scripts/measure.py": "33c630b536efbdf7208ce698c82a3b405b66387204a43afde250266c8d4e27d0",
+    "scripts/measure.py": "00bf238d1d6dde3cdf2793577a60cf4469dc2598ebc1b92f388d11337d606192",
     "scripts/rules.py": "d3678a6c9dc0b6567179fcc2802499941d7bd38d490d680753849007a1112f0c"
   },
-  "completed": "2026-11-21T13:47:14Z",
+  "completed": "2026-11-26T11:00:01Z",
   "event": "pull_request",
   "files": {
-    "results/head/contract.json": "4b4db006b0bb64700291bebb54c71ddb58520dfa1318f9a7cbee8779105544d7",
-    "results/head/environment.json": "f2c6659a146ca39fbbb39dce99d9dcb94f7d755ea5ff40dd8570f266ef9b05d3",
-    "results/head/freeze.txt": "9135b9856ddca8f53c63480487bccf37bd86d50004f59b29b09543f029d180b8",
-    "results/head/panel-2024.json": "270aa8ac19ab6ba840ad4dec9eb42f80677225aa070a8875af8483550e0c74e7",
-    "results/head/panel-2026.json": "f9f098eb6e68cf944879815143a713400185987bb0e67faadab6dad53e151c9b",
-    "results/head/wic-loaded.json": "7d101b41023e99b545e7fcec76cfaf0431a25fe2e1c059c100ff8acfb827066b",
-    "results/head/wic-stored.json": "4db0490b9fa9a79caccddd5766d44b117c32e7d4bcd62685a1ac9b6f64ba4332",
-    "results/pinned/contract.json": "fffe8997d26cbf6eeff029a769af40483c2846d77bb1769da65c31fb8c300dd3",
-    "results/pinned/environment.json": "df41f9bcf719bdd0519ece9cb03a4fd693e3b36c98c71b51d94a81745e61cbbf",
+    "results/head/contract.json": "f41dc5bd771cde471c40dc24c2c5d80a78035e316bf494e1096376ed01b027eb",
+    "results/head/environment.json": "9de08972bf25e4a6db78bdccbd83c051eea9036309765610529e699874f12496",
+    "results/head/freeze.txt": "d59f0b927f6c54183e3ebb7615f38150b2ebb665747a4065000077e213e951fa",
+    "results/head/panel-2024.json": "f976311def4816471b2708d5f56061d49f426519ec4bdc5b05b90f754c5aba1d",
+    "results/head/panel-2026.json": "1bf4e9ba99edac94012e3d4bd8bbdcce29bd6a11c797754fa76a536614936879",
+    "results/head/wic-loaded.json": "91548ec68180fdcb5bdc1665e2f4fac8b002ac0b8980f4b1686fa3b68968f043",
+    "results/head/wic-stored.json": "523b61ff4b03b113e1341cf4b214e33e2f8e2da2e30ff1945873af5beb73a6d4",
+    "results/pinned/contract.json": "b97e4c0b7d9a74fed1f49350e90da1c2ec8a9387d5cc1613c8a52937119b8fd5",
+    "results/pinned/environment.json": "f533690fc60942fe51453fb9c6725d2fd342925c0bc99088881b17436e502bdc",
     "results/pinned/freeze.txt": "f1acb8fe94e666788ce7257747cb3b2a86a1b686712210df430c60b1b52915d3",
-    "results/pinned/panel-2024.json": "f3273c2785dc655c6515a2753383684348cc9a8596a2a31434ead7ad197022e6",
-    "results/pinned/panel-2026.json": "7d3c5837dd4fa0e0db9f2b0adce298a3caaa567102050b4d43e1ee6953ebec5e",
+    "results/pinned/panel-2024.json": "d9af726c73254dd9b7f459d6db6a5ac30c5eb078ee4148042958004d9790f383",
+    "results/pinned/panel-2026.json": "8d09bbb32c2bf4bbc8f32149a21c493068d56f6abeade874dfae44896ada79af",
     "results/pinned/wic-loaded.json": "53729048b07c5f4c5d038124f1d820e245d00ca3cfcb58dd3165390738f73b95",
-    "results/pinned/wic-stored.json": "76dc3451486041e18428bdfc2f1e529bbe19aaa0f0175807f768b4f32c0ca6c0"
+    "results/pinned/wic-stored.json": "865169c42fb3a8938f716987e226a6ca062129c51aba832fb7f585f4aff78db3"
   },
-  "head_sha": "8af9bc5fe0b8bce2972e88b9e44f9943e48538b2",
-  "started": "2026-11-21T13:13:04Z",
-  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/44907751024",
+  "head_sha": "5f7754477b8e0a7cd012481a227cc47d0fb2876c",
+  "started": "2026-11-26T10:23:14Z",
+  "url": "https://github.com/PolicyEngine/us-model-version-drift/actions/runs/45800841504",
   "workflow": "Measure",
-  "workflow_run": 44907751024
+  "workflow_run": 45800841504
 }

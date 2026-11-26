@@ -7,6 +7,9 @@ name: Score
 # (SCORING_CODE in scripts/prepare_scoring.py) no longer matches them, or the
 # committed measurement (results/pinned and results/head) ran other releases
 # or another dataset than they scored. Only then do the scoring jobs run.
+# Each job downloads the dataset only after scripts/prepare_scoring.py has
+# checked that the committed measurement read the dataset it pins; it prints
+# the release folder to download from.
 on:
   workflow_dispatch:
   pull_request:
@@ -22,7 +25,6 @@ concurrency:
 env:
   # PolicyEngine/microcosm main on 2026-11-17: the scorer and the requirements.
   MICROCOSM_SHA: 85d513bb550f49e3d934ade81350841b1b64cab1
-  HF_FOLDER: https://huggingface.co/datasets/policyengine/populace-us/resolve/0ff35303e4e5c10bf1cfb2da8f65c83d7dfa9ab3/releases/microcosm-us-2024-national/populace-us-2024-spm-20260915
 
 jobs:
   stale:
@@ -61,6 +63,12 @@ jobs:
             variant: without_newly_read_inputs
     steps:
       - uses: actions/checkout@v6
+      # Before any download: the dataset must be the one the committed
+      # measurement read.
+      - name: Check the measured dataset
+        id: dataset
+        shell: bash
+        run: python3 scripts/prepare_scoring.py --check-measured | tee -a "$GITHUB_OUTPUT"
       - uses: actions/checkout@v6
         with:
           repository: PolicyEngine/microcosm
@@ -88,11 +96,14 @@ jobs:
       - name: The environment is the constrained one
         run: grep '==' out/freeze.txt | diff envs/score.constraints.txt -
       - name: Download the dataset, its calibration diagnostics and its parent's manifest
+        env:
+          FOLDER: ${{ steps.dataset.outputs.folder_url }}
         run: |
+          test -n "$FOLDER"
           mkdir -p scoring/artifacts downloads
-          curl -sSfL -o scoring/artifacts/populace_us_2024.h5 "$HF_FOLDER/populace_us_2024.h5"
-          curl -sSfL -o downloads/calibration_diagnostics.json "$HF_FOLDER/calibration_diagnostics.json"
-          curl -sSfL -o downloads/parent_release_manifest.json "$HF_FOLDER/parent_release_manifest.json"
+          curl -sSfL -o scoring/artifacts/populace_us_2024.h5 "$FOLDER/populace_us_2024.h5"
+          curl -sSfL -o downloads/calibration_diagnostics.json "$FOLDER/calibration_diagnostics.json"
+          curl -sSfL -o downloads/parent_release_manifest.json "$FOLDER/parent_release_manifest.json"
       - name: Lay out the scorer's inputs
         run: |
           .venv/bin/python -B scripts/prepare_scoring.py \
@@ -101,7 +112,18 @@ jobs:
             --h5 scoring/artifacts/populace_us_2024.h5 \
             --out scoring
           cp scoring/scoring_inputs.json out/
+      # Microcosm's scorer refuses the counterfactual when the tested engine
+      # newly reads no stored column. That job then scores nothing, and still
+      # uploads its environment and inputs.
+      - name: Count the stored columns the tested engine newly reads
+        id: reads
+        if: matrix.variant == 'without_newly_read_inputs'
+        shell: bash
+        run: |
+          .venv/bin/python -B scripts/critical_targets.py \
+            --count-newly-read scoring/artifacts/populace_us_2024.h5 | tee -a "$GITHUB_OUTPUT"
       - name: Score
+        if: matrix.variant == 'as_stored' || steps.reads.outputs.newly_read != '0'
         run: |
           .venv/bin/python microcosm/tools/build_us_compatibility_recertification.py score \
             --release-dir scoring/release \
@@ -122,6 +144,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
+      - name: Check the measured dataset
+        id: dataset
+        shell: bash
+        run: python3 scripts/prepare_scoring.py --check-measured | tee -a "$GITHUB_OUTPUT"
       - uses: actions/checkout@v6
         with:
           repository: PolicyEngine/microcosm
@@ -132,6 +158,7 @@ jobs:
           version: "0.13.4"
       - name: Build the environment
         run: |
+          test ! -e out
           uv venv --python 3.13 .venv
           uv pip install --python .venv/bin/python --no-sources \
             -e microcosm/packages/microcosm-diagnostics \
@@ -142,19 +169,30 @@ jobs:
           pattern: scores-*
           path: downloads
       - name: Lay out the diagnostics the scores read
+        env:
+          FOLDER: ${{ steps.dataset.outputs.folder_url }}
         run: |
-          curl -sSfL -o downloads/calibration_diagnostics.json "$HF_FOLDER/calibration_diagnostics.json"
-          curl -sSfL -o downloads/parent_release_manifest.json "$HF_FOLDER/parent_release_manifest.json"
+          test -n "$FOLDER"
+          curl -sSfL -o downloads/calibration_diagnostics.json "$FOLDER/calibration_diagnostics.json"
+          curl -sSfL -o downloads/parent_release_manifest.json "$FOLDER/parent_release_manifest.json"
           .venv/bin/python -B scripts/prepare_scoring.py \
             --diagnostics downloads/calibration_diagnostics.json \
             --parent-manifest downloads/parent_release_manifest.json \
             --out scoring
+      # The counterfactual job scores only when the tested engine newly reads
+      # a stored column; critical_targets.py refuses a counterfactual that is
+      # missing when it needs one, or present when it does not.
       - name: Combine
+        shell: bash
         run: |
+          counterfactual=()
+          if [ -e downloads/scores-head-without-newly-read/scores.json ]; then
+            counterfactual=(--counterfactual downloads/scores-head-without-newly-read/scores.json)
+          fi
           .venv/bin/python -B scripts/critical_targets.py \
             --baseline downloads/scores-pinned/scores.json \
             --tested downloads/scores-head/scores.json \
-            --counterfactual downloads/scores-head-without-newly-read/scores.json \
+            "${counterfactual[@]}" \
             --diagnostics scoring/release/calibration_diagnostics.json \
             --inputs downloads/scores-pinned/scoring_inputs.json \
             --out out/critical-targets >> "$GITHUB_STEP_SUMMARY"

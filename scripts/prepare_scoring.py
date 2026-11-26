@@ -23,6 +23,13 @@ a copy of the published diagnostics with one value added: the SPM selection
 Microcosm's own scoring of its October 2026 build used, which the
 ``policyengine`` bundle also uses. Nothing else in the diagnostics changes,
 and :func:`restore` proves it.
+
+The release folder is pinned here, with the hashes of the files read from it.
+Before any download, ``--check-measured`` checks that the committed
+measurement (``results/pinned`` and ``results/head``) read the same dataset
+(:func:`measured_dataset_failures`) and prints the folder's URL, which the
+Score workflow downloads from. A measurement on another dataset stops the run
+there, before it scores this folder's file.
 """
 
 from __future__ import annotations
@@ -69,8 +76,50 @@ PARENT_MANIFEST_SHA256 = "dd949ba3c4c7a56aff8442c6db5a031d2c84c3da59f5d14832f468
 SPM_SELECTION = {"geography_kind": "county"}
 
 
+def folder_url() -> str:
+    """The release folder the scoring jobs download from."""
+    return f"https://huggingface.co/datasets/{REPOSITORY}/resolve/{REVISION}/{RELEASE_FOLDER}"
+
+
 def url(filename: str) -> str:
-    return f"https://huggingface.co/datasets/{REPOSITORY}/resolve/{REVISION}/{RELEASE_FOLDER}/{filename}"
+    return f"{folder_url()}/{filename}"
+
+
+def measured_dataset_failures(environments: dict[str, dict]) -> list[str]:
+    """How the datasets the measured runs read differ from the one scored here.
+
+    ``environments`` maps each run's name to its ``environment.json``. Each
+    run must have read this script's file, by hash, from this repository, at
+    the revision tag that names this script's release folder. The tag is the
+    folder's last part, so a measurement on another release refuses scoring
+    here rather than letting the jobs score this folder's file. Empty when
+    every run matches.
+    """
+    found = []
+    for run, environment in sorted(environments.items()):
+        dataset = environment.get("dataset") or {}
+        if dataset.get("sha256") != DATASET_SHA256:
+            found.append(f"the {run} measurement read sha256 {dataset.get('sha256')}, not {DATASET_SHA256}")
+        if dataset.get("file") != DATASET_FILE:
+            found.append(f"the {run} measurement read the file {dataset.get('file')}, not {DATASET_FILE}")
+        if dataset.get("repo") != REPOSITORY:
+            found.append(f"the {run} measurement read the repository {dataset.get('repo')}, not {REPOSITORY}")
+        revision = dataset.get("revision")
+        if not isinstance(revision, str) or not revision or not RELEASE_FOLDER.endswith(f"/{revision}"):
+            found.append(f"the {run} measurement read the revision {revision}, not the release folder {RELEASE_FOLDER}")
+    return found
+
+
+def check_measured(root: Path = ROOT) -> str:
+    """The release folder's URL, once the committed measurement is shown to
+    have read this script's dataset; otherwise ``ValueError``."""
+    environments = {
+        run: json.loads((root / "results" / run / "environment.json").read_text()) for run in ("pinned", "head")
+    }
+    found = measured_dataset_failures(environments)
+    if found:
+        raise ValueError("; ".join(found))
+    return folder_url()
 
 
 def sha256_of(path: Path) -> str:
@@ -139,13 +188,31 @@ def household_count(h5: Path) -> int:
         return int(handle["household"]["table"].shape[0])
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--diagnostics", required=True, type=Path, help="the published calibration_diagnostics.json")
-    parser.add_argument("--parent-manifest", required=True, type=Path, help="the published parent_release_manifest.json")
-    parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument(
+        "--check-measured",
+        action="store_true",
+        help=(
+            "check that results/pinned and results/head read this script's dataset, and print the release "
+            "folder's URL as folder_url=<url>"
+        ),
+    )
+    parser.add_argument("--diagnostics", type=Path, help="the published calibration_diagnostics.json")
+    parser.add_argument("--parent-manifest", type=Path, help="the published parent_release_manifest.json")
+    parser.add_argument("--out", type=Path)
     parser.add_argument("--h5", type=Path, help="the downloaded dataset; checked and counted when given")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    if args.check_measured:
+        try:
+            print(f"folder_url={check_measured()}")
+        except ValueError as exc:
+            raise SystemExit(f"the committed measurement read another dataset than scoring would: {exc}")
+        return 0
+    given = {"--diagnostics": args.diagnostics, "--parent-manifest": args.parent_manifest, "--out": args.out}
+    missing = [flag for flag, value in given.items() if value is None]
+    if missing:
+        parser.error(f"laying out the scorer's inputs needs {', '.join(missing)}")
 
     published_sha256 = sha256_of(args.diagnostics)
     if published_sha256 != PUBLISHED_DIAGNOSTICS_SHA256:
